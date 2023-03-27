@@ -22,7 +22,7 @@ object Uris {
         const val GET_BY_ID = "/user/{id}"
         const val UPDATE = "/user/update"
         const val DELETE = "/user/delete"
-        const val RANKING = "/user/ranking"
+        const val LEADERBOARD = "/user/leaderboard"
 
         fun byId(id: String) = UriTemplate(GET_BY_ID).expand(id)
     }

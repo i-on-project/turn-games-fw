@@ -1,7 +1,12 @@
 package pt.isel.turngamesfw.http.controller
 
 import org.springframework.web.bind.annotation.*
+import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.http.Uris
+import pt.isel.turngamesfw.http.model.LoginInputModel
+import pt.isel.turngamesfw.http.model.RegisterInputModel
+import pt.isel.turngamesfw.http.model.UpdateUserInputModel
+
 @RestController
 class UserController: BaseController() {
     @PostMapping(Uris.User.REGISTER)
@@ -25,7 +30,7 @@ class UserController: BaseController() {
     }
 
     @PutMapping(Uris.User.UPDATE)
-    fun update(user: User){
+    fun update(user: User, @RequestBody input: UpdateUserInputModel){
         TODO()
     }
 
@@ -34,8 +39,8 @@ class UserController: BaseController() {
         TODO()
     }
 
-    @GetMapping(Uris.User.RANKING)
-    fun ranking(){
+    @GetMapping(Uris.User.LEADERBOARD)
+    fun leaderboard(){
         TODO()
     }
 }

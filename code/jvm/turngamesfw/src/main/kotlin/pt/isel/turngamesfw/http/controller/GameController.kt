@@ -5,7 +5,10 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RestController
+import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.http.Uris
+import pt.isel.turngamesfw.http.model.SetupInputModel
+import pt.isel.turngamesfw.http.model.TurnInputModel
 
 @RestController
 class GameController: BaseController() {
