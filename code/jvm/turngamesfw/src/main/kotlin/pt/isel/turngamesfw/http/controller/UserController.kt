@@ -6,9 +6,12 @@ import pt.isel.turngamesfw.http.Uris
 import pt.isel.turngamesfw.http.model.LoginInputModel
 import pt.isel.turngamesfw.http.model.RegisterInputModel
 import pt.isel.turngamesfw.http.model.UpdateUserInputModel
+import pt.isel.turngamesfw.services.UserServices
 
 @RestController
-class UserController {
+class UserController(
+    private val userServices: UserServices
+) {
     @PostMapping(Uris.User.REGISTER)
     fun register(@RequestBody input: RegisterInputModel){
         TODO()
@@ -39,8 +42,4 @@ class UserController {
         TODO()
     }
 
-    @GetMapping(Uris.User.LEADERBOARD)
-    fun leaderboard(){
-        TODO()
-    }
 }
