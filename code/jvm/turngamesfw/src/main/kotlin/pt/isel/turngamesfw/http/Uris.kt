@@ -7,12 +7,13 @@ object Uris {
     const val ABOUT = "/about"
 
     object Game {
-        const val HOME = "/{game}"
-        const val SEARCH = "/{game}/search"
-        const val FOUND = "/{game}/found"
-        const val GET_BY_ID = "/{game}/{id}"
-        const val SETUP = "/{game}/setup"
-        const val DO_TURN = "/{game}/turn"
+        const val GAME_HOME = "/game/{nameGame}"
+
+        const val FIND = "$GAME_HOME/find"
+        const val FOUND = "$GAME_HOME/found"
+        const val GET_BY_ID = "$GAME_HOME/{id}"
+        const val SETUP = "$GAME_HOME/setup"
+        const val DO_TURN = "$GAME_HOME/turn"
     }
 
     object User {

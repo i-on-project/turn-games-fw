@@ -9,37 +9,40 @@ import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.http.Uris
 import pt.isel.turngamesfw.http.model.SetupInputModel
 import pt.isel.turngamesfw.http.model.TurnInputModel
+import pt.isel.turngamesfw.services.GameServices
 
 @RestController
-class GameController {
+class GameController(
+    gameServices: GameServices
+) {
 
-    @GetMapping(Uris.Game.HOME)
-    fun home(user: User, @PathVariable game: String){
+    @GetMapping(Uris.Game.GAME_HOME)
+    fun home(user: User, @PathVariable nameGame: String){
         TODO()
     }
 
-    @PostMapping(Uris.Game.SEARCH)
-    fun search(user: User, @PathVariable game: String){
+    @PostMapping(Uris.Game.FIND)
+    fun findMatch(user: User, @PathVariable nameGame: String){
         TODO()
     }
 
     @GetMapping(Uris.Game.FOUND)
-    fun found(user: User, @PathVariable game: String){
+    fun foundMatch(user: User, @PathVariable nameGame: String){
         TODO()
     }
 
     @GetMapping(Uris.Game.GET_BY_ID)
-    fun getById(user: User, @PathVariable game: String, @PathVariable id: String){
+    fun getMatchById(user: User, @PathVariable nameGame: String, @PathVariable id: String){
         TODO()
     }
 
     @PostMapping(Uris.Game.SETUP)
-    fun setup(user: User, @PathVariable game: String, @RequestBody setup: SetupInputModel){
+    fun setup(user: User, @PathVariable nameGame: String, @RequestBody setup: SetupInputModel){
         TODO()
     }
 
     @PostMapping(Uris.Game.DO_TURN)
-    fun doTurn(user: User, @PathVariable game: String, @RequestBody turn: TurnInputModel){
+    fun doTurn(user: User, @PathVariable nameGame: String, @RequestBody turn: TurnInputModel){
         TODO()
     }
 }
