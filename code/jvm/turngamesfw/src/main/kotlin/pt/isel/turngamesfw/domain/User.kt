@@ -5,16 +5,23 @@ data class User(
     val username: String,
     val passwordValidation: PasswordValidationInfo,
     val status: Status,
-    val rating: Int,
 ) {
     enum class Status {
         OFFLINE,
         ONLINE,
-        SEARCHING,
-        IN_GAME,
     }
 
     data class PasswordValidationInfo(
         val validationInfo: String
     )
+
+    data class Stats (
+        val status: Status,
+        val rating: Int,
+    ) {
+        enum class Status {
+            SEARCHING,
+            IN_GAME,
+        }
+    }
 }

@@ -8,7 +8,7 @@ import pt.isel.turngamesfw.http.model.RegisterInputModel
 import pt.isel.turngamesfw.http.model.UpdateUserInputModel
 
 @RestController
-class UserController: BaseController() {
+class UserController {
     @PostMapping(Uris.User.REGISTER)
     fun register(@RequestBody input: RegisterInputModel){
         TODO()

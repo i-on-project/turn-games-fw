@@ -35,11 +35,12 @@ create table dbo.Matches(
     curr_player int references dbo.Users(id),
     curr_turn int not null default 0,
     deadline_turn TIMESTAMP,
+    created TIMESTAMP default CURRENT_TIMESTAMP,
     info jsonb not null
 );
 
-create table dbo.GamesUsers(
-    game_id UUID primary key references dbo.Games(id),
+create table dbo.MatchesUsers(
+    matches_id UUID primary key references dbo.Matches(id),
     user_id int primary key references dbo.Users(id)
 );
 
