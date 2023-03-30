@@ -9,7 +9,7 @@ create table dbo.Users(
 
 create table dbo.Users_Stats(
     user_id int primary key references dbo.Users(id),
-    game_id int primary key references dbo.Games(id),
+    game_id int primary key references dbo.Games(name),
     state VARCHAR(64) CHECK (state in ('SEARCHING', 'IN_GAME')) default null,
     rating int not null
 );
@@ -22,15 +22,15 @@ create table dbo.Tokens(
 );
 
 create table dbo.Games(
-    id int generated always as identity primary key,
-    name VARCHAR(64) not null,
-    description VARCHAR(255),
-    rules VARCHAR(255)
+    name VARCHAR(32) primary key,
+    nun_players int not null,
+    description VARCHAR(MAX),
+    rules VARCHAR(MAX)
 );
 
 create table dbo.Matches(
     id UUID primary key not null,
-    game_id int references dbo.Games(id),
+    game_id int references dbo.Games(name),
     state VARCHAR(64) not null CHECK (state in ('SETUP', 'ON_GOING', 'END')) default 'SETUP',
     curr_player int references dbo.Users(id),
     curr_turn int not null default 0,
