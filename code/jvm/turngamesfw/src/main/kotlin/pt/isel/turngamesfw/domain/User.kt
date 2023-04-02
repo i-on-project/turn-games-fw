@@ -20,6 +20,7 @@ data class User(
         val rating: Int,
     ) {
         enum class Status {
+            INACTIVE,
             SEARCHING,
             IN_GAME,
         }
