@@ -2,10 +2,12 @@ package pt.isel.turngamesfw.domain
 
 interface GameLogic {
 
-    fun setup(match: Match): Match
+    fun create(users: List<Int>): Match
 
-    fun doTurn(match: Match): Match
+    fun setup(match: Match, infoSetup: Any): Match
 
-    fun isGameOver(match: Match): Boolean
+    fun doTurn(match: Match, infoTurn: Any): Match
+
+    fun isOver(match: Match): Boolean
 
 }

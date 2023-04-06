@@ -36,11 +36,11 @@ class GameServices(
         TODO()
     }
 
-    fun setup(gameName: String, matchId: Int, info: Any): Any {
+    fun setup(gameName: String, matchId: Int, infoSetup: Any): Any {
         TODO()
     }
 
-    fun doTurn(gameName: String, matchId: Int, info: Any): Any {
+    fun doTurn(gameName: String, matchId: Int, infoTurn: Any): Any {
         TODO()
     }
 
