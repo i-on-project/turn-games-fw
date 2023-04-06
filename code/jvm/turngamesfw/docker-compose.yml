@@ -1,0 +1,15 @@
+version: "3.3"
+services:
+  db-tests:
+    container_name: db-tests
+    image: postgres
+    restart: always
+    environment:
+      - POSTGRES_USER=dbuser
+      - POSTGRES_PASSWORD=12345
+      - POSTGRES_DB=dbTurnGamesFW
+    ports:
+      - 5432:5432
+    volumes:
+      - ./sql/create-schema.sql:/docker-entrypoint-initdb.d/1_create.sql
+      - ./scripts/wait-for-postgres.sh:/app/bin/wait-for-postgres.sh
