@@ -5,7 +5,7 @@ import java.time.Instant
 
 interface UserRepository {
 
-    fun createUser(username: String, passwordValidation: User.PasswordValidationInfo): String
+    fun createUser(username: String, passwordValidation: User.PasswordValidationInfo): Int
 
     fun isUserStoredByUsername(username: String): Boolean
 
@@ -13,7 +13,7 @@ interface UserRepository {
 
     fun getUserById(id: Int): User?
 
-    fun createToken(token: String)
+    fun createToken(token: Token, maxTokens: Int)
 
     fun getUserByToken(token: Token): User?
 
@@ -26,7 +26,5 @@ interface UserRepository {
     fun updateStatus(id: Int, status: User.Status)
 
     fun getStatus(id: Int): User.Status?
-
-    fun updateUser(user: User)
 
 }
