@@ -16,10 +16,20 @@ class GameController(
     gameServices: GameServices
 ) {
 
-    @GetMapping(Uris.Game.GAME_HOME)
+    @GetMapping(Uris.Game.HOME)
     fun home(user: User, @PathVariable nameGame: String){
         TODO()
     }
+
+    @GetMapping(Uris.Game.GAME_LEADERBOARD)
+    fun getLeaderboardByName(user: User, gameName: String, limit: Int, page: Int) = getLeaderboard(user, gameName, limit, page)
+    @GetMapping(Uris.Game.LEADERBOARD)
+    fun getLeaderboard(user: User, @PathVariable nameGame: String, limit: Int, page: Int){
+        TODO()
+    }
+
+    @PostMapping(Uris.Game.GAME_FIND)
+    fun findMatchByName(user: User, gameName: String) = findMatch(user, gameName)
 
     @PostMapping(Uris.Game.FIND)
     fun findMatch(user: User, @PathVariable nameGame: String){

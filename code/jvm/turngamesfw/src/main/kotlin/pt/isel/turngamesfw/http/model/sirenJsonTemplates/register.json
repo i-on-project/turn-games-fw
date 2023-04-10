@@ -1,0 +1,34 @@
+{
+  "class": ["register"],
+  "properties": {
+    "username": "",
+    "password": ""
+  },
+  "entities": [],
+  "actions": [
+    {
+      "name": "register",
+      "method": "POST",
+      "href": "/register",
+      "type": "application/json",
+      "fields": [
+        { "name": "username", "type": "text" },
+        { "name": "password", "type": "password" }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "rel": ["self"],
+      "href": "/register"
+    },
+    {
+      "rel": ["home"],
+      "href": "/home"
+    },
+    {
+      "rel": ["login"],
+      "href": "/login"
+    }
+  ]
+}

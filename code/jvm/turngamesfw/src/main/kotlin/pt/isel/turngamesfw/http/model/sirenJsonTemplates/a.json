@@ -1,0 +1,29 @@
+{
+  "class": [""],
+  "properties": {
+
+  },
+  "entities": [],
+  "actions": [
+    {
+      "name": "",
+      "method": "GET",
+      "href": "/",
+      "type": "application/json",
+      "fields": [
+        { "name": "", "type": "" },
+        { "name": "", "type": "" },
+      ]
+    }
+  ],
+  "links": [
+    {
+      "rel": ["self"],
+      "href": "/"
+    },
+    {
+      "rel": [""],
+      "href": "/"
+    }
+  ]
+}

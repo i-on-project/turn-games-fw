@@ -1,0 +1,46 @@
+{
+  "class": ["match"],
+  "properties": {
+     "id": 5,
+     "state": "SETUP",
+     "players": [],
+     "currPlayer": 8,
+     "currTurn": 0,
+     "deadlineTurn": "instant?",
+     "created": "instant?",
+     "info": {
+       "specificInfo": "yh"
+     }
+  },
+  "entities": [
+    {
+      "class": ["game"],
+      "rel": ["/rels/game"],
+      "href": "/game/chess"
+    }
+  ],
+  "actions": [
+    {
+      "name": "setUp",
+      "method": "POST",
+      "href": "/match/setup",
+      "type": "application/json",
+      "fields": [
+        { "name": "setup", "type": "object" }
+      ]
+    },
+    {
+      "name": "doTurn",
+      "method": "POST",
+      "href": "/match/turn",
+      "type": "application/json",
+      "fields": [
+        { "name": "turn", "type": "object" }
+      ]
+    }
+  ],
+  "links": [
+    { "rel": ["home"], "href": "/" },
+    { "rel": ["game"], "href": "/game/chess" }
+  ]
+}

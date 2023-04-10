@@ -1,0 +1,25 @@
+{
+  "class": ["about"],
+  "properties": {
+    "devs": [
+      {
+        "name": "Nuno Bartolomeu",
+        "socials": [
+          "www.github.com/NunoBartolomeu"
+        ]
+      }
+    ]
+  },
+  "entities": [],
+  "actions": [],
+  "links": [
+    {
+      "rel": ["self"],
+      "href": "/about"
+    },
+    {
+      "rel": ["home"],
+      "href": "/"
+    }
+  ]
+}

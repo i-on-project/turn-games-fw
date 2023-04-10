@@ -7,13 +7,17 @@ object Uris {
     const val ABOUT = "/about"
 
     object Game {
-        const val GAME_HOME = "/game/{nameGame}"
+        const val GAME_FIND = "/game/find"
+        const val GAME_LEADERBOARD = "/game/leaderboard"
 
-        const val FIND = "$GAME_HOME/find"
-        const val FOUND = "$GAME_HOME/found"
-        const val GET_BY_ID = "$GAME_HOME/{id}"
-        const val SETUP = "$GAME_HOME/setup"
-        const val DO_TURN = "$GAME_HOME/turn"
+        const val HOME = "/game/{nameGame}"
+
+        const val FIND = "$HOME/find"
+        const val FOUND = "$HOME/found"
+        const val GET_BY_ID = "$HOME/{id}"
+        const val SETUP = "$HOME/setup"
+        const val DO_TURN = "$HOME/turn"
+        const val LEADERBOARD = "$HOME/leaderboard"
     }
 
     object User {
@@ -24,7 +28,6 @@ object Uris {
         const val GET_BY_ID = "/user/{id}"
         const val UPDATE = "/user/update"
         const val DELETE = "/user/delete"
-        const val LEADERBOARD = "/user/leaderboard"
 
         fun byId(id: String) = UriTemplate(GET_BY_ID).expand(id)
     }
