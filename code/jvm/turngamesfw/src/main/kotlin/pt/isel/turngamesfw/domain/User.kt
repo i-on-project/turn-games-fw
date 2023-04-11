@@ -4,7 +4,7 @@ data class User(
     val id: Int,
     val username: String,
     val passwordValidation: PasswordValidationInfo,
-    val status: Status,
+    val status: Status = Status.OFFLINE,
 ) {
     enum class Status {
         OFFLINE,

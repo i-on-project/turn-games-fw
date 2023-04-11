@@ -4,7 +4,7 @@ create table dbo.Users(
     id int generated always as identity primary key,
     username VARCHAR(64) not null unique,
     password_validation VARCHAR(256) not null,
-    state VARCHAR(64) not null CHECK (state in ('OFFLINE', 'ONLINE')) default 'OFFLINE'
+    status VARCHAR(64) not null CHECK (status in ('OFFLINE', 'ONLINE')) default 'OFFLINE'
 );
 
 create table dbo.Games(
