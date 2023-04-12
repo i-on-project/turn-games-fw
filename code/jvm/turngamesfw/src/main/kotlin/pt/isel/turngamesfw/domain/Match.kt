@@ -5,8 +5,9 @@ import java.util.UUID
 
 data class Match (
     val id: UUID = UUID.randomUUID(),
+    val gameName: String,
     val state: State,
-    val players: List<Int>,
+    val players: List<Int>, /****/
     val currPlayer: Int,
     val currTurn: Int,
     val deadlineTurn: Instant?,
@@ -19,4 +20,3 @@ data class Match (
         END,
     }
 }
-

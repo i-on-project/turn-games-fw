@@ -9,16 +9,16 @@ interface GameRepository {
 
     fun createGame(game: Game)
 
-    fun getGame(name: String): Game
+    fun getGame(name: String): Game?
 
-    fun updateStatus(nameGame: String, status: User.Stats.Status)
+    fun updateState(userId: Int, nameGame: String, state: User.Stats.State)
 
-    fun getPlayersSearching(name: String): List<User>
+    fun getPlayersSearching(nameGame: String): List<User>
 
     fun createMatch(match: Match)
 
-    fun getMatchById(id: UUID): Match
+    fun getMatchById(id: UUID): Match?
 
-    fun updateMatch(id: UUID): Match
+    fun updateMatch(match: Match)
 
 }

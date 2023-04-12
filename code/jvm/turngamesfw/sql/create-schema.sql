@@ -40,7 +40,7 @@ create table dbo.Matches(
     info jsonb not null
 );
 
-create table dbo.MatchesUsers(
+create table dbo.UserMatches(
     matches_id UUID references dbo.Matches(id),
     user_id int references dbo.Users(id),
     PRIMARY KEY (matches_id, user_id)

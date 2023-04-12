@@ -16,10 +16,10 @@ data class User(
     )
 
     data class Stats (
-        val status: Status,
+        val state: State,
         val rating: Int,
     ) {
-        enum class Status {
+        enum class State {
             INACTIVE,
             SEARCHING,
             IN_GAME,
