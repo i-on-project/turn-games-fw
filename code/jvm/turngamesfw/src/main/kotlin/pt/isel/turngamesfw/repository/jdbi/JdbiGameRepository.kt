@@ -25,6 +25,10 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .single()
     }
 
+    override fun getUserState(userId: Int, nameGame: String): User.Stats.State {
+        TODO("Not yet implemented")
+    }
+
     override fun updateState(userId: Int, nameGame: String, state: User.Stats.State) {
         handle.createUpdate("update dbo.UserStats set state = :state where user_id = :user_id and game_name = :game_name")
             .bind("state", state)
@@ -67,6 +71,10 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .bind("id", id)
             .mapTo<Match>()
             .single()
+    }
+
+    override fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match> {
+        TODO("Not yet implemented")
     }
 
     override fun updateMatch(match: Match) {
