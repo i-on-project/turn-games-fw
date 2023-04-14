@@ -12,6 +12,12 @@ data class TurnInputModel(
     val info: Any,
 )
 
+data class LeaderBoardInputModel(
+    val gameName: String,
+    val limit: Int,
+    val page: Int,
+)
+
 data class GameNameInputModel(
-    val gameName: String
+    val gameName: String,
 )

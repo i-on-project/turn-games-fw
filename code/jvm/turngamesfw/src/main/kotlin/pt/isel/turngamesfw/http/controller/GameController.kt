@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController
 import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.http.Uris
 import pt.isel.turngamesfw.http.model.GameNameInputModel
+import pt.isel.turngamesfw.http.model.LeaderBoardInputModel
 import pt.isel.turngamesfw.http.model.SetupInputModel
 import pt.isel.turngamesfw.http.model.TurnInputModel
 import pt.isel.turngamesfw.services.GameServices
@@ -24,14 +25,17 @@ class GameController(
     }
 
     @GetMapping(Uris.Game.GAME_LEADERBOARD)
-    fun getLeaderboardByName(user: User, @RequestBody gameName: GameNameInputModel, @RequestParam limit: Int, @RequestParam page: Int) = getLeaderboard(user, gameName.gameName, limit, page)
+    fun getLeaderboardByName(user: User, @RequestBody leaderboard: LeaderBoardInputModel) =
+        getLeaderboard(user, leaderboard.gameName, leaderboard)
+
     @GetMapping(Uris.Game.LEADERBOARD)
-    fun getLeaderboard(user: User, @PathVariable nameGame: String, limit: Int, page: Int){
+    fun getLeaderboard(user: User, @PathVariable nameGame: String, @RequestBody leaderboard: LeaderBoardInputModel){
         TODO()
     }
 
     @PostMapping(Uris.Game.GAME_FIND)
-    fun findMatchByName(user: User, gameName: String) = findMatch(user, gameName)
+    fun findMatchByName(user: User, @RequestBody gameName: GameNameInputModel) =
+        findMatch(user, gameName.gameName)
 
     @PostMapping(Uris.Game.FIND)
     fun findMatch(user: User, @PathVariable nameGame: String){

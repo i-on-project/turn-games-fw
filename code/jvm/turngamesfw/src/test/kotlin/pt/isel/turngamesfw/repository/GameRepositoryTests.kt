@@ -41,7 +41,7 @@ class GameRepositoryTests {
             users.forEach { userRepo.createUser(it.username, it.passwordValidation) }
             
             //updateRating (verified in the getGameLeaderBoard)
-            users.forEach { userRepo.updateRating(it.id, "game-name", it.id * 100) }
+            users.forEach { gameRepo.updateRating(it.id, "game-name", it.id * 100) }
 
             //getGameLeaderBoard
             gameRepo.getGameLeaderBoard("game-name", 0, 10).let { leaderboard ->
@@ -54,7 +54,7 @@ class GameRepositoryTests {
 
             //getState and updateState
             gameRepo.updateState(0, "game-name", User.Stats.State.SEARCHING)
-            gameRepo.getState(0, "game-name").let { state ->
+            gameRepo.getUserState(0, "game-name").let { state ->
                 assertEquals(User.Stats.State.SEARCHING, state)
             }
 

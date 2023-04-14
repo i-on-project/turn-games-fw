@@ -16,7 +16,7 @@ interface GameRepository {
 
     fun updateRating(userId: Int, gameName: String, rating: Int)
 
-    fun getState(userId: Int, nameGame: String): User.Stats.State
+    fun getUserState(userId: Int, nameGame: String): User.Stats.State
 
     fun updateState(userId: Int, nameGame: String, state: User.Stats.State)
 
@@ -25,6 +25,8 @@ interface GameRepository {
     fun createMatch(match: Match)
 
     fun getMatchById(id: UUID): Match?
+
+    fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match>
 
     fun updateMatch(match: Match)
 
