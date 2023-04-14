@@ -11,12 +11,15 @@ import pt.isel.turngamesfw.domain.*
 import pt.isel.turngamesfw.repository.GameRepository
 import pt.isel.turngamesfw.repository.TransactionManager
 import pt.isel.turngamesfw.repository.UserRepository
+import pt.isel.turngamesfw.services.results.*
+import pt.isel.turngamesfw.utils.Either
 import pt.isel.turngamesfw.utils.getTransactionManager
 import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.fail
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GameServicesTests {
@@ -90,7 +93,10 @@ class GameServicesTests {
 
     @Test
     fun `getMatchById returns correct match`() {
-        val match = gameServices.getMatchById(chessMatch.id, 1)
+        val match = when (val res = gameServices.getMatchById(chessMatch.id, 1)) {
+            is Either.Left -> fail("Should not return error")
+            is Either.Right -> res.value
+        }
 
         assertNotNull(match, "Match should not be null")
         assertEquals(chessMatch.id, match.id)
@@ -98,10 +104,11 @@ class GameServicesTests {
     }
 
     @Test
-    fun `getMatchById with invalid name returns null`() {
-        val match = gameServices.getMatchById(UUID.randomUUID(), 1)
-
-        assertNull(match, "Match should be null")
+    fun `getMatchById with invalid name returns error`() {
+        when (val res = gameServices.getMatchById(UUID.randomUUID(), 1)) {
+            is Either.Left -> assertEquals(MatchByIdError.MatchNotExist::class.java, res.value::class.java)
+            is Either.Right -> fail("Match should not be found")
+        }
     }
 
     @Test
@@ -114,10 +121,33 @@ class GameServicesTests {
 
         assertEquals(User.Stats.State.INACTIVE, playerStatus, "Should start INACTIVE")
 
-        val resp = gameServices.findMatch(chessGame.name, playerId)
+        when (gameServices.findMatch(chessGame.name, playerId)) {
+            is Either.Left -> fail("Should not return error")
+            else -> {}
+        }
 
-        assertEquals(true, resp)
         assertEquals(User.Stats.State.SEARCHING, playerStatus, "Should be SEARCHING")
+    }
+
+    @Test
+    fun `findMatch with invalid game returns error`() {
+        val playerId = 1
+
+        when (val res = gameServices.findMatch("NotExist", playerId)) {
+            is Either.Left -> assertEquals(FindMatchError.GameNotExist::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+    }
+
+    @Test
+    fun `findMatch with player already searching returns error`() {
+        val playerId = 1
+        every { gameRepository.getUserState(playerId, chessGame.name) } returns User.Stats.State.SEARCHING
+
+        when (val res = gameServices.findMatch(chessGame.name, playerId)) {
+            is Either.Left -> assertEquals(FindMatchError.AlreadySearchingOrInGame::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
     }
 
     @Test
@@ -126,11 +156,37 @@ class GameServicesTests {
         every { gameRepository.getUserState(playerId, chessGame.name) } returns User.Stats.State.IN_GAME
         every { gameRepository.getAllGameMatchesByUser(chessGame.name, playerId) } returns listOf(chessMatch)
 
-        val match = gameServices.foundMatch(chessGame.name, playerId)
+        val match = when( val res = gameServices.foundMatch(chessGame.name, playerId)) {
+            is Either.Left -> fail("Should not return error")
+            is Either.Right -> res.value
+        }
 
         assertNotNull(match)
         assertEquals(chessMatch.id, match.id)
         assertEquals(chessMatch, match)
+    }
+
+    @Test
+    fun `foundMatch with invalid player return error`() {
+        val playerId = 1
+        every { gameRepository.getUserState(playerId, chessGame.name) } returns User.Stats.State.INACTIVE
+
+        when( val res = gameServices.foundMatch(chessGame.name, playerId)) {
+            is Either.Left -> assertEquals(FoundMatchError.UserNotFound::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+    }
+
+    @Test
+    fun `foundMatch with no game in database return error`() {
+        val playerId = 1
+        every { gameRepository.getUserState(playerId, chessGame.name) } returns User.Stats.State.IN_GAME
+        every { gameRepository.getAllGameMatchesByUser(chessGame.name, playerId) } returns listOf()
+
+        when( val res = gameServices.foundMatch(chessGame.name, playerId)) {
+            is Either.Left -> assertEquals(FoundMatchError.ServerError::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
     }
 
     @Test
@@ -140,10 +196,37 @@ class GameServicesTests {
         val slot = slot<Match>()
         every { gameRepository.updateMatch(capture(slot)) } answers { updatedMatch = slot.captured }
 
-        val resp = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, object{})) as String
+        val resp = when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, object{}))) {
+            is Either.Left -> fail("Should not return error")
+            is Either.Right -> when (val r = res.value) {
+                is SetupMatchSuccess.SetupDone -> r.resp
+            }
+        } as String
 
         assertEquals("Works", resp)
         assertNotNull(updatedMatch)
+    }
+
+    @Test
+    fun `setup with invalid match returns error`() {
+        val playerId = 1
+
+        when (val res = gameServices.setup(UUID.randomUUID(), GameLogic.InfoSetup(playerId, object{}))) {
+            is Either.Left -> assertEquals(SetupMatchError.MatchNotExist::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+
+    }
+
+    @Test
+    fun `setup with invalid user returns error`() {
+        val playerId = 3
+
+        when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, object{}))) {
+            is Either.Left -> assertEquals(SetupMatchError.UserNotInMatch::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+
     }
 
     @Test
@@ -153,11 +236,37 @@ class GameServicesTests {
         val slot = slot<Match>()
         every { gameRepository.updateMatch(capture(slot)) } answers { updatedMatch = slot.captured }
 
-        val resp = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, object{})) as String
+        val resp = when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, object{}))) {
+            is Either.Left -> fail("Should not return error")
+            is Either.Right -> when (val r = res.value) {
+                is DoTurnMatchSuccess.DoTurnDone -> r.resp
+            }
+        } as String
 
         assertEquals("Works", resp)
         assertNotNull(updatedMatch)
     }
 
+    @Test
+    fun `doTurn with invalid match returns error`() {
+        val playerId = 1
+
+        when (val res = gameServices.doTurn(UUID.randomUUID(), GameLogic.InfoTurn(playerId, object{}))) {
+            is Either.Left -> assertEquals(DoTurnMatchError.MatchNotExist::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+
+    }
+
+    @Test
+    fun `doTurn with invalid user returns error`() {
+        val playerId = 3
+
+        when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, object{}))) {
+            is Either.Left -> assertEquals(DoTurnMatchError.UserNotInMatch::class.java, res.value::class.java)
+            is Either.Right -> fail("Should not return success")
+        }
+
+    }
 
 }

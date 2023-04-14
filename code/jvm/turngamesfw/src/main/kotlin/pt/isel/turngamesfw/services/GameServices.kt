@@ -3,6 +3,8 @@ package pt.isel.turngamesfw.services
 import org.springframework.stereotype.Component
 import pt.isel.turngamesfw.domain.*
 import pt.isel.turngamesfw.repository.TransactionManager
+import pt.isel.turngamesfw.services.results.*
+import pt.isel.turngamesfw.utils.Either
 import java.util.UUID
 
 @Component
@@ -16,24 +18,20 @@ class GameServices(
             return@run it.gamesRepository.getGame(gameName)
         }
     }
-    fun findMatch(gameName: String, userId: Int): Boolean {
+    fun findMatch(gameName: String, userId: Int): FindMatchResult {
         return transactionManager.run {
-            val game = it.gamesRepository.getGame(gameName) ?: return@run TODO("Error Game not exist")
+            val game = it.gamesRepository.getGame(gameName) ?: return@run Either.Left(FindMatchError.GameNotExist)
             val userState = it.gamesRepository.getUserState(userId, gameName)
             if (userState != User.Stats.State.INACTIVE) {
-                return@run TODO("Error user already searching or in-game")
+                return@run Either.Left(FindMatchError.AlreadySearchingOrInGame)
             }
 
             it.gamesRepository.updateState(userId, gameName, User.Stats.State.SEARCHING)
             tryPairPlayers(gameName, game.numPlayers)
-            return@run true
+            return@run Either.Right(FindMatchSuccess.SearchingMatch)
         }
     }
 
-    /***
-     * Asynchronous function:
-     * Try to pair players that are searching game, and create match if possible
-     */
     private fun tryPairPlayers(gameName: String, numPlayers: Int) {
         transactionManager.run {
             val searchingPlayers = it.gamesRepository.getPlayersSearching(gameName)
@@ -55,67 +53,68 @@ class GameServices(
         }
     }
 
-    fun foundMatch(gameName: String, userId: Int): Match? {
+    fun foundMatch(gameName: String, userId: Int): FoundMatchResult {
         return transactionManager.run {
             val userState = it.gamesRepository.getUserState(userId, gameName)
             if (userState != User.Stats.State.IN_GAME) {
-                return@run TODO("Error user not found match")
+                return@run Either.Left(FoundMatchError.UserNotFound)
             }
 
             val matches = it.gamesRepository.getAllGameMatchesByUser(gameName, userId)
 
-            return@run matches.firstOrNull<Match> { match -> match.state != Match.State.END }
-                ?: return@run TODO("Error server, should have match in database not ended")
+            val match = matches.firstOrNull<Match> { match -> match.state != Match.State.END } ?: return@run Either.Left(FoundMatchError.ServerError)
+
+            return@run Either.Right(match)
         }
     }
 
-    fun getMatchById(matchId: UUID, userId: Int): Match? {
+    fun getMatchById(matchId: UUID, userId: Int): MatchByIdResult {
         return transactionManager.run {
-            val match = it.gamesRepository.getMatchById(matchId) ?: return@run null
-            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: TODO("Return server error gameLogic not found")
-            return@run gameLogic.matchPlayerView(match, userId)
+            val match = it.gamesRepository.getMatchById(matchId) ?: return@run Either.Left(MatchByIdError.MatchNotExist)
+            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(MatchByIdError.ServerError)
+            return@run Either.Right(gameLogic.matchPlayerView(match, userId))
         }
     }
 
-    fun setup(matchId: UUID, infoSetup: GameLogic.InfoSetup): Any {
+    fun setup(matchId: UUID, infoSetup: GameLogic.InfoSetup): SetupMatchResult {
         return transactionManager.run {
-            val match = it.gamesRepository.getMatchById(matchId) ?: TODO("Return error match not found")
+            val match = it.gamesRepository.getMatchById(matchId) ?: return@run Either.Left(SetupMatchError.MatchNotExist)
             if (!match.players.contains(infoSetup.playerId)) {
-                return@run TODO("Maybe can return error 'User not in match'")
+                return@run Either.Left(SetupMatchError.UserNotInMatch)
             }
 
-            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: TODO("Return server error gameLogic not found")
+            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(SetupMatchError.ServerError)
             val updateInfo = gameLogic.setup(match, infoSetup)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
-                    return@run TODO("Return server error gameLogic match is missing")
+                    return@run Either.Left(SetupMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
             }
 
-            return@run updateInfo.message
+            return@run Either.Right(SetupMatchSuccess.SetupDone(updateInfo.message))
         }
     }
 
-    fun doTurn(matchId: UUID, infoTurn: GameLogic.InfoTurn): Any {
+    fun doTurn(matchId: UUID, infoTurn: GameLogic.InfoTurn): DoTurnMatchResult {
         return transactionManager.run {
-            val match = it.gamesRepository.getMatchById(matchId) ?: TODO("Return error match not found")
+            val match = it.gamesRepository.getMatchById(matchId) ?: return@run Either.Left(DoTurnMatchError.MatchNotExist)
             if (!match.players.contains(infoTurn.playerId)) {
-                return@run TODO("Maybe can return error 'User not in match'")
+                return@run Either.Left(DoTurnMatchError.UserNotInMatch)
             }
 
-            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: TODO("Return server error gameLogic not found")
+            val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(DoTurnMatchError.ServerError)
             val updateInfo = gameLogic.doTurn(match, infoTurn)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
-                    return@run TODO("Return server error gameLogic match is missing")
+                    return@run Either.Left(DoTurnMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
             }
 
-            return@run updateInfo.message
+            return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
         }
     }
 
