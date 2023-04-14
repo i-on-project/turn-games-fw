@@ -4,9 +4,11 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.http.Uris
+import pt.isel.turngamesfw.http.model.GameNameInputModel
 import pt.isel.turngamesfw.http.model.SetupInputModel
 import pt.isel.turngamesfw.http.model.TurnInputModel
 import pt.isel.turngamesfw.services.GameServices
@@ -22,7 +24,7 @@ class GameController(
     }
 
     @GetMapping(Uris.Game.GAME_LEADERBOARD)
-    fun getLeaderboardByName(user: User, gameName: String, limit: Int, page: Int) = getLeaderboard(user, gameName, limit, page)
+    fun getLeaderboardByName(user: User, @RequestBody gameName: GameNameInputModel, @RequestParam limit: Int, @RequestParam page: Int) = getLeaderboard(user, gameName.gameName, limit, page)
     @GetMapping(Uris.Game.LEADERBOARD)
     fun getLeaderboard(user: User, @PathVariable nameGame: String, limit: Int, page: Int){
         TODO()

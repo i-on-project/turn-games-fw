@@ -26,3 +26,9 @@ data class User(
         }
     }
 }
+
+data class LeaderboardUser(
+    val username: String,
+    val rating: Int,
+    val position: Int
+)

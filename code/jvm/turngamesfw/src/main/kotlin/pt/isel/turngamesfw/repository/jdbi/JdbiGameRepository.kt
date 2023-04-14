@@ -4,6 +4,7 @@ import pt.isel.turngamesfw.domain.User
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
 import pt.isel.turngamesfw.domain.Game
+import pt.isel.turngamesfw.domain.LeaderboardUser
 import pt.isel.turngamesfw.domain.Match
 import pt.isel.turngamesfw.repository.GameRepository
 import java.util.*
@@ -22,6 +23,32 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
         return handle.createQuery("select * from dbo.Games where name = :name")
             .bind("name", name)
             .mapTo<Game>()
+            .single()
+    }
+
+    override fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser> {
+        return handle.createQuery("""select u.username, u.rating from dbo.UserStats us inner join dbo.Users u 
+            on us.user_id = u.id where us.game_name = :gameName order by u.rating desc limit :limit, offset :offset""")
+            .bind("gameName", gameName)
+            .bind("limit", limit)
+            .bind("offset", (page-1) * limit)
+            .mapTo<LeaderboardUser>()
+            .list()
+    }
+
+    override fun updateRating(userId: Int, gameName: String, rating: Int) {
+        handle.createUpdate("update dbo.UserStats set rating = :rating where user_id = :user_id and game_name = :game_name")
+            .bind("rating", rating)
+            .bind("user_id", userId)
+            .bind("game_name", gameName)
+            .execute()
+    }
+
+    override fun getState(userId: Int, nameGame: String): User.Stats.State {
+        return handle.createQuery("select state from dbo.UserStats where user_id = :user_id and game_name = :game_name")
+            .bind("user_id", userId)
+            .bind("game_name", nameGame)
+            .mapTo<User.Stats.State>()
             .single()
     }
 
