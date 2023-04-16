@@ -21,7 +21,7 @@ interface UserRepository {
 
     fun updateTokenLastUsed(token: Token, now: Instant)
 
-    fun getAllUser(): List<User>
+    fun getAllUsers(): List<User>
 
     fun updateStatus(id: Int, status: User.Status)
 

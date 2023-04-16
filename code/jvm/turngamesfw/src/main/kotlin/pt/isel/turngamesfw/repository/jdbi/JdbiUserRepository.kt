@@ -86,7 +86,7 @@ class JdbiUserRepository(
             .execute()
     }
 
-    override fun getAllUser(): List<User> =
+    override fun getAllUsers(): List<User> =
         handle.createQuery("select * from dbo.Users")
             .mapTo<User>()
             .toSet()

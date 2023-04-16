@@ -18,6 +18,7 @@ class GameServices(
             return@run it.gamesRepository.getGame(gameName)
         }
     }
+    
     fun findMatch(gameName: String, userId: Int): FindMatchResult {
         return transactionManager.run {
             val game = it.gamesRepository.getGame(gameName) ?: return@run Either.Left(FindMatchError.GameNotExist)
