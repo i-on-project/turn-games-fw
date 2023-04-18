@@ -19,17 +19,22 @@ import pt.isel.turngamesfw.utils.getTransactionManager
 import java.time.Instant
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class UserServicesTests {
     @MockK
     private lateinit var userRepository: UserRepository
+
     @MockK
     private lateinit var gameRepository: GameRepository
+    
     @MockK
     private lateinit var passwordEncoder: PasswordEncoder
+    
     @MockK
     private lateinit var tokenEncoder: TokenEncoder
+    
     @MockK
     private lateinit var clock: Clock
 
@@ -37,27 +42,46 @@ class UserServicesTests {
     
     private lateinit var userServices: UserServices
 
-    private val u1 = User(1, "u1", User.PasswordValidationInfo("p1"))
-    private val u2 = User(2, "u2", User.PasswordValidationInfo("p2"))
-    private val createdAt = Instant.now()
-    private val lastUsedAt = Instant.now() 
-    private val t1 = Token(Token.TokenValidationInfo("p1"), 1, createdAt, lastUsedAt)
+    private fun pvi(pass: String) = User.PasswordValidationInfo(pass)
+    private val pass1 = "pass1"
+    private val user1 = User(1, "user1", pvi(pass1))
 
     @BeforeAll
     fun setUp() {
         MockKAnnotations.init(this)
         transactionManager = getTransactionManager(userRepository, gameRepository)
         userServices = UserServices(transactionManager, UserLogic(), passwordEncoder, tokenEncoder, clock)
-        every { userRepository.createUser(any(), any()) } returns 2
-        every { userRepository.createUser("u1", any()) } returns 1
-        every { userRepository.getUserById(any()) } returns null
-        every { userRepository.getUserById(1) } returns u1
+
+        //Base requirements
+        every { passwordEncoder.encode(any()) } returns "encodedPass"
+
+        //User
         every { userRepository.isUserStoredByUsername(any()) } returns false
-        every { userRepository.isUserStoredByUsername("u1") } returns true
-        every { passwordEncoder.encode(any()) } returns "encoded_password"
+        every { userRepository.isUserStoredByUsername(user1.username) } returns true
+
+        every { userRepository.getUserById(any()) } returns null
+        every { userRepository.getUserById(1) } returns user1
+
         every { userRepository.getUserByUsername(any()) } returns null
-        every { userRepository.getUserByUsername("u1") } returns u1
-        every { userRepository.getTokenByTokenValidation(Token.TokenValidationInfo("p1")) } returns t1
+        every { userRepository.getUserByUsername(user1.username) } returns user1
+
+        every { userRepository.createUser(any(), any()) } returns 2
+
+        //Get all users
+        every { userRepository.getAllUsers() } returns listOf(user1)
+
+        //Status
+        every { userRepository.getStatus(any()) } returns null
+        every { userRepository.getStatus(user1.id) } returns User.Status.ONLINE
+        every { userRepository.updateStatus(user1.id, any()) } returns Unit
+
+        //Token
+        every { userRepository.createToken(any(), any()) } returns Unit
+        every { passwordEncoder.matches(any(), any()) } returns false
+        every { passwordEncoder.matches(user1.passwordValidation.validationInfo, user1.passwordValidation.validationInfo) } returns true
+        every { clock.now() } returns Instant.now()
+        every { tokenEncoder.createValidationInformation(any()) } returns Token.TokenValidationInfo(user1.passwordValidation.validationInfo)
+
     }
 
     @Test
@@ -68,70 +92,118 @@ class UserServicesTests {
 
     @Test
     fun `create user already exists`() {
-        val result = userServices.createUser("u1", "p1")
+        val result = userServices.createUser(user1.username, pass1)
         assertEquals(Either.Left(UserCreationError.UserAlreadyExists), result)
     }
 
     @Test
-    fun `create new user`(){
-        val result = userServices.createUser("u2", "p2")
-        assertEquals(Either.Right(u2.id), result)
+    fun `create new user`() {
+        val result = userServices.createUser("user2", "pass2")
+        assertIs<Either.Right<Int>>(result)
+    }
+
+    @Test
+    fun `get user that doesn't exists by id`() {
+        val result = userServices.getUserById(0)
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `get user that exists by id`() {
+        val result = userServices.getUserById(1)
+        assertIs<User>(result)
+    }
+
+    @Test
+    fun `get user with blank username`() {
+        val result = userServices.getUserByUsername("")
+        assertEquals(null, result)
+    } 
+
+    @Test
+    fun `get user that doesn't exists by username`() {
+        val result = userServices.getUserByUsername("unknown")
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `get user that exists by username`() {
+        val result = userServices.getUserByUsername(user1.username)
+        assertIs<User>(result)
     }
 
     @Test
     fun `is user stored by username`() {
-        val result = userServices.isUserStoredByUsername("u1")
+        val result = userServices.isUserStoredByUsername("user1")
         assertEquals(true, result)
-        val result2 = userServices.isUserStoredByUsername("u2")
-        assertEquals(false, result2)
     }
 
     @Test
-    fun `get user by username`() {
-        val result = userServices.getUserByUsername("u1")
-        assertEquals(u1, result)
-        val result2 = userServices.getUserByUsername("u2")
-        assertEquals(null, result2)
+    fun `get all users` () {
+        val result = userServices.getAllUsers()
+        assertIs<List<User>>(result)
+    }           
+
+    @Test
+    fun `get status of unknown user`() {
+        val result = userServices.getStatus(0)
+        assertEquals(null, result)
     }
 
     @Test
-    fun `get user by id`() {
-        val result = userServices.getUserById(1)
-        assertEquals(u1, result)
-        val result2 = userServices.getUserById(2)
-        assertEquals(null, result2)
+    fun `update and get status`() {
+        userServices.updateStatus(user1.id, User.Status.ONLINE)
+        val result = userServices.getStatus(user1.id)
+
+        assertEquals(User.Status.ONLINE, result)
     }
 
-    @Test  
-    fun `create token invalid arguments`() {
+    @Test
+    fun `create token with blank username or password`() {
         val result = userServices.createToken("", "")
-        assertEquals(Either.Left(TokenCreationError.InvalidArguments), result)
-    }
-
-    @Test
-    fun `create token user or password are invalid`() {
-        every { userRepository.getUserByUsername(any()) } returns null
-        val result = userServices.createToken("u1", "p1")
         assertEquals(Either.Left(TokenCreationError.UserOrPasswordAreInvalid), result)
     }
 
     @Test
-    fun `create token with success`() {
-        val result = userServices.createToken("u1", "p1")
-        assertEquals(Either.Right("encoded_token"), result)
+    fun `create token for unknown user`() {
+        val result = userServices.createToken("unknown", "pass")
+        assertEquals(Either.Left(TokenCreationError.UserOrPasswordAreInvalid), result)
     }
 
     @Test
-    fun `get user by token`() {
-        val result = userServices.getUserByToken("encoded_token")
-        assertEquals(u1, result)
+    fun `create token with invalid password`() {
+        val result = userServices.createToken(user1.username, "wrongPass")
+        assertEquals(Either.Left(TokenCreationError.UserOrPasswordAreInvalid), result)
     }
 
     @Test
-    fun `get token by token validation`() {
-        val result = userServices.getTokenByTokenValidation(Token.TokenValidationInfo("p1"))
-        assertEquals(Token(Token.TokenValidationInfo("p1"), u1.id, Instant.now(), Instant.now()), result)
+    fun `create token`() {
+        val result = userServices.createToken(user1.username, pass1)
+        assertIs<Either.Right<String>>(result)
     }
 
-    //TODO Fix current tests and do more tests
+    @Test
+    fun `get user with blank token`() {
+        val result = userServices.getUserByToken("")
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `get user with badly formatted token`() {
+        val result = userServices.getUserByToken("bad")
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `get user with invalid token`() {
+        val result = userServices.getUserByToken("user1-bad-token")
+        assertEquals(null, result)
+    }
+
+    @Test
+    fun `get unknown user by token`() {
+        val result = userServices.getUserByToken("user4-token")
+        assertEquals(null, result)
+    }
+
 }

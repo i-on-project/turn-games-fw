@@ -9,12 +9,12 @@ create table dbo.Users(
 
 create table dbo.Games(
     name VARCHAR(32) primary key,
-    nun_players int not null,
+    num_players int not null,
     description TEXT,
     rules TEXT
 );
 
-create table dbo.Users_Stats(
+create table dbo.UserStats(
     user_id int references dbo.Users(id),
     game_name VARCHAR(32) references dbo.Games(name),
     state VARCHAR(64) CHECK (state in ('INACTIVE', 'SEARCHING', 'IN_GAME')) default 'INACTIVE',
@@ -32,7 +32,7 @@ create table dbo.Tokens(
 create table dbo.Matches(
     id UUID primary key not null,
     game_name VARCHAR(32) references dbo.Games(name),
-    state VARCHAR(64) not null CHECK (state in ('SETUP', 'ON_GOING', 'END')),
+    state VARCHAR(64) not null CHECK (state in ('SETUP', 'ON_GOING', 'FINISHED')),
     curr_player int references dbo.Users(id),
     curr_turn int not null default 0,
     deadline_turn TIMESTAMP,

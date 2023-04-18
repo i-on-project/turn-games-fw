@@ -1,6 +1,7 @@
 package pt.isel.turngamesfw.repository
 
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import pt.isel.turngamesfw.domain.Game
 import pt.isel.turngamesfw.domain.Match
 import pt.isel.turngamesfw.domain.User
@@ -12,95 +13,202 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class GameRepositoryTests {
+    private val game = Game("tic-tac-toe", 2, "Get 3 in a row.", "One player at a time.")
+
     @Test
-    fun `all tests`() = 
+    fun `create and get game`() {
+        testWithHandleAndRollback { handle ->
+            val gameRepo = JdbiGameRepository(handle)
+
+            //createGame
+            gameRepo.createGame(game)
+
+            //getGame
+            gameRepo.getGame("tic-tac-toe").let { g ->
+                assertNotNull(g)
+                assertEquals(game.name, g.name)
+                assertEquals(game.numPlayers, g.numPlayers)
+                assertEquals(game.description, g.description)
+                assertEquals(game.rules, g.rules)
+            }
+        }
+    }
+    
+    @Test
+    fun `create and get user stats, then update and get rating and stats`() {
         testWithHandleAndRollback { handle ->
             val gameRepo = JdbiGameRepository(handle)
             val userRepo = JdbiUserRepository(handle)
 
             //createGame
-            gameRepo.createGame(Game( "game-name", 5, "game-desc", "game-rules"))
+            gameRepo.createGame(game)
+
+            //createUser
+            fun pvi(p: String) = User.PasswordValidationInfo(p)
+            val user = User(userRepo.createUser("user", pvi("pass")), "user", pvi("pass"))
             
-            //getGame
-            gameRepo.getGame("game-name").let { game ->
-                assertNotNull(game)
-                assertEquals("game-name", game.name)
-                assertEquals(5, game.numPlayers)
-                assertEquals("game-desc", game.description)
-                assertEquals("game-rules", game.rules)
+            //createUserStats
+            gameRepo.createUserStats(user.id, "tic-tac-toe", 0, User.Stats.State.INACTIVE)
+
+            //getUserStats
+            gameRepo.getUserStats(user.id, "tic-tac-toe").let { stats ->
+                assertNotNull(stats)
+                assertEquals(0, stats.rating)
+                assertEquals(User.Stats.State.INACTIVE, stats.state)
             }
 
-            //getGame Fail
-            gameRepo.getGame("not-found").let { gameNotFound ->
-                assertEquals(null, gameNotFound)
-            }
-            
-            //10 samples of users
-            val users = (0..9).map { User(it, "user-$it", User.PasswordValidationInfo("pass-$it"), User.Status.ONLINE) }.toList()
-            users.forEach { userRepo.createUser(it.username, it.passwordValidation) }
-            
-            //updateRating (verified in the getGameLeaderBoard)
-            users.forEach { gameRepo.updateRating(it.id, "game-name", it.id * 100) }
+            //updateRating
+            gameRepo.updateRating(user.id, "tic-tac-toe", 100)
+
+            //getUserRatingById
+            assertEquals(100, gameRepo.getUserRatingById(user.id, "tic-tac-toe"))
+
+            //updateState
+            gameRepo.updateState(user.id, "tic-tac-toe", User.Stats.State.SEARCHING)
+
+            //getUserState
+            assertEquals(User.Stats.State.SEARCHING, gameRepo.getUserState(user.id, "tic-tac-toe"))
+        }
+    }
+
+    @Test
+    fun `get game leaderboard page 0 to 3 with limit 5`() {
+        testWithHandleAndRollback { handle ->
+            val gameRepo = JdbiGameRepository(handle)
+            val userRepo = JdbiUserRepository(handle)
+
+            //createGame
+            gameRepo.createGame(game)
+
+            //20 samples of users with stats
+            fun pvi(p: String) = User.PasswordValidationInfo(p)
+            val users = (0..19).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
+            users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.INACTIVE) }
 
             //getGameLeaderBoard
-            gameRepo.getGameLeaderBoard("game-name", 0, 10).let { leaderboard ->
-                assertEquals(10, leaderboard.size)
-                (0..9).forEach { i -> 
-                    assertEquals(i, leaderboard[i].position) 
-                    assertEquals(i * 100, leaderboard[i].rating)
+            (0..3).forEach { page ->
+                gameRepo.getGameLeaderBoard("tic-tac-toe", page, 5).let { leaderboard ->
+                    assertEquals(5, leaderboard.size)
+                    (0..4).forEach { i -> 
+                        assertEquals(page * 5 + i, leaderboard[i].position)
+                    }
                 }
             }
+        }
+    }
 
-            //getState and updateState
-            gameRepo.updateState(0, "game-name", User.Stats.State.SEARCHING)
-            gameRepo.getUserState(0, "game-name").let { state ->
-                assertEquals(User.Stats.State.SEARCHING, state)
-            }
+    @Test
+    fun `get players searching`() {
+        testWithHandleAndRollback { handle ->
+            val gameRepo = JdbiGameRepository(handle)
+            val userRepo = JdbiUserRepository(handle)
+
+            //createGame
+            gameRepo.createGame(game)
+
+            //2 samples of users with stats
+            fun pvi(p: String) = User.PasswordValidationInfo(p)
+            val users = (0..1).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
+            users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.SEARCHING) }
 
             //getPlayersSearching
-            gameRepo.getPlayersSearching("game-name").let { playersSearching ->
-                assertEquals(1, playersSearching.size)
-                assertEquals(0, playersSearching[0].id)
+            gameRepo.getPlayersSearching("tic-tac-toe").let { players ->
+                assertEquals(2, players.size)
+                (0..1).forEach { i -> 
+                    assertEquals("user$i", players[i].username)
+                }
             }
+        }
+    }
+
+    @Test
+    fun `create, get and update match`() {
+        testWithHandleAndRollback { handle ->
+            val gameRepo = JdbiGameRepository(handle)
+            val userRepo = JdbiUserRepository(handle)
+
+            //createGame
+            gameRepo.createGame(game)
+
+            //2 samples of users with stats
+            fun pvi(p: String) = User.PasswordValidationInfo(p)
+            val users = (0..1).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
+            users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.SEARCHING) }
 
             //createMatch
-            val matchId = UUID.randomUUID()
-            var created = Instant.now()
-            var deadLine = Instant.now()
-            gameRepo.createMatch(Match(matchId, "game-name", Match.State.ON_GOING,
-                listOf(users[0].id, users[2].id, users[3].id, users[4].id), 0, 1, deadLine, created, {}))
-            
-            //getMatchById
-            gameRepo.getMatchById(matchId).let { match ->
-                assertNotNull(match)
-                assertEquals(matchId, match.id)
-                assertEquals("game-name", match.gameName)
-                assertEquals(Match.State.ON_GOING, match.state)
-                assertEquals(listOf(users[0].id, users[2].id, users[3].id, users[4].id), match.players)
-                assertEquals(0, match.currPlayer)
-                assertEquals(1, match.currTurn)
-                assertEquals(deadLine, match.deadlineTurn)
-                assertEquals(created, match.created)
-                assertEquals({}, match.info)
+            val created = Instant.now()
+            val deadLine = created.plusSeconds(60)
+            val matchInfo = "X__O_____"
+            val match = Match(UUID.randomUUID(), "tic-tac-toe", Match.State.ON_GOING, users.map { it.id }, users[0].id, 2, deadLine, created, matchInfo)
+            gameRepo.createMatch(match)
+
+            //getMatch
+            gameRepo.getMatchById(match.id).let { m ->
+                assertNotNull(m)
+                assertEquals(match.id, m.id)
+                assertEquals(match.gameName, m.gameName)
+                assertEquals(Match.State.ON_GOING, m.state)
+                assertEquals(match.players, m.players)
+                assertEquals(match.currPlayer, m.currPlayer)
+                assertEquals(match.currTurn, m.currTurn)
+                assertEquals(match.deadlineTurn, m.deadlineTurn)
+                assertEquals(match.created, m.created)
+                assertEquals(match.info, m.info)
             }
 
-            created = Instant.now()
-            deadLine = Instant.now()
-            //updateMatch
-            gameRepo.updateMatch(Match(matchId, "game-name", Match.State.END,
-                listOf(users[0].id, users[2].id, users[3].id, users[4].id), 5, 12, deadLine, created, {}))
-            gameRepo.getMatchById(matchId).let { match ->
-                assertNotNull(match)
-                assertEquals(matchId, match.id)
-                assertEquals("game-name", match.gameName)
-                assertEquals(Match.State.END, match.state)
-                assertEquals(listOf(users[0].id, users[2].id, users[3].id, users[4].id), match.players)
-                assertEquals(5, match.currPlayer)
-                assertEquals(12, match.currTurn)
-                assertEquals(deadLine, match.deadlineTurn)
-                assertEquals(created, match.created)
-                assertEquals({}, match.info)
+            //updateMatchState
+            val newDeadLine = deadLine.plusSeconds(60)
+            val newMatchInfo = "X__OX_O_X"
+            val newMatch = Match(match.id, "tic-tac-toe", Match.State.FINISHED, users.map { it.id }, users[0].id, 5, newDeadLine, created, newMatchInfo)
+            gameRepo.updateMatch(newMatch)
+
+            //get updated match
+            gameRepo.getMatchById(match.id).let { m ->
+                assertNotNull(m)
+                assertEquals(Match.State.FINISHED, m.state)
+                assertEquals(newMatch.currPlayer, m.currPlayer)
+                assertEquals(newMatch.currTurn, m.currTurn)
+                assertEquals(newDeadLine, m.deadlineTurn)
+                assertEquals(newMatchInfo, m.info)
+            }            
+        }
+    }
+
+    @Test
+    fun `get all user matches`() {
+        testWithHandleAndRollback { handle ->
+            val gameRepo = JdbiGameRepository(handle)
+            val userRepo = JdbiUserRepository(handle)
+
+            //createGame
+            gameRepo.createGame(game)
+
+            //2 samples of users with stats
+            fun pvi(p: String) = User.PasswordValidationInfo(p)
+            val users = (0..1).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
+            users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.SEARCHING) }
+
+            //create 5 matches
+            repeat(5) {
+                val match = Match(UUID.randomUUID(), "tic-tac-toe", Match.State.ON_GOING, users.map { it.id }, users[0].id, 2, Instant.now().plusSeconds(60), Instant.now(), "X__O_XXO_")
+                gameRepo.createMatch(match)
+            }
+
+            //get all user matches
+            gameRepo.getAllGameMatchesByUser("tic-tac-toe", users[0].id).let { matches ->
+                assertEquals(5, matches.size)
+                (0..4).forEach { i -> 
+                    assertEquals("tic-tac-toe", matches[i].gameName)
+                    assertEquals(Match.State.ON_GOING, matches[i].state)
+                    assertEquals(users.map { it.id }, matches[i].players)
+                    assertEquals(users[0].id, matches[i].currPlayer)
+                    assertEquals(2, matches[i].currTurn)
+                    assertEquals(Instant.now().plusSeconds(60), matches[i].deadlineTurn)
+                    assertEquals("X__O_XXO_", matches[i].info)
+                }
+            }
         }
     }
 }

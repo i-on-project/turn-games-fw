@@ -63,7 +63,7 @@ class GameServices(
 
             val matches = it.gamesRepository.getAllGameMatchesByUser(gameName, userId)
 
-            val match = matches.firstOrNull<Match> { match -> match.state != Match.State.END } ?: return@run Either.Left(FoundMatchError.ServerError)
+            val match = matches.firstOrNull<Match> { match -> match.state != Match.State.FINISHED } ?: return@run Either.Left(FoundMatchError.ServerError)
 
             return@run Either.Right(match)
         }

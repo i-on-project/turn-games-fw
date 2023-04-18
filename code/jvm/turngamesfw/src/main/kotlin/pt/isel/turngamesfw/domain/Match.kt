@@ -17,6 +17,6 @@ data class Match (
     enum class State {
         SETUP,
         ON_GOING,
-        END,
+        FINISHED,
     }
 }

@@ -42,14 +42,18 @@ class UserServices(
             }
         }
     }
-    
+
     fun isUserStoredByUsername(username: String): Boolean {
+        if (username.isBlank()) return false
+
         return transactionManager.run {
             return@run it.usersRepository.isUserStoredByUsername(username)
         }
     }
 
     fun getUserByUsername(username: String): User? {
+        if (username.isBlank()) return null
+
         return transactionManager.run {
             return@run it.usersRepository.getUserByUsername(username)
         }
@@ -60,7 +64,25 @@ class UserServices(
             return@run it.usersRepository.getUserById(id)
         }
     }
-    
+
+    fun getAllUsers() : List<User>? {
+        return transactionManager.run {
+            return@run it.usersRepository.getAllUsers()
+        }
+    }
+
+    fun updateStatus(id: Int, status: User.Status) {
+        transactionManager.run {
+            it.usersRepository.updateStatus(id, status)
+        }
+    }
+
+    fun getStatus(id: Int): User.Status? {
+        return transactionManager.run {
+            return@run it.usersRepository.getStatus(id)
+        }
+    }
+
     fun createToken(username: String, password: String): TokenCreationResult {
         if (username.isBlank() || password.isBlank()) {
             Either.Left(TokenCreationError.InvalidArguments)
@@ -82,12 +104,12 @@ class UserServices(
         }
     }
 
-    fun getUserByToken(token: String): User? {
-        if (!userLogic.canBeToken(token)) { return null }
+    fun getUserByToken(string: String): User? {
+        if (!userLogic.canBeToken(string)) { return null }
 
         return transactionManager.run {
             val usersRepository = it.usersRepository
-            val tokenValidationInfo = tokenEncoder.createValidationInformation(token)
+            val tokenValidationInfo = tokenEncoder.createValidationInformation(string)
             val token = usersRepository.getTokenByTokenValidation(tokenValidationInfo)
 
             if (token == null || isTokenStillValid(token)) return@run null
@@ -103,26 +125,10 @@ class UserServices(
         }
     }
 
-    fun getAllUsers() : List<User>? {
-        return transactionManager.run {
-            return@run it.usersRepository.getAllUsers()
-        }
-    }
 
     private fun isTokenStillValid(token: Token): Boolean {
         val now = clock.now()
         return now.isBefore(token.createdAt.plus(TOKEN_TTL)) && now.isBefore(token.lastUsedAt.plus(TOKEN_ROLLING_TTL))
     }
 
-    fun updateStatus(id: Int, status: User.Status) {
-        transactionManager.run {
-            it.usersRepository.updateStatus(id, status)
-        }
-    }
-
-    fun getStatus(id: Int): User.Status? {
-        return transactionManager.run {
-            return@run it.usersRepository.getStatus(id)
-        }
-    }
 }

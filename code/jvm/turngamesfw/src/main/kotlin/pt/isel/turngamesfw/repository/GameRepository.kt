@@ -7,12 +7,17 @@ import pt.isel.turngamesfw.domain.User
 import java.util.UUID
 
 interface GameRepository {
-
     fun createGame(game: Game)
 
     fun getGame(name: String): Game?
 
     fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser>
+
+    fun createUserStats(userId: Int, gameName: String, initialRating: Int, state: User.Stats.State)
+
+    fun getUserStats(userId: Int, gameName: String): User.Stats
+
+    fun getUserRatingById(id: Int, gameName: String): Int
 
     fun updateRating(userId: Int, gameName: String, rating: Int)
 
@@ -26,8 +31,7 @@ interface GameRepository {
 
     fun getMatchById(id: UUID): Match?
 
-    fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match>
-
     fun updateMatch(match: Match)
 
+    fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match>
 }

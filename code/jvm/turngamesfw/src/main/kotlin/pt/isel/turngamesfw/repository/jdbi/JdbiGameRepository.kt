@@ -11,7 +11,7 @@ import java.util.*
 
 class JdbiGameRepository(private val handle: Handle) : GameRepository {
     override fun createGame(game: Game) {
-        handle.createUpdate("insert into dbo.Games (name, description, numPlayers, rules) values (:name, :description, :numPlayers, :rules)")
+        handle.createUpdate("insert into dbo.Games (name, description, num_players, rules) values (:name, :description, :numPlayers, :rules)")
             .bind("name", game.name)
             .bind("numPlayers", game.numPlayers)
             .bind("description", game.description)
@@ -20,20 +20,40 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getGame(name: String): Game? {
-        return handle.createQuery("select * from dbo.Games where name = :name")
-            .bind("name", name)
-            .mapTo<Game>()
-            .single()
+        return try {
+            handle.createQuery("select * from dbo.Games where name = :name")
+                .bind("name", name)
+                .mapTo<Game>()
+                .single()
+        } catch (e: Exception) { null }
     }
 
     override fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser> {
-        return handle.createQuery("""select u.username, u.rating from dbo.UserStats us inner join dbo.Users u 
-            on us.user_id = u.id where us.game_name = :gameName order by u.rating desc limit :limit, offset :offset""")
+        data class LU(val username: String, val rating: Int)
+
+        val r = handle.createQuery("""select u.username, us.rating from dbo.UserStats us inner join dbo.Users u 
+            on us.user_id = u.id where us.game_name = :gameName order by us.rating desc limit :limit offset :offset""")
             .bind("gameName", gameName)
             .bind("limit", limit)
-            .bind("offset", (page-1) * limit)
-            .mapTo<LeaderboardUser>()
-            .list()
+            .bind("offset", page * limit)
+        return r.mapTo<LU>().mapIndexed { i, it -> LeaderboardUser(it.username, it.rating, page * limit + i) }
+    }
+
+    override fun createUserStats(userId: Int, gameName: String, initialRating: Int, state: User.Stats.State) {
+        handle.createUpdate("insert into dbo.UserStats (user_id, game_name, rating, state) values (:user_id, :game_name, :rating, :state)")
+            .bind("user_id", userId)
+            .bind("game_name", gameName)
+            .bind("rating", initialRating)
+            .bind("state", state)
+            .execute()
+    }
+
+    override fun getUserStats(userId: Int, gameName: String): User.Stats {
+        return handle.createQuery("select * from dbo.UserStats where user_id = :user_id and game_name = :game_name")
+            .bind("user_id", userId)
+            .bind("game_name", gameName)
+            .mapTo<User.Stats>()
+            .single()
     }
 
     override fun updateRating(userId: Int, gameName: String, rating: Int) {
@@ -60,7 +80,7 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getPlayersSearching(nameGame: String): List<User> {
-        return handle.createQuery("select * from dbo.UserStats where game_name = :name and state = :state")
+        return handle.createQuery("select * from dbo.UserStats us inner join dbo.Users u on us.user_id = u.id where us.game_name = :name and us.state = :state")
             .bind("name", nameGame)
             .bind("state", User.Stats.State.SEARCHING)
             .mapTo<User>()
@@ -69,7 +89,7 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
 
     override fun createMatch(match: Match) {
         handle.createUpdate(
-            "insert into dbo.Matches (id, gameName, state, curr_player, curr_turn, deadline_turn, created, info) " +
+            "insert into dbo.Matches (id, game_name, state, curr_player, curr_turn, deadline_turn, created, info) " +
                     "values (:id, :gameName, :state, :currPlayer, :currTurn, :deadlineTurn, :created, :info)"
         )
             .bind("id", match.id)
@@ -98,7 +118,11 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match> {
-        TODO("Not yet implemented")
+        return handle.createQuery("select m.* from dbo.Matches m inner join dbo.UserMatches um on m.id = um.match_id where m.gameName = :gameName and um.user_id = :user_id")
+            .bind("gameName", nameGame)
+            .bind("user_id", userId)
+            .mapTo<Match>()
+            .list()
     }
 
     override fun updateMatch(match: Match) {
@@ -113,5 +137,13 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .bind("deadlineTurn", match.deadlineTurn)
             .bind("info", match.info)
             .execute()
+    }
+
+    override fun getUserRatingById(id: Int, gameName: String): Int {
+        return handle.createQuery("select rating from dbo.UserStats where user_id = :user_id and game_name = :game_name")
+            .bind("user_id", id)
+            .bind("game_name", gameName)
+            .mapTo<Int>()
+            .single()
     }
 }
