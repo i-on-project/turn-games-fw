@@ -1,15 +1,17 @@
 package pt.isel.turngamesfw.domain
 
+import com.fasterxml.jackson.databind.JsonNode
+
 interface GameLogic {
 
     data class InfoSetup(
         val playerId: Int,
-        val info: Any
+        val info: JsonNode
     )
 
     data class InfoTurn(
         val playerId: Int,
-        val info: Any
+        val info: JsonNode
     )
 
     data class UpdateInfo(

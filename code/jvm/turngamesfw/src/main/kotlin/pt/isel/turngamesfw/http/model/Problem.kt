@@ -16,6 +16,12 @@ enum class Problem(
     val title: String,
     val status: Int,
 ) {
+    SERVER_ERROR(
+        status = 500,
+        type = URI("$GITHUB_URI/server-error"),
+        title = "Server error",
+    ),
+
     USER_ALREADY_EXIST(
         status = 400,
         type = URI("$GITHUB_URI/user-already-exists"),
@@ -38,5 +44,35 @@ enum class Problem(
         status = 404,
         type = URI("$GITHUB_URI/user-not-found"),
         title = "User not found",
+    ),
+
+    GAME_NOT_EXIST(
+        status = 400,
+        type = URI("$GITHUB_URI/game-not-exist"),
+        title = "Game not exist",
+    ),
+
+    USER_ALREADY_SEARCHING_IN_GAME(
+        status = 400,
+        type = URI("$GITHUB_URI/user-already-searching-in-game"),
+        title = "User already searching or in game",
+    ),
+
+    INVALID_MATCH_ID(
+        status = 400,
+        type = URI("$GITHUB_URI/invalid-match-id"),
+        title = "id doesnt represent a UUID",
+    ),
+
+    MATCH_NOT_EXIST(
+        status = 400,
+        type = URI("$GITHUB_URI/match-not-exist"),
+        title = "Match with that id not exist",
+    ),
+
+    USER_NOT_IN_MATCH(
+        status = 400,
+        type = URI("$GITHUB_URI/match-not-in-match"),
+        title = "User is not in match",
     ),
 }

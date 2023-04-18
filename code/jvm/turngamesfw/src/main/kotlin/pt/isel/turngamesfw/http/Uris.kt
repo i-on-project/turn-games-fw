@@ -10,14 +10,14 @@ object Uris {
         const val GAME_FIND = "/game/find"
         const val GAME_LEADERBOARD = "/game/leaderboard"
 
-        const val HOME = "/game/{nameGame}"
+        const val GAME_INFO = "/game/{nameGame}"
 
-        const val FIND = "$HOME/find"
-        const val FOUND = "$HOME/found"
-        const val GET_BY_ID = "$HOME/{id}"
-        const val SETUP = "$HOME/setup"
-        const val DO_TURN = "$HOME/turn"
-        const val LEADERBOARD = "$HOME/leaderboard"
+        const val FIND = "$GAME_INFO/find"
+        const val FOUND = "$GAME_INFO/found"
+        const val GET_BY_ID = "$GAME_INFO/match/{id}"
+        const val SETUP = "$GAME_INFO/setup"
+        const val DO_TURN = "$GAME_INFO/turn"
+        const val LEADERBOARD = "$GAME_INFO/leaderboard"
     }
 
     object User {

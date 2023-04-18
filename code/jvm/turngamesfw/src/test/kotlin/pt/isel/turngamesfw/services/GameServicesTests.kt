@@ -1,5 +1,7 @@
 package pt.isel.turngamesfw.services
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -50,6 +52,8 @@ class GameServicesTests {
         deadlineTurn = Instant.now(),
         info = object{}
     )
+
+    private val info: JsonNode = JsonNodeFactory.instance.objectNode()
 
     @BeforeAll
     fun setUp() {
@@ -196,7 +200,7 @@ class GameServicesTests {
         val slot = slot<Match>()
         every { gameRepository.updateMatch(capture(slot)) } answers { updatedMatch = slot.captured }
 
-        val resp = when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, object{}))) {
+        val resp = when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, info))) {
             is Either.Left -> fail("Should not return error")
             is Either.Right -> when (val r = res.value) {
                 is SetupMatchSuccess.SetupDone -> r.resp
@@ -211,7 +215,7 @@ class GameServicesTests {
     fun `setup with invalid match returns error`() {
         val playerId = 1
 
-        when (val res = gameServices.setup(UUID.randomUUID(), GameLogic.InfoSetup(playerId, object{}))) {
+        when (val res = gameServices.setup(UUID.randomUUID(), GameLogic.InfoSetup(playerId, info))) {
             is Either.Left -> assertEquals(SetupMatchError.MatchNotExist::class.java, res.value::class.java)
             is Either.Right -> fail("Should not return success")
         }
@@ -222,7 +226,7 @@ class GameServicesTests {
     fun `setup with invalid user returns error`() {
         val playerId = 3
 
-        when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, object{}))) {
+        when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, info))) {
             is Either.Left -> assertEquals(SetupMatchError.UserNotInMatch::class.java, res.value::class.java)
             is Either.Right -> fail("Should not return success")
         }
@@ -236,7 +240,7 @@ class GameServicesTests {
         val slot = slot<Match>()
         every { gameRepository.updateMatch(capture(slot)) } answers { updatedMatch = slot.captured }
 
-        val resp = when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, object{}))) {
+        val resp = when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, info))) {
             is Either.Left -> fail("Should not return error")
             is Either.Right -> when (val r = res.value) {
                 is DoTurnMatchSuccess.DoTurnDone -> r.resp
@@ -251,7 +255,7 @@ class GameServicesTests {
     fun `doTurn with invalid match returns error`() {
         val playerId = 1
 
-        when (val res = gameServices.doTurn(UUID.randomUUID(), GameLogic.InfoTurn(playerId, object{}))) {
+        when (val res = gameServices.doTurn(UUID.randomUUID(), GameLogic.InfoTurn(playerId, info))) {
             is Either.Left -> assertEquals(DoTurnMatchError.MatchNotExist::class.java, res.value::class.java)
             is Either.Right -> fail("Should not return success")
         }
@@ -262,7 +266,7 @@ class GameServicesTests {
     fun `doTurn with invalid user returns error`() {
         val playerId = 3
 
-        when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, object{}))) {
+        when (val res = gameServices.doTurn(chessMatch.id, GameLogic.InfoTurn(playerId, info))) {
             is Either.Left -> assertEquals(DoTurnMatchError.UserNotInMatch::class.java, res.value::class.java)
             is Either.Right -> fail("Should not return success")
         }
