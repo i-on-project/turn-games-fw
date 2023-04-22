@@ -15,4 +15,6 @@ class GameProvider {
 
     fun getGameLogic(gameName: String) = gamesMap[gameName]
 
+    fun getAllGameLogic() = gamesMap.map { it.value }
+
 }

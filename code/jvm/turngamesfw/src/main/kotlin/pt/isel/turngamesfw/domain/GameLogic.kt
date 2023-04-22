@@ -33,4 +33,6 @@ interface GameLogic {
      */
     fun matchPlayerView(match: Match, playerId: Int): Match
 
+    fun getGameInfo(): Game
+
 }

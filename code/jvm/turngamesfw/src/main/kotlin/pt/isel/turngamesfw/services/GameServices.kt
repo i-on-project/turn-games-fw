@@ -84,11 +84,14 @@ class GameServices(
                 return@run Either.Left(SetupMatchError.UserNotInMatch)
             }
 
+            // TODO: Check if the match is in setup state
+
             val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(SetupMatchError.ServerError)
             val updateInfo = gameLogic.setup(match, infoSetup)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
+                    // TODO: Return error with message send by gameLogic
                     return@run Either.Left(SetupMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
@@ -105,17 +108,33 @@ class GameServices(
                 return@run Either.Left(DoTurnMatchError.UserNotInMatch)
             }
 
+            // TODO: Check if the match is in On going state
+
             val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(DoTurnMatchError.ServerError)
             val updateInfo = gameLogic.doTurn(match, infoTurn)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
+                    // TODO: Return error with message send by gameLogic
                     return@run Either.Left(DoTurnMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
             }
 
+            // TODO: Rating checks
+
             return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
+        }
+    }
+
+    fun checkAndSaveAllGames() {
+        transactionManager.run {
+            gameProvider.getAllGameLogic().forEach { gameLogic ->
+                val game = gameLogic.getGameInfo()
+                if (it.gamesRepository.getGame(game.name) == null) {
+                    it.gamesRepository.createGame(game)
+                }
+            }
         }
     }
 
