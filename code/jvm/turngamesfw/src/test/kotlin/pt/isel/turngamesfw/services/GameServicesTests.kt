@@ -53,6 +53,16 @@ class GameServicesTests {
         info = object{}
     )
 
+    private val chessMatchSetup = Match(
+        gameName = "Chess",
+        state = Match.State.SETUP,
+        players = listOf(1, 2),
+        currPlayer = 1,
+        currTurn = 1,
+        deadlineTurn = Instant.now(),
+        info = object{}
+    )
+
     private val info: JsonNode = JsonNodeFactory.instance.objectNode()
 
     @BeforeAll
@@ -60,10 +70,10 @@ class GameServicesTests {
         MockKAnnotations.init(this)
         gameProvider.addGame("Chess", chessGameLogic)
         every { chessGameLogic.matchPlayerView(any(), any()) } returnsArgument 0
-        every { chessGameLogic.setup(chessMatch, any()) } returns GameLogic.UpdateInfo(
+        every { chessGameLogic.setup(chessMatchSetup, any()) } returns GameLogic.UpdateInfo(
             error = false,
             message = "Works",
-            match = chessMatch
+            match = chessMatchSetup
         )
         every { chessGameLogic.doTurn(chessMatch, any()) } returns GameLogic.UpdateInfo(
             error = false,
@@ -199,11 +209,13 @@ class GameServicesTests {
         var updatedMatch: Match? = null
         val slot = slot<Match>()
         every { gameRepository.updateMatch(capture(slot)) } answers { updatedMatch = slot.captured }
+        every { gameRepository.getMatchById(chessMatchSetup.id) } returns chessMatchSetup
 
-        val resp = when (val res = gameServices.setup(chessMatch.id, GameLogic.InfoSetup(playerId, info))) {
+        val resp = when (val res = gameServices.setup(chessMatchSetup.id, GameLogic.InfoSetup(playerId, info))) {
             is Either.Left -> fail("Should not return error")
             is Either.Right -> when (val r = res.value) {
                 is SetupMatchSuccess.SetupDone -> r.resp
+                else -> fail("Should not return other")
             }
         } as String
 
@@ -244,6 +256,7 @@ class GameServicesTests {
             is Either.Left -> fail("Should not return error")
             is Either.Right -> when (val r = res.value) {
                 is DoTurnMatchSuccess.DoTurnDone -> r.resp
+                else -> fail("Should not return other")
             }
         } as String
 

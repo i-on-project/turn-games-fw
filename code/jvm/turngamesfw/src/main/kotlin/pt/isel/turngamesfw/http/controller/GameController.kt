@@ -83,9 +83,11 @@ class GameController(
                 SetupMatchError.MatchNotExist -> problemResponse(Problem.MATCH_NOT_EXIST)
                 SetupMatchError.ServerError -> problemResponse(Problem.SERVER_ERROR)
                 SetupMatchError.UserNotInMatch -> problemResponse(Problem.USER_NOT_IN_MATCH)
+                SetupMatchError.MatchStateError -> problemResponse(Problem.MATCH_STATE)
             }
             is Either.Right -> when (val r = res.value) {
                 is SetupMatchSuccess.SetupDone -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(r.resp)
+                is SetupMatchSuccess.ErrorInGameLogic -> ResponseEntity.status(400).contentType(MediaType.APPLICATION_JSON).body(r.resp)
             }
         }
     }
@@ -97,9 +99,12 @@ class GameController(
                 DoTurnMatchError.MatchNotExist -> problemResponse(Problem.MATCH_NOT_EXIST)
                 DoTurnMatchError.ServerError -> problemResponse(Problem.SERVER_ERROR)
                 DoTurnMatchError.UserNotInMatch -> problemResponse(Problem.USER_NOT_IN_MATCH)
+                DoTurnMatchError.MatchStateError -> problemResponse(Problem.MATCH_STATE)
+                DoTurnMatchError.NotYourTurn -> problemResponse(Problem.NOT_YOUR_TURN)
             }
             is Either.Right -> when (val r = res.value) {
                 is DoTurnMatchSuccess.DoTurnDone -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(r.resp)
+                is DoTurnMatchSuccess.ErrorInGameLogic -> ResponseEntity.status(400).contentType(MediaType.APPLICATION_JSON).body(r.resp)
             }
         }
     }

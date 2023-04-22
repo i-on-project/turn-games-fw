@@ -34,11 +34,6 @@ enum class Problem(
         title = "Server error",
     ),
 
-    USER_ALREADY_EXIST(
-        status = 400,
-        type = URI("$GITHUB_URI/user-already-exists"),
-        title = "User already exists",
-    ),
 
     INSECURE_PASSWORD(
         status = 400,
@@ -86,5 +81,17 @@ enum class Problem(
         status = 400,
         type = URI("$GITHUB_URI/match-not-in-match"),
         title = "User is not in match",
+    ),
+
+    NOT_YOUR_TURN(
+        status = 400,
+        type = URI("$GITHUB_URI/not-your-turn"),
+        title = "Not Your Turn",
+    ),
+
+    MATCH_STATE(
+        status = 400,
+        type = URI("$GITHUB_URI/match-state"),
+        title = "Not the correct state to do this action",
     ),
 }
