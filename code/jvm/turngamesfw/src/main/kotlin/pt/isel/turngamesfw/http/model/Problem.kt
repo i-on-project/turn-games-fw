@@ -16,6 +16,18 @@ enum class Problem(
     val title: String,
     val status: Int,
 ) {
+    INVALID_ARGUMENTS(
+        status = 400,
+        type = URI("$GITHUB_URI/invalid-arguments"),
+        title = "Invalid arguments"
+    ),
+
+    USER_ALREADY_EXISTS(
+        status = 400,
+        type = URI("$GITHUB_URI/user-already-exists"),
+        title = "User already exists"
+    ),
+
     SERVER_ERROR(
         status = 500,
         type = URI("$GITHUB_URI/server-error"),

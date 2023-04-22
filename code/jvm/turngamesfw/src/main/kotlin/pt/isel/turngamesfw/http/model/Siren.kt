@@ -2,8 +2,14 @@ package pt.isel.turngamesfw.http.model
 
 import pt.isel.turngamesfw.http.Rels
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import pt.isel.turngamesfw.http.Uris
 import java.net.URI
+
+data class HttpError(val status: Int, val message: String)
 
 data class SirenModel<T> (
     @JsonProperty("class")
@@ -14,9 +20,7 @@ data class SirenModel<T> (
     val actions: List<ActionModel>
 )
 
-data class LinkRelation(
-    val value: String
-)
+class LinkRelation(val value: String)
 
 data class LinkModel(
     val rel: List<String>,
@@ -139,6 +143,10 @@ class ActionBuilderScope(
         fields.add(FieldModel(classes, name, "hidden", value))
     }
 
+    fun passwordField(name: String, classes: List<String> = listOf()) {
+        fields.add(FieldModel(classes, name, "password"))
+    }
+
     fun build() = ActionModel(name, href.toASCIIString(), method.name(), type, fields)
 }
 
@@ -146,4 +154,22 @@ fun <T> siren(value: T, block: SirenBuilderScope<T>.() -> Unit): SirenModel<T> {
     val scope = SirenBuilderScope(value)
     scope.block()
     return scope.build()
+}
+
+fun Any.toResponseEntity(
+    status: HttpStatus = HttpStatus.OK,
+    contentType: String = "application/vnd.siren+json",
+    headers: Map<String, String> = emptyMap(),
+    others: (ResponseEntity.BodyBuilder) -> Unit = {},
+): ResponseEntity<*> {
+    val res = ResponseEntity.status(status)
+        .header("content-type", contentType)
+
+    headers.forEach { header ->
+        res.header(header.key, header.value)
+    }
+
+    others(res)
+
+    return res.body(this)
 }

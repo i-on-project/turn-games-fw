@@ -1,5 +1,6 @@
 package pt.isel.turngamesfw.services.results
 
+import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.utils.Either
 
 sealed class UserCreationError {
@@ -7,7 +8,7 @@ sealed class UserCreationError {
     object InvalidArguments: UserCreationError()
 }
 
-typealias UserCreationResult = Either<UserCreationError, Int>
+typealias UserCreationResult = Either<UserCreationError, User>
 
 sealed class TokenCreationError {
     object InvalidArguments : TokenCreationError()

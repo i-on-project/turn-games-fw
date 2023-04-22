@@ -11,6 +11,7 @@ import pt.isel.turngamesfw.utils.Clock
 import pt.isel.turngamesfw.utils.Either
 import pt.isel.turngamesfw.utils.TokenEncoder
 import java.time.Duration
+import java.util.*
 
 @Component
 class UserServices(
@@ -35,10 +36,11 @@ class UserServices(
         val passwordValidationInfo = User.PasswordValidationInfo(passwordEncoder.encode(password))
 
         return transactionManager.run {
-            return@run if (it.usersRepository.isUserStoredByUsername(username)) {
-                Either.Left(UserCreationError.UserAlreadyExists)
+            if (it.usersRepository.isUserStoredByUsername(username)) {
+                return@run Either.Left(UserCreationError.UserAlreadyExists)
             } else {
-                Either.Right(it.usersRepository.createUser(username, passwordValidationInfo))
+                val id = it.usersRepository.createUser(username, passwordValidationInfo)
+                return@run Either.Right(it.usersRepository.getUserById(id)!!)
             }
         }
     }
@@ -100,6 +102,7 @@ class UserServices(
             val newToken = Token(tokenEncoder.createValidationInformation(token), user.id, now, now)
 
             it.usersRepository.createToken(newToken, MAX_TOKENS)
+            updateStatus(user.id, User.Status.ONLINE)
             return@run Either.Right(token)
         }
     }

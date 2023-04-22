@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import pt.isel.turngamesfw.domain.GameLogic
 import pt.isel.turngamesfw.domain.User
@@ -22,25 +23,17 @@ class GameController(
     private val gameServices: GameServices,
 ) {
 
-    @GetMapping(Uris.Game.GAME_INFO)
+    @GetMapping(Uris.Game.INFO)
     fun getGameInfo(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
         val game = gameServices.getGameInfo(nameGame) ?: return problemResponse(Problem.GAME_NOT_EXIST)
 
         return ResponseEntity.status(200).body(GameOutputModel.fromGame(game))
     }
 
-    @GetMapping(Uris.Game.GAME_LEADERBOARD)
-    fun getLeaderboardByName(user: User, @RequestBody leaderboard: LeaderBoardInputModel) =
-        getLeaderboard(user, leaderboard.gameName, leaderboard)
-
     @GetMapping(Uris.Game.LEADERBOARD)
-    fun getLeaderboard(user: User, @PathVariable nameGame: String, @RequestBody leaderboard: LeaderBoardInputModel){
+    fun getLeaderboard(user: User, @PathVariable nameGame: String, @RequestParam page: Int, @RequestParam limit: Int){
         TODO()
     }
-
-    @PostMapping(Uris.Game.GAME_FIND)
-    fun findMatchByName(user: User, @RequestBody gameName: GameNameInputModel) =
-        findMatch(user, gameName.gameName)
 
     @PostMapping(Uris.Game.FIND)
     fun findMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
@@ -66,7 +59,7 @@ class GameController(
         }
     }
 
-    @GetMapping(Uris.Game.GET_BY_ID)
+    @GetMapping(Uris.Game.MATCH)
     fun getMatchById(user: User, @PathVariable nameGame: String, @PathVariable id: String): ResponseEntity<*> {
         val matchId = try {
             UUID.fromString(id)

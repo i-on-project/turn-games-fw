@@ -12,13 +12,7 @@
        "specificInfo": "yh"
      }
   },
-  "entities": [
-    {
-      "class": ["game"],
-      "rel": ["/rels/game"],
-      "href": "/game/chess"
-    }
-  ],
+  "entities": [],
   "actions": [
     {
       "name": "setUp",

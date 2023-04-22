@@ -29,14 +29,15 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser> {
-        data class LU(val username: String, val rating: Int)
+        data class LU(val id: Int, val username: String, val rating: Int)
 
-        val r = handle.createQuery("""select u.username, us.rating from dbo.UserStats us inner join dbo.Users u 
+        return handle.createQuery("""select u.id, u.username, us.rating from dbo.UserStats us inner join dbo.Users u 
             on us.user_id = u.id where us.game_name = :gameName order by us.rating desc limit :limit offset :offset""")
             .bind("gameName", gameName)
             .bind("limit", limit)
             .bind("offset", page * limit)
-        return r.mapTo<LU>().mapIndexed { i, it -> LeaderboardUser(it.username, it.rating, page * limit + i) }
+            .mapTo<LU>()
+            .mapIndexed { i, it -> LeaderboardUser(it.id, it.username, it.rating, page * limit + i) }
     }
 
     override fun createUserStats(userId: Int, gameName: String, initialRating: Int, state: User.Stats.State) {

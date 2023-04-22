@@ -7,17 +7,20 @@ object Uris {
     const val ABOUT = "/about"
 
     object Game {
-        const val GAME_FIND = "/game/find"
-        const val GAME_LEADERBOARD = "/game/leaderboard"
+        const val INFO = "/game/{nameGame}"
+        const val FIND = "$INFO/find"
+        const val FOUND = "$INFO/found"
+        const val MATCH = "$INFO/match/{id}"
+        const val SETUP = "$INFO/setup"
+        const val DO_TURN = "$INFO/turn"
+        const val LEADERBOARD = "$INFO/leaderboard"
 
-        const val GAME_INFO = "/game/{nameGame}"
-
-        const val FIND = "$GAME_INFO/find"
-        const val FOUND = "$GAME_INFO/found"
-        const val GET_BY_ID = "$GAME_INFO/match/{id}"
-        const val SETUP = "$GAME_INFO/setup"
-        const val DO_TURN = "$GAME_INFO/turn"
-        const val LEADERBOARD = "$GAME_INFO/leaderboard"
+        fun infoByGameName(gameName: String) = UriTemplate(INFO).expand(gameName)
+        fun findByGameName(gameName: String) = UriTemplate(FIND).expand(gameName)
+        fun leaderboardByGameName(gameName: String) = UriTemplate(LEADERBOARD).expand(gameName)
+        fun matchById(gameName: String, matchId: String) = UriTemplate(MATCH).expand(gameName, matchId)
+        fun doTurnByGameName(gameName: String) = UriTemplate(DO_TURN).expand(gameName)
+        fun setupByGameName(gameName: String) = UriTemplate(SETUP).expand(gameName)
     }
 
     object User {

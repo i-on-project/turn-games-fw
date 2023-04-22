@@ -15,8 +15,11 @@ object Rels {
     // Custom relations
     val HOME = LinkRelation("home")
     val USERS = LinkRelation(doc("users"))
+    val ME = LinkRelation(doc("me"))
     val GAMES = LinkRelation(doc("games"))
     val MATCHES = LinkRelation(doc("matches"))
+    val LOGIN = LinkRelation(doc("login"))
+    val REGISTER = LinkRelation(doc("register"))
 
     // Definitions managed by iana (https://www.iana.org/assignments/link-relations/link-relations.xhtml)
     val AUTHOR = LinkRelation("author")

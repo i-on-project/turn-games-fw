@@ -27,7 +27,10 @@ data class User(
     }
 }
 
+data class LeaderboardPageAndLimit(val page: Int, val limit: Int)
+
 data class LeaderboardUser(
+    val id: Int,
     val username: String,
     val rating: Int,
     val position: Int
