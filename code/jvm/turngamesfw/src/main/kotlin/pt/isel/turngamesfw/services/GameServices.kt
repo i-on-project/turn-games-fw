@@ -43,7 +43,7 @@ class GameServices(
 
             val inGamePlayers = searchingPlayers.take(numPlayers).map{ user -> user.id}
             val gameLogic = gameProvider.getGameLogic(gameName) ?: return@run // TODO: "Return server error gameLogic not found"
-            val match = gameLogic.create(inGamePlayers)
+            val match = gameLogic.create(inGamePlayers) // TODO: Maybe gameLogic create should only create whats important
 
             inGamePlayers.forEach { userId ->
                 it.gamesRepository.updateState(userId, gameName, User.Stats.State.IN_GAME)
@@ -84,20 +84,22 @@ class GameServices(
                 return@run Either.Left(SetupMatchError.UserNotInMatch)
             }
 
-            // TODO: Check if the match is in setup state
+            if (match.state != Match.State.SETUP) {
+                return@run Either.Left(SetupMatchError.MatchStateError)
+            }
 
             val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(SetupMatchError.ServerError)
             val updateInfo = gameLogic.setup(match, infoSetup)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
-                    // TODO: Return error with message send by gameLogic
                     return@run Either.Left(SetupMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
+                return@run Either.Right(SetupMatchSuccess.SetupDone(updateInfo.message))
+            } else {
+                return@run Either.Right(SetupMatchSuccess.ErrorInGameLogic(updateInfo.message))
             }
-
-            return@run Either.Right(SetupMatchSuccess.SetupDone(updateInfo.message))
         }
     }
 
@@ -108,22 +110,27 @@ class GameServices(
                 return@run Either.Left(DoTurnMatchError.UserNotInMatch)
             }
 
-            // TODO: Check if the match is in On going state
+            if (match.state != Match.State.ON_GOING) {
+                return@run Either.Left(DoTurnMatchError.MatchStateError)
+            }
+
+            if (match.currPlayer != infoTurn.playerId) {
+                return@run Either.Left(DoTurnMatchError.NotYourTurn)
+            }
 
             val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(DoTurnMatchError.ServerError)
             val updateInfo = gameLogic.doTurn(match, infoTurn)
 
             if (!updateInfo.error) {
                 if (updateInfo.match == null) {
-                    // TODO: Return error with message send by gameLogic
                     return@run Either.Left(DoTurnMatchError.ServerError)
                 }
                 it.gamesRepository.updateMatch(updateInfo.match)
+                // TODO: Rating checks
+                return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
+            } else {
+                return@run Either.Right(DoTurnMatchSuccess.ErrorInGameLogic(updateInfo.message))
             }
-
-            // TODO: Rating checks
-
-            return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
         }
     }
 

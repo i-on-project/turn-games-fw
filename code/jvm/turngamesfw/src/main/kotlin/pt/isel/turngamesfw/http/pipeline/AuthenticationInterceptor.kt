@@ -15,8 +15,6 @@ class AuthenticationInterceptor(
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == User::class.java }
         ) {
-            // Enforce authentication
-            //val user = authorizationHeaderProcessor.process(request.getHeader(NAME_AUTHORIZATION_HEADER))
             val token: String? = request.cookies?.filter { cookie -> cookie.name.equals("bsToken") }?.map{ cookie -> cookie.value }?.firstOrNull()
 
             val user = authorizationHeaderProcessor.process(token)

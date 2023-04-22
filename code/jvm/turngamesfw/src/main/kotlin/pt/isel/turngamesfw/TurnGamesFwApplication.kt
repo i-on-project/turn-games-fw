@@ -12,18 +12,20 @@ import pt.isel.turngamesfw.repository.jdbi.JdbiTransactionManager
 import pt.isel.turngamesfw.repository.jdbi.configure
 import pt.isel.turngamesfw.services.GameServices
 
+val gameProvider = GameProvider()
+
 @SpringBootApplication
 class TurnGamesFwApplication {
 
 	@Bean
 	fun jdbi() = Jdbi.create(
 		PGSimpleDataSource().apply {
-			setURL("jdbc:postgresql://localhost:5432/dbBattleship?user=dbuser&password=123entrei.")
+			setURL("jdbc:postgresql://localhost:5432/dbTurnGamesFW?user=dbuser&password=12345")
 		}
 	).configure()
 
 	@Bean
-	fun gameProvider() = GameProvider()
+	fun gameProvider() = gameProvider
 
 	@Bean
 	fun transactionManager() = JdbiTransactionManager(jdbi())

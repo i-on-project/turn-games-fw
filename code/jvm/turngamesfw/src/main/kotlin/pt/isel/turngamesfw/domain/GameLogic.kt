@@ -26,8 +26,6 @@ interface GameLogic {
 
     fun doTurn(match: Match, infoTurn: InfoTurn): UpdateInfo
 
-    fun isOver(match: Match): Boolean
-
     /***
      * Return match view for specific player
      */
