@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
 import org.springframework.stereotype.Component
+import pt.isel.ExampleClass
 import pt.isel.turngamesfw.domain.GameProvider
 import pt.isel.turngamesfw.repository.jdbi.JdbiTransactionManager
 import pt.isel.turngamesfw.repository.jdbi.configure
@@ -42,5 +43,6 @@ class StartSpring(private val gameServices: GameServices): CommandLineRunner {
 }
 
 fun main(args: Array<String>) {
+	ExampleClass.sayHello()
 	runApplication<TurnGamesFwApplication>(*args)
 }
