@@ -1,6 +1,7 @@
 package pt.isel.turngamesfw.services
 
 import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.node.JsonNodeFactory
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -50,7 +51,7 @@ class GameServicesTests {
         currPlayer = 1,
         currTurn = 1,
         deadlineTurn = Instant.now(),
-        info = object{}
+        info = ObjectMapper().valueToTree(object{})
     )
 
     private val chessMatchSetup = Match(
@@ -60,7 +61,7 @@ class GameServicesTests {
         currPlayer = 1,
         currTurn = 1,
         deadlineTurn = Instant.now(),
-        info = object{}
+        info = ObjectMapper().valueToTree(object{})
     )
 
     private val info: JsonNode = JsonNodeFactory.instance.objectNode()

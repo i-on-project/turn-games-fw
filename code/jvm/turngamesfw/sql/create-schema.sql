@@ -25,8 +25,8 @@ create table dbo.UserStats(
 create table dbo.Tokens(
     token_validation VARCHAR(256) primary key,
     user_id int references dbo.Users(id),
-    created_at bigint not null,
-    last_used_at bigint not null
+    created_at TIMESTAMP not null,
+    last_used_at TIMESTAMP not null
 );
 
 create table dbo.Matches(
@@ -41,8 +41,8 @@ create table dbo.Matches(
 );
 
 create table dbo.UserMatches(
-    matches_id UUID references dbo.Matches(id),
+    match_id UUID references dbo.Matches(id),
     user_id int references dbo.Users(id),
-    PRIMARY KEY (matches_id, user_id)
+    PRIMARY KEY (match_id, user_id)
 );
 

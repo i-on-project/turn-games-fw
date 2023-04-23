@@ -1,15 +1,44 @@
 package pt.isel.turngamesfw.repository.jdbi
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import pt.isel.turngamesfw.domain.User
 import org.jdbi.v3.core.Handle
 import org.jdbi.v3.core.kotlin.mapTo
+import org.jdbi.v3.core.mapper.reflect.ColumnName
+import org.jdbi.v3.core.statement.Update
+import org.postgresql.util.PGobject
 import pt.isel.turngamesfw.domain.Game
 import pt.isel.turngamesfw.domain.LeaderboardUser
 import pt.isel.turngamesfw.domain.Match
 import pt.isel.turngamesfw.repository.GameRepository
+import pt.isel.turngamesfw.repository.jdbi.mappers.InfoMapper
+import java.time.Instant
 import java.util.*
 
 class JdbiGameRepository(private val handle: Handle) : GameRepository {
+
+    companion object {
+
+        private fun Update.bindInfo(name: String, info: JsonNode) = run {
+            bind(
+                name,
+                PGobject().apply {
+                    type = "jsonb"
+                    value = serializeInfoToJson(info)
+                }
+            )
+        }
+
+        private val objectMapper = ObjectMapper().registerModule(KotlinModule.Builder().build())
+
+        private fun serializeInfoToJson(info: JsonNode): String = objectMapper.writeValueAsString(info)
+
+        fun deserializeInfoFromJson(json: String): JsonNode = objectMapper.readValue(json, JsonNode::class.java)
+
+    }
+
     override fun createGame(game: Game) {
         handle.createUpdate("insert into dbo.Games (name, description, num_players, rules) values (:name, :description, :numPlayers, :rules)")
             .bind("name", game.name)
@@ -20,12 +49,10 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getGame(name: String): Game? {
-        return try {
-            handle.createQuery("select * from dbo.Games where name = :name")
-                .bind("name", name)
-                .mapTo<Game>()
-                .single()
-        } catch (e: Exception) { null }
+        return handle.createQuery("select * from dbo.Games where name = :name")
+            .bind("name", name)
+            .mapTo<Game>()
+            .singleOrNull()
     }
 
     override fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser> {
@@ -100,7 +127,7 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .bind("currTurn", match.currTurn)
             .bind("deadlineTurn", match.deadlineTurn)
             .bind("created", match.created)
-            .bind("info", match.info)
+            .bindInfo("info", match.info)
             .execute()
 
         match.players.forEach { playerId ->
@@ -112,18 +139,34 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
     }
 
     override fun getMatchById(id: UUID): Match? {
-        return handle.createQuery("select * from dbo.Matches where id = :id")
+        val listPlayers: List<Int> = handle.createQuery("select user_id from dbo.UserMatches where match_id = :match_id")
+            .bind("match_id", id)
+            .mapTo<Int>()
+            .list()
+
+        return handle.createQuery("select id, game_name, state, curr_player, curr_turn, deadline_turn, created, info from dbo.Matches where id = :id")
             .bind("id", id)
-            .mapTo<Match>()
-            .single()
+            .mapTo<MatchDbModel>()
+            .singleOrNull()
+            ?.run {
+                toMatch(listPlayers)
+            }
     }
 
     override fun getAllGameMatchesByUser(nameGame: String, userId: Int): List<Match> {
-        return handle.createQuery("select m.* from dbo.Matches m inner join dbo.UserMatches um on m.id = um.match_id where m.gameName = :gameName and um.user_id = :user_id")
+        val matchesDb = handle.createQuery("select m.* from dbo.Matches m inner join dbo.UserMatches um on m.id = um.match_id where m.game_name = :gameName and um.user_id = :user_id")
             .bind("gameName", nameGame)
             .bind("user_id", userId)
-            .mapTo<Match>()
+            .mapTo<MatchDbModel>()
             .list()
+
+        return matchesDb.map {
+            val listPlayers: List<Int> = handle.createQuery("select user_id from dbo.UserMatches where match_id = :match_id")
+                .bind("match_id", it.id)
+                .mapTo<Int>()
+                .list()
+            it.toMatch(listPlayers)
+        }
     }
 
     override fun updateMatch(match: Match) {
@@ -136,7 +179,7 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .bind("currPlayer", match.currPlayer)
             .bind("currTurn", match.currTurn)
             .bind("deadlineTurn", match.deadlineTurn)
-            .bind("info", match.info)
+            .bindInfo("info", match.info)
             .execute()
     }
 
@@ -146,5 +189,20 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
             .bind("game_name", gameName)
             .mapTo<Int>()
             .single()
+    }
+
+    data class MatchDbModel(
+        val id: UUID,
+        val gameName: String,
+        val state: Match.State,
+        val currPlayer: Int,
+        val currTurn: Int,
+        val deadlineTurn: Instant?,
+        val created: Instant,
+        val info: JsonNode,
+    ) {
+        fun toMatch(players: List<Int>) = Match(
+            id, gameName, state, players, currPlayer, currTurn, deadlineTurn, created, info
+        )
     }
 }

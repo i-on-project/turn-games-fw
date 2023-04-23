@@ -1,5 +1,7 @@
 package pt.isel.turngamesfw.repository
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import pt.isel.turngamesfw.domain.Game
@@ -9,6 +11,7 @@ import pt.isel.turngamesfw.repository.jdbi.JdbiGameRepository
 import pt.isel.turngamesfw.repository.jdbi.JdbiUserRepository
 import pt.isel.turngamesfw.utils.testWithHandleAndRollback
 import java.time.Instant
+import java.time.temporal.ChronoUnit
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -138,9 +141,9 @@ class GameRepositoryTests {
             users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.SEARCHING) }
 
             //createMatch
-            val created = Instant.now()
-            val deadLine = created.plusSeconds(60)
-            val matchInfo = "X__O_____"
+            val created = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+            val deadLine = created.plusSeconds(60).truncatedTo(ChronoUnit.SECONDS)
+            val matchInfo: JsonNode = ObjectMapper().valueToTree("X__O_____")
             val match = Match(UUID.randomUUID(), "tic-tac-toe", Match.State.ON_GOING, users.map { it.id }, users[0].id, 2, deadLine, created, matchInfo)
             gameRepo.createMatch(match)
 
@@ -160,7 +163,7 @@ class GameRepositoryTests {
 
             //updateMatchState
             val newDeadLine = deadLine.plusSeconds(60)
-            val newMatchInfo = "X__OX_O_X"
+            val newMatchInfo: JsonNode = ObjectMapper().valueToTree("X__OX_O_X")
             val newMatch = Match(match.id, "tic-tac-toe", Match.State.FINISHED, users.map { it.id }, users[0].id, 5, newDeadLine, created, newMatchInfo)
             gameRepo.updateMatch(newMatch)
 
@@ -190,9 +193,13 @@ class GameRepositoryTests {
             val users = (0..1).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
             users.forEach { gameRepo.createUserStats(it.id, "tic-tac-toe", it.id * 100, User.Stats.State.SEARCHING) }
 
+            val created = Instant.now().truncatedTo(ChronoUnit.SECONDS)
+            val deadLine = created.plusSeconds(60).truncatedTo(ChronoUnit.SECONDS)
+            val matchInfo: JsonNode = ObjectMapper().valueToTree("X__O_XXO_")
+
             //create 5 matches
             repeat(5) {
-                val match = Match(UUID.randomUUID(), "tic-tac-toe", Match.State.ON_GOING, users.map { it.id }, users[0].id, 2, Instant.now().plusSeconds(60), Instant.now(), "X__O_XXO_")
+                val match = Match(UUID.randomUUID(), "tic-tac-toe", Match.State.ON_GOING, users.map { it.id }, users[0].id, 2, deadLine, created, matchInfo)
                 gameRepo.createMatch(match)
             }
 
@@ -205,8 +212,8 @@ class GameRepositoryTests {
                     assertEquals(users.map { it.id }, matches[i].players)
                     assertEquals(users[0].id, matches[i].currPlayer)
                     assertEquals(2, matches[i].currTurn)
-                    assertEquals(Instant.now().plusSeconds(60), matches[i].deadlineTurn)
-                    assertEquals("X__O_XXO_", matches[i].info)
+                    assertEquals(deadLine, matches[i].deadlineTurn)
+                    assertEquals(matchInfo, matches[i].info)
                 }
             }
         }

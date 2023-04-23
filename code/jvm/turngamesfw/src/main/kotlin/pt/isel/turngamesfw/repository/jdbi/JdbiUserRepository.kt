@@ -58,8 +58,8 @@ class JdbiUserRepository(
             """)
             .bind("user_id", token.userId)
             .bind("token_validation", token.tokenValidation.validationInfo)
-            .bind("created_at", token.createdAt.epochSecond)
-            .bind("last_used_at", token.lastUsedAt.epochSecond)
+            .bind("created_at", token.createdAt)
+            .bind("last_used_at", token.lastUsedAt)
             .execute()
     }
 
@@ -81,7 +81,7 @@ class JdbiUserRepository(
                 set last_used_at = :last_used_at
                 where token_validation = :validation_information
             """)
-            .bind("last_used_at", now.epochSecond)
+            .bind("last_used_at", now)
             .bind("validation_information", token.tokenValidation.validationInfo)
             .execute()
     }

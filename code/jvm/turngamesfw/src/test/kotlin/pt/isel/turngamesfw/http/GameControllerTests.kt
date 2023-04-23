@@ -1,5 +1,6 @@
 package pt.isel.turngamesfw.http
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
@@ -48,7 +49,7 @@ class GameControllerTests {
         currPlayer = 1,
         currTurn = 1,
         deadlineTurn = Instant.now(),
-        info = object{}
+        info = ObjectMapper().valueToTree(object{})
     )
 
     @BeforeEach

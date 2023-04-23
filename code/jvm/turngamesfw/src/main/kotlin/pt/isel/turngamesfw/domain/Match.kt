@@ -1,5 +1,6 @@
 package pt.isel.turngamesfw.domain
 
+import com.fasterxml.jackson.databind.JsonNode
 import java.time.Instant
 import java.util.UUID
 
@@ -12,7 +13,7 @@ data class Match (
     val currTurn: Int = 0,
     val deadlineTurn: Instant? = null,
     val created: Instant = Instant.now(),
-    val info: Any
+    val info: JsonNode
 ) {
     enum class State {
         SETUP,
