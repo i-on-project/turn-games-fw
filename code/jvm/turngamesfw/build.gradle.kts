@@ -26,6 +26,8 @@ dependencies {
 
 	implementation("com.google.code.gson:gson:2.10.1")
 
+	implementation(project(":example-module"))
+
 	// For JDBI
 	implementation("org.jdbi:jdbi3-core:3.37.1")
 	implementation("org.jdbi:jdbi3-kotlin:3.37.1")
