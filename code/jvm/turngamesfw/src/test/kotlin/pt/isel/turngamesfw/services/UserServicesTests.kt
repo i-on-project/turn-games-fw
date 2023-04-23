@@ -44,7 +44,9 @@ class UserServicesTests {
 
     private fun pvi(pass: String) = User.PasswordValidationInfo(pass)
     private val pass1 = "pass1"
+    private val pass2 = "pass2"
     private val user1 = User(1, "user1", pvi(pass1))
+    private val user2 = User(2, "user2", pvi(pass2))
 
     @BeforeAll
     fun setUp() {
@@ -69,6 +71,7 @@ class UserServicesTests {
 
         //Get all users
         every { userRepository.getAllUsers() } returns listOf(user1)
+        every { userRepository.getUserById(2) } returns user2
 
         //Status
         every { userRepository.getStatus(any()) } returns null
@@ -99,7 +102,7 @@ class UserServicesTests {
     @Test
     fun `create new user`() {
         val result = userServices.createUser("user2", "pass2")
-        assertIs<Either.Right<Int>>(result)
+        assertIs<Either.Right<User>>(result)
     }
 
     @Test
@@ -205,5 +208,4 @@ class UserServicesTests {
         val result = userServices.getUserByToken("user4-token")
         assertEquals(null, result)
     }
-
 }

@@ -1,6 +1,5 @@
 package pt.isel.turngamesfw.http.controller
 
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -24,12 +23,13 @@ class UserController(
             is Either.Left -> when (res.value) {
                 UserCreationError.InvalidArguments -> problemResponse(Problem.INVALID_ARGUMENTS)
                 UserCreationError.UserAlreadyExists -> problemResponse(Problem.USER_ALREADY_EXISTS)
+                UserCreationError.ServerError -> problemResponse(Problem.SERVER_ERROR)
             }
             is Either.Right -> SirenPages.register(res.value.toUserDetailsOutputModel()).toResponseEntity(status = HttpStatus.CREATED) {  }
         }
 
     @GetMapping(Uris.User.LOGIN)
-    fun loginPge(@RequestBody input: LoginInputModel): ResponseEntity<*> =
+    fun loginPage(@RequestBody input: LoginInputModel): ResponseEntity<*> =
         SirenPages.login(null).toResponseEntity { }
 
     @PostMapping(Uris.User.LOGIN)
@@ -42,6 +42,7 @@ class UserController(
             is Either.Right -> {
                 val headers = mutableMapOf(Pair("Set-Cookie", "TGFW-Cookie=${res.value}; SameSite=Strict"))
                 SirenPages.login(UserTokenOutputModel(res.value)).toResponseEntity(headers = headers) {}
+                // TODO: Maybe remove Siren page, remove token from response (only header)
             }
         }
 
@@ -49,6 +50,7 @@ class UserController(
     fun logout(user: User): ResponseEntity<*> {
         userServices.updateStatus(user.id, User.Status.OFFLINE)
         return SirenPages.home(null, null, emptyList()).toResponseEntity {  }
+        // TODO: Maybe remove Siren page, and add cookie to response with duration zero
         //TODO add the game list
     }
 

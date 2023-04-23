@@ -11,7 +11,6 @@ import pt.isel.turngamesfw.utils.Clock
 import pt.isel.turngamesfw.utils.Either
 import pt.isel.turngamesfw.utils.TokenEncoder
 import java.time.Duration
-import java.util.*
 
 @Component
 class UserServices(
@@ -40,7 +39,8 @@ class UserServices(
                 return@run Either.Left(UserCreationError.UserAlreadyExists)
             } else {
                 val id = it.usersRepository.createUser(username, passwordValidationInfo)
-                return@run Either.Right(it.usersRepository.getUserById(id)!!)
+                val user = it.usersRepository.getUserById(id) ?: return@run Either.Left(UserCreationError.ServerError)
+                return@run Either.Right(user)
             }
         }
     }
