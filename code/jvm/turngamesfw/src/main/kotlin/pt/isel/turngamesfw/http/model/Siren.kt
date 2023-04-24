@@ -6,6 +6,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.servlet.function.ServerRequest.Headers
 import pt.isel.turngamesfw.http.Uris
 import java.net.URI
 
@@ -159,14 +160,14 @@ fun <T> siren(value: T, block: SirenBuilderScope<T>.() -> Unit): SirenModel<T> {
 fun Any.toResponseEntity(
     status: HttpStatus = HttpStatus.OK,
     contentType: String = "application/vnd.siren+json",
-    headers: Map<String, String> = emptyMap(),
+    headers: HttpHeaders? = null,
     others: (ResponseEntity.BodyBuilder) -> Unit = {},
 ): ResponseEntity<*> {
     val res = ResponseEntity.status(status)
         .header("content-type", contentType)
 
-    headers.forEach { header ->
-        res.header(header.key, header.value)
+    headers?.forEach { h ->
+        res.header(h.key, h.value.toString())
     }
 
     others(res)

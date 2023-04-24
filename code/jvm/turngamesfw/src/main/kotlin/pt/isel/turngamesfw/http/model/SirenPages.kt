@@ -35,11 +35,10 @@ class SirenPages {
                 link(Uris.User.byId(userId.toString()), Rels.ME)
         }
 
-        fun login(token: UserTokenOutputModel?) = siren(token?: Unit) {
+        fun login() = siren(Unit) {
             clazz("login")
 
-            if (token == null)
-                action("login", URI(Uris.User.LOGIN), HttpMethod.POST, "application/json") {}
+            action("login", URI(Uris.User.LOGIN), HttpMethod.POST, "application/json") {}
 
             linkSelf(Uris.User.LOGIN)
 

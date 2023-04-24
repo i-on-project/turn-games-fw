@@ -1,6 +1,8 @@
 package pt.isel.turngamesfw.http.controller
 
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseCookie
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import pt.isel.turngamesfw.domain.User
@@ -10,13 +12,15 @@ import pt.isel.turngamesfw.services.UserServices
 import pt.isel.turngamesfw.services.results.TokenCreationError
 import pt.isel.turngamesfw.services.results.UserCreationError
 import pt.isel.turngamesfw.utils.Either
+import java.time.Duration
 import java.util.*
-
 
 @RestController
 class UserController(
     private val userServices: UserServices
 ) {
+    private val cookieName = "TGFWCookie"
+
     @PostMapping(Uris.User.REGISTER)
     fun register(@RequestBody input: RegisterInputModel): ResponseEntity<*> =
         when (val res = userServices.createUser(input.username, input.password)) {
@@ -30,7 +34,9 @@ class UserController(
 
     @GetMapping(Uris.User.LOGIN)
     fun loginPage(@RequestBody input: LoginInputModel): ResponseEntity<*> =
-        SirenPages.login(null).toResponseEntity { }
+        SirenPages.login().toResponseEntity { }
+
+    private fun createLoginCookie(token: String) = ResponseCookie.from(cookieName, token).httpOnly(true).secure(true).path("/").domain("localhost").maxAge(Duration.ofHours(1)).sameSite("Lax").build()
 
     @PostMapping(Uris.User.LOGIN)
     fun login(@RequestBody input: LoginInputModel): ResponseEntity<*> =
@@ -40,18 +46,26 @@ class UserController(
                 TokenCreationError.UserOrPasswordAreInvalid -> problemResponse(Problem.INVALID_LOGIN)
             }
             is Either.Right -> {
-                val headers = mutableMapOf(Pair("Set-Cookie", "TGFW-Cookie=${res.value}; SameSite=Strict"))
-                SirenPages.login(UserTokenOutputModel(res.value)).toResponseEntity(headers = headers) {}
-                // TODO: Maybe remove Siren page, remove token from response (only header)
+                val cookie = createLoginCookie(res.value)
+
+                val headers = HttpHeaders()
+                    headers.add(HttpHeaders.SET_COOKIE, cookie.toString())
+
+                SirenPages.login().toResponseEntity(headers = headers) {}
+                // TODO: Maybe remove Siren page
             }
         }
+
+    private val logoutCookie = ResponseCookie.from(cookieName, "").httpOnly(true).secure(true).path("/").domain("localhost").maxAge(Duration.ZERO).sameSite("Lax").build()
 
     @PostMapping(Uris.User.LOGOUT)
     fun logout(user: User): ResponseEntity<*> {
         userServices.updateStatus(user.id, User.Status.OFFLINE)
-        return SirenPages.home(null, null, emptyList()).toResponseEntity {  }
-        // TODO: Maybe remove Siren page, and add cookie to response with duration zero
-        //TODO add the game list
+
+        val headers = HttpHeaders()
+        headers.add(HttpHeaders.SET_COOKIE, logoutCookie.toString())
+
+        return SirenPages.home(null, null, emptyList()).toResponseEntity(headers = headers) {  }
     }
 
     @GetMapping(Uris.User.GET_BY_ID)

@@ -1,10 +1,13 @@
 package pt.isel.turngamesfw.repository
 
+import org.jdbi.v3.core.Handle
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.fail
+import pt.isel.turngamesfw.domain.Game
 import pt.isel.turngamesfw.domain.Token
 import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.domain.UserLogic
+import pt.isel.turngamesfw.repository.jdbi.JdbiGameRepository
 import pt.isel.turngamesfw.repository.jdbi.JdbiUserRepository
 import pt.isel.turngamesfw.utils.Clock
 import pt.isel.turngamesfw.utils.Sha256TokenEncoder
@@ -14,68 +17,108 @@ import java.time.temporal.ChronoUnit
 import kotlin.test.assertEquals
 
 class UserRepositoryTests {
-
-    @Test
-    fun `all tests`(): Unit = testWithHandleAndRollback { handle ->
-
-        // Get objects
+    private data class Init(val handle: Handle) {
         val userRepo = JdbiUserRepository(handle)
         val userLogic = UserLogic()
         val tokenEncoder = Sha256TokenEncoder()
-        val clock = object : Clock {
-            override fun now() = Instant.now().truncatedTo(ChronoUnit.SECONDS)
-        }
+        val clock = object : Clock { override fun now() = Instant.now().truncatedTo(ChronoUnit.SECONDS) }
 
-        // Store user in repository
-        val idPlayer = userRepo.createUser("playerTest", User.PasswordValidationInfo("123"))
+        private fun pvi(p: String) = User.PasswordValidationInfo(p)
 
-        // Check if exist user by username
-        assertEquals(true, userRepo.isUserStoredByUsername("playerTest"), "Error in createUser or isUserStoredByUsername")
+        val user = User(userRepo.createUser("user", pvi("pass")), "user", pvi("pass"))
+        val users = (0..19).map { User(userRepo.createUser("user$it", pvi("pass$it")), "user$it", pvi("pass$it")) }
 
-        // Get user inserted by username
-        var player = userRepo.getUserByUsername("playerTest") ?: fail("getUserByUsername user must exist")
-
-        // Check if player as the correct username
-        assertEquals("playerTest", player.username, "Error getting the right user by username")
-
-        // Get user inserted by id
-        player = userRepo.getUserById(idPlayer) ?: fail("getUserById user must exist")
-
-        // Check if player as the correct username
-        assertEquals("playerTest", player.username, "Error getting the right user by id")
-
-        // Create token for playerTest
         val tokenString = userLogic.generateToken()
         val tokenValidationInfo = tokenEncoder.createValidationInformation(tokenString)
-        var now = clock.now()
-        val token = Token(tokenValidationInfo, idPlayer, now, now)
-        userRepo.createToken(token, 3)
-
-        // Get user by token inserted
-        val user = userRepo.getUserByToken(token) ?: fail("getUserByToken user must exist")
-
-        // Check if user as the correct username
-        assertEquals("playerTest", user.username, "Error getting the right user by token")
-
-        // Get user by token validation
-        val tokenTest = userRepo.getTokenByTokenValidation(tokenValidationInfo)
-
-        // Check if the token is the same
-        assertEquals(token, tokenTest, "Error getting the right token by token validation")
-
-        // Update token last use
-        now = clock.now()
-        userRepo.updateTokenLastUsed(token, now)
-
-        // Check if the token is updated
-        assertEquals(now, userRepo.getTokenByTokenValidation(tokenValidationInfo)?.lastUsedAt, "Error updating token last used")
-
-        // Update status of user
-        userRepo.updateStatus(idPlayer, User.Status.ONLINE)
-
-        // Check if the user is updated
-        assertEquals(User.Status.ONLINE, userRepo.getStatus(idPlayer), "Error updating user status, or getting status")
-
+        val token = Token(tokenValidationInfo, user.id, clock.now(), clock.now())
+        init {
+            userRepo.createToken(token, 3)
+        }
     }
 
+    @Test
+    fun `store user in repository`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            val playerName = "playerTest"
+            val pvi = User.PasswordValidationInfo("123")
+
+            val idPlayer = i.userRepo.createUser(playerName, pvi)
+            assertEquals(true, i.userRepo.isUserStoredByUsername(playerName))
+        }
+    }
+
+    @Test
+    fun `get user inserted by username`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            assertEquals(true, i.userRepo.isUserStoredByUsername(i.user.username))
+        }
+    }
+
+    @Test
+    fun `get user inserted by id`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            val playerName = "playerTest"
+            val pvi = User.PasswordValidationInfo("123")
+            val idPlayer = i.userRepo.createUser(playerName, pvi)
+
+            val player = User(idPlayer, playerName, pvi)
+            assertEquals(player, i.userRepo.getUserById(idPlayer))
+        }
+    }
+
+    @Test
+    fun `check if player as the correct username`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            assertEquals(i.user.username, i.userRepo.getUserByUsername(i.user.username)?.username)
+        }
+    }
+
+    @Test
+    fun `create token for playerTest`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+        
+            val tokenString = i.userLogic.generateToken()
+            val tokenValidationInfo = i.tokenEncoder.createValidationInformation(tokenString)
+            val now = i.clock.now()
+            val token = Token(tokenValidationInfo, i.user.id, now, now)
+            i.userRepo.createToken(token, 3)
+
+            assertEquals(token, i.userRepo.getTokenByTokenValidation(tokenValidationInfo))
+
+            val tokenTest = i.userRepo.getTokenByTokenValidation(tokenValidationInfo)
+            assertEquals(token, tokenTest)
+        }
+    }
+
+    @Test
+    fun `update token last use`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            val now = i.clock.now()
+            i.userRepo.updateTokenLastUsed(i.token, now)
+
+            // Check if the token is updated
+            assertEquals(now, i.userRepo.getTokenByTokenValidation(i.tokenValidationInfo)?.lastUsedAt)
+        }
+    }
+
+    @Test
+    fun `update status`() {
+        testWithHandleAndRollback { handle ->
+            val i = Init(handle)
+
+            i.userRepo.updateStatus(i.user.id, User.Status.ONLINE)
+            assertEquals(User.Status.ONLINE, i.userRepo.getStatus(i.user.id))
+        }
+    }
 }
