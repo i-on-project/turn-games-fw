@@ -1,5 +1,7 @@
 package pt.isel.turngamesfw.http.controller
 
+import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -27,7 +29,7 @@ class GameController(
     fun getGameInfo(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
         val game = gameServices.getGameInfo(nameGame) ?: return problemResponse(Problem.GAME_NOT_EXIST)
 
-        return ResponseEntity.status(200).body(GameOutputModel.fromGame(game))
+        return SirenPages.gameInfo(GameOutputModel.fromGame(game)).toResponseEntity {  }
     }
 
     @GetMapping(Uris.Game.LEADERBOARD)
@@ -36,28 +38,28 @@ class GameController(
     }
 
     @PostMapping(Uris.Game.FIND)
-    fun findMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
-        return when (val res = gameServices.findMatch(nameGame, user.id)) {
+    fun findMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> =
+        when (val res = gameServices.findMatch(nameGame, user.id)) {
             is Either.Left -> when (res.value) {
                 FindMatchError.AlreadySearchingOrInGame -> problemResponse(Problem.USER_ALREADY_SEARCHING_IN_GAME)
                 FindMatchError.GameNotExist -> problemResponse(Problem.GAME_NOT_EXIST)
             }
-            is Either.Right -> ResponseEntity.status(303)
-                .header("Location", Uris.Game.FOUND)
-                .build<Unit>()
+            is Either.Right -> {
+                val headers = HttpHeaders()
+                headers.add("Location", Uris.Game.FOUND)
+                SirenPages.empty().toResponseEntity(status = HttpStatus.SEE_OTHER, headers = headers) {  }
+            }
         }
-    }
 
     @GetMapping(Uris.Game.FOUND)
-    fun foundMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
-        return when (val res = gameServices.foundMatch(nameGame, user.id)) {
+    fun foundMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> =
+        when (val res = gameServices.foundMatch(nameGame, user.id)) {
             is Either.Left -> when (res.value) {
                 FoundMatchError.ServerError -> problemResponse(Problem.SERVER_ERROR)
                 FoundMatchError.UserNotFound -> problemResponse(Problem.USER_NOT_FOUND)
             }
-            is Either.Right -> ResponseEntity.status(200).body(MatchOutputModel.fromMatch(res.value))
+            is Either.Right -> SirenPages.match(MatchOutputModel.fromMatch(res.value)).toResponseEntity {  }
         }
-    }
 
     @GetMapping(Uris.Game.MATCH)
     fun getMatchById(user: User, @PathVariable nameGame: String, @PathVariable id: String): ResponseEntity<*> {
@@ -72,7 +74,7 @@ class GameController(
                 MatchByIdError.MatchNotExist -> problemResponse(Problem.MATCH_NOT_EXIST)
                 MatchByIdError.ServerError -> problemResponse(Problem.SERVER_ERROR)
             }
-            is Either.Right -> ResponseEntity.status(200).body(MatchOutputModel.fromMatch(res.value))
+            is Either.Right -> SirenPages.match(MatchOutputModel.fromMatch(res.value)).toResponseEntity {  }
         }
     }
 

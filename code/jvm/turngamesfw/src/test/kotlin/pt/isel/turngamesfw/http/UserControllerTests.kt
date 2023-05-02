@@ -3,10 +3,13 @@ package pt.isel.turngamesfw.http
 import com.google.gson.Gson
 import com.ninjasquad.springmockk.MockkBean
 import io.mockk.every
+import jakarta.servlet.http.Cookie
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.http.HttpCookie
+import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -51,7 +54,6 @@ class UserControllerTests {
             User.PasswordValidationInfo("12345"),
         )
     }
-
     @Test
     fun `register user`() {
         val registerUser = RegisterInputModel("user1","pass1")
@@ -59,7 +61,7 @@ class UserControllerTests {
 
         every { userService.createUser("user1", "pass1") } returns Either.Right(user)
 
-        val body = "{\"class\":[\"register\"],\"properties\":{\"id\":1,\"username\":\"user1\",\"status\":\"OFFLINE\"}}"
+        val body = "{\"class\":[]}}"
 
         mockMvc.perform(
             post(Uris.User.REGISTER)
@@ -75,7 +77,7 @@ class UserControllerTests {
     @Test
     fun `do login`() {
         every { userService.createToken("user1", "pass1") } returns Either.Right("newToken")
-        val body = "{\"class\":[\"login\"],\"properties\":{\"token\":\"newToken\"}}"
+        val body = "{\"class\":[]}"
         mockMvc.perform(
             post(Uris.User.LOGIN)
                 .contentType(MediaType.APPLICATION_JSON_UTF8)
@@ -92,8 +94,21 @@ class UserControllerTests {
         val user = User(1, "User1", User.PasswordValidationInfo("12345"))
         every { userService.getUserById(1) } returns user
         val body = "{\"class\":[\"user\"],\"properties\":{\"id\":1,\"username\":\"User1\",\"status\":\"OFFLINE\"}}"
+        mockMvc.perform(get(Uris.User.byId("1")))
+            .andDo(MockMvcResultHandlers.print())
+            .andExpect(status().isOk)
+            .andExpect(content().contentType(contentTypeSiren))
+            .andExpect(content().json(body))
+
+    }
+
+    @Test
+    fun `do logout`() {
+        every { userService.updateStatus(1, User.Status.OFFLINE) } returns Unit
+        val body = "{\"class\":[]}"
         mockMvc.perform(
-            get(Uris.User.byId("1"))
+            post(Uris.User.LOGOUT)
+                .contentType(MediaType.APPLICATION_JSON_UTF8)
         )
             .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk)

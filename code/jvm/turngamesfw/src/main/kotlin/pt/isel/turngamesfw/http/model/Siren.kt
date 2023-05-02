@@ -167,7 +167,7 @@ fun Any.toResponseEntity(
         .header("content-type", contentType)
 
     headers?.forEach { h ->
-        res.header(h.key, h.value.toString())
+        res.header(h.key, h.value[0].toString())
     }
 
     others(res)

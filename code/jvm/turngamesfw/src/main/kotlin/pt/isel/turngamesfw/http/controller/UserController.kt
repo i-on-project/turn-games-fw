@@ -21,6 +21,10 @@ class UserController(
 ) {
     private val cookieName = "TGFWCookie"
 
+    @GetMapping(Uris.User.REGISTER)
+    fun registerPage(@RequestBody input: LoginInputModel): ResponseEntity<*> =
+        SirenPages.register().toResponseEntity { }
+
     @PostMapping(Uris.User.REGISTER)
     fun register(@RequestBody input: RegisterInputModel): ResponseEntity<*> =
         when (val res = userServices.createUser(input.username, input.password)) {
@@ -29,14 +33,15 @@ class UserController(
                 UserCreationError.UserAlreadyExists -> problemResponse(Problem.USER_ALREADY_EXISTS)
                 UserCreationError.ServerError -> problemResponse(Problem.SERVER_ERROR)
             }
-            is Either.Right -> SirenPages.register(res.value.toUserDetailsOutputModel()).toResponseEntity(status = HttpStatus.CREATED) {  }
+            is Either.Right -> SirenPages.empty().toResponseEntity(status = HttpStatus.CREATED) {  }
         }
 
     @GetMapping(Uris.User.LOGIN)
     fun loginPage(@RequestBody input: LoginInputModel): ResponseEntity<*> =
         SirenPages.login().toResponseEntity { }
 
-    private fun createLoginCookie(token: String) = ResponseCookie.from(cookieName, token).httpOnly(true).secure(true).path("/").domain("localhost").maxAge(Duration.ofHours(1)).sameSite("Lax").build()
+    private fun createLoginCookie(token: String) =
+        ResponseCookie.from(cookieName, token).httpOnly(true).secure(true).path("/").domain("localhost").maxAge(Duration.ofHours(1)).sameSite("Lax").build()
 
     @PostMapping(Uris.User.LOGIN)
     fun login(@RequestBody input: LoginInputModel): ResponseEntity<*> =
@@ -50,9 +55,7 @@ class UserController(
 
                 val headers = HttpHeaders()
                     headers.add(HttpHeaders.SET_COOKIE, cookie.toString())
-
-                SirenPages.login().toResponseEntity(headers = headers) {}
-                // TODO: Maybe remove Siren page
+                SirenPages.empty().toResponseEntity(headers = headers) {}
             }
         }
 
@@ -65,7 +68,7 @@ class UserController(
         val headers = HttpHeaders()
         headers.add(HttpHeaders.SET_COOKIE, logoutCookie.toString())
 
-        return SirenPages.home(null, null, emptyList()).toResponseEntity(headers = headers) {  }
+        return SirenPages.empty().toResponseEntity(headers = headers) {  }
     }
 
     @GetMapping(Uris.User.GET_BY_ID)
@@ -79,28 +82,4 @@ class UserController(
         val user = userServices.getUserById(userId)?: return problemResponse(Problem.USER_NOT_FOUND)
         return SirenPages.user(user.toUserDetailsOutputModel()).toResponseEntity {  }
     }
-
-    //TODO create the update and delete user services
-
-    /*
-    @PutMapping(Uris.User.UPDATE)
-    fun update(user: User, @RequestBody input: UpdateUserInputModel): ResponseEntity<*> = 
-        when (val res = userServices.updateUser(user.id, input.username)) {
-            is Either.Left -> when (res.value) {
-                UserServices.UpdateUserError.InvalidArguments -> problemResponse(Problem.INVALID_UPDATE)
-                UserServices.UpdateUserError.UserAlreadyExists -> problemResponse(Problem.USER_ALREADY_EXISTS)
-            }
-            is Either.Right -> ResponseEntity.status(200).build<Unit>()
-    }
-
-    @DeleteMapping(Uris.User.DELETE)
-    fun delete(user: User): ResponseEntity<*> = 
-        when (val res = userServices.deleteUser(user.id)) {
-            is Either.Left -> when (res.value) {
-                UserServices.DeleteUserError.ServerError -> problemResponse(Problem.SERVER_ERROR)
-                UserServices.DeleteUserError.UserNotFound -> problemResponse(Problem.USER_NOT_FOUND)
-            }
-            is Either.Right -> ResponseEntity.status(200).build<Unit>()
-    }
-     */
 }

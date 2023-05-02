@@ -10,6 +10,8 @@ import java.net.URI
 
 class SirenPages {
     companion object {
+        fun empty() = siren(Unit) {}
+
         fun home(userId: Int? = null, token: String?, gameNameList: List<String>) = siren(Unit) {
             clazz("home")
 
@@ -38,7 +40,10 @@ class SirenPages {
         fun login() = siren(Unit) {
             clazz("login")
 
-            action("login", URI(Uris.User.LOGIN), HttpMethod.POST, "application/json") {}
+            action("login", URI(Uris.User.LOGIN), HttpMethod.POST, "application/json") {
+                textField("username")
+                passwordField("password")
+            }
 
             linkSelf(Uris.User.LOGIN)
 
@@ -46,8 +51,13 @@ class SirenPages {
             link(Uris.User.REGISTER, Rels.REGISTER)
         }
 
-        fun register(userAndToken: UserDetailsOutputModel) = siren(userAndToken) {
+        fun register() = siren(Unit) {
             clazz("register")
+
+            action("register", URI(Uris.User.REGISTER), HttpMethod.POST, "application/json") {
+                textField("username")
+                passwordField("password")
+            }
 
             linkSelf(Uris.User.REGISTER)
 
@@ -74,7 +84,7 @@ class SirenPages {
         fun gameInfo(game: GameOutputModel) = siren(game) {
             clazz("game")
 
-            linkSelf(Uris.Game.INFO)
+            linkSelf(Uris.Game.infoByGameName(game.name))
 
             link(Uris.HOME, Rels.HOME)
         }
@@ -118,7 +128,7 @@ class SirenPages {
             linkSelf(Uris.Game.matchById(match.gameName, match.id.toString()))
 
             link(Uris.HOME, Rels.HOME)
-            link(Uris.Game.INFO, Rels.GAMES)
+            link(Uris.Game.infoByGameName(match.gameName), Rels.GAMES)
         }
     }
 }

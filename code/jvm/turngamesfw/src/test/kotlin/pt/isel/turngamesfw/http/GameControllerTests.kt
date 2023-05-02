@@ -41,6 +41,8 @@ class GameControllerTests {
     @MockkBean
     private lateinit var authorizationHeaderProcessor: AuthorizationHeaderProcessor
 
+    private val contentTypeSiren = "application/vnd.siren+json"
+
     private val chessGame = Game("Chess", 2, "Desc", "Rules")
     private val chessMatch = Match(
         gameName = "Chess",
@@ -71,11 +73,13 @@ class GameControllerTests {
 
     @Test
     fun `getGameInfo returns correct GameInfo`() {
-        val expectedJson = Gson().toJson(chessGame)
+        val body = "{\"class\":[\"game\"],\"properties\":{\"name\":Chess}}"
 
         mockMvc.perform(get("/game/Chess"))
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk)
-            .andExpect(content().json(expectedJson))
+            .andExpect(content().contentType(contentTypeSiren))
+            .andExpect(content().json(body))
     }
 
     @Test
@@ -120,9 +124,13 @@ class GameControllerTests {
     fun `foundMatch returns correct match`() {
         every { gameService.foundMatch("Chess", 1) } returns Either.Right(chessMatch)
 
+        val body = "{\"class\":[\"match\"],\"properties\":{\"gameName\":Chess}}"
+
         mockMvc.perform(get("/game/Chess/found"))
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk)
-            .andExpect(content().json("{\"id\": \"${chessMatch.id}\",\"gameName\": \"Chess\"}"))
+            .andExpect(content().contentType(contentTypeSiren))
+            .andExpect(content().json(body))
     }
 
     @Test
@@ -149,9 +157,13 @@ class GameControllerTests {
     fun `getMatchById returns correct match`() {
         every { gameService.getMatchById(chessMatch.id, 1) } returns Either.Right(chessMatch)
 
+        val body = "{\"class\":[\"match\"],\"properties\":{\"gameName\":Chess}}"
+
         mockMvc.perform(get("/game/Chess/match/${chessMatch.id}"))
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk)
-            .andExpect(content().json("{\"id\": \"${chessMatch.id}\",\"gameName\": \"Chess\"}"))
+            .andExpect(content().contentType(contentTypeSiren))
+            .andExpect(content().json(body))
     }
 
     @Test
