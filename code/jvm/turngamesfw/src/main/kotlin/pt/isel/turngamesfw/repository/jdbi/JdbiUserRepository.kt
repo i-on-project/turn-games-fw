@@ -11,13 +11,25 @@ class JdbiUserRepository(
     private val handle: Handle
 ): UserRepository {
 
-    override fun createUser(username: String, passwordValidation: User.PasswordValidationInfo): Int =
-        handle.createUpdate("insert into dbo.Users (username, password_validation) values (:username, :password_validation)")
+    override fun createUser(username: String, passwordValidation: User.PasswordValidationInfo): Int {
+        val userId = handle.createUpdate("insert into dbo.Users (username, password_validation) values (:username, :password_validation)")
             .bind("username", username)
             .bind("password_validation", passwordValidation.validationInfo)
             .executeAndReturnGeneratedKeys()
             .mapTo<Int>()
             .one()
+
+        handle.createQuery("select name from dbo.Games")
+            .mapTo<String>()
+            .forEach { nameGame ->
+                handle.createUpdate("insert into dbo.UserStats (user_id, game_name, rating) values (:userId, :nameGame, 0)")
+                    .bind("userId", userId)
+                    .bind("nameGame", nameGame)
+                    .execute()
+            }
+
+        return userId
+    }
 
     override fun isUserStoredByUsername(username: String): Boolean =
         handle.createQuery("select count(*) from dbo.Users where username = :username")
