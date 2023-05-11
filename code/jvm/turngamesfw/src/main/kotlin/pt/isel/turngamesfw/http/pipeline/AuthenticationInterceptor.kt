@@ -15,7 +15,7 @@ class AuthenticationInterceptor(
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
         if (handler is HandlerMethod && handler.methodParameters.any { it.parameterType == User::class.java }
         ) {
-            val token: String? = request.cookies?.filter { cookie -> cookie.name.equals("bsToken") }?.map{ cookie -> cookie.value }?.firstOrNull()
+            val token: String? = request.cookies?.filter { cookie -> cookie.name.equals("TGFWCookie") }?.map{ cookie -> cookie.value }?.firstOrNull()
 
             val user = authorizationHeaderProcessor.process(token)
 

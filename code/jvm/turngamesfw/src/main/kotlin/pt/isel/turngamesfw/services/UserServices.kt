@@ -115,7 +115,7 @@ class UserServices(
             val tokenValidationInfo = tokenEncoder.createValidationInformation(string)
             val token = usersRepository.getTokenByTokenValidation(tokenValidationInfo)
 
-            if (token == null || isTokenStillValid(token)) return@run null
+            if (token == null || !isTokenStillValid(token)) return@run null
 
             usersRepository.updateTokenLastUsed(token, clock.now())
             return@run it.usersRepository.getUserByToken(token)

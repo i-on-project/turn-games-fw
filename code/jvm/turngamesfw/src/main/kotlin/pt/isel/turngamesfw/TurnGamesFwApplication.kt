@@ -6,17 +6,21 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
-import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Component
+import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 import pt.isel.turngamesfw.domain.GameProvider
 import pt.isel.turngamesfw.domain.UserLogic
+import pt.isel.turngamesfw.http.pipeline.AuthenticationInterceptor
+import pt.isel.turngamesfw.http.pipeline.UserArgumentResolver
 import pt.isel.turngamesfw.repository.jdbi.JdbiTransactionManager
 import pt.isel.turngamesfw.repository.jdbi.configure
 import pt.isel.turngamesfw.services.GameServices
 import pt.isel.turngamesfw.utils.RealClock
 import pt.isel.turngamesfw.utils.Sha256TokenEncoder
-import java.time.Clock
 
 val gameProvider = GameProvider()
 
@@ -48,6 +52,22 @@ class TurnGamesFwApplication {
 	@Bean
 	fun clock() = RealClock
 }
+
+@Configuration
+class PipelineConfigurer(
+	val authenticationInterceptor: AuthenticationInterceptor,
+	val userArgumentResolver: UserArgumentResolver,
+) : WebMvcConfigurer {
+
+	override fun addInterceptors(registry: InterceptorRegistry) {
+		registry.addInterceptor(authenticationInterceptor)
+	}
+
+	override fun addArgumentResolvers(resolvers: MutableList<HandlerMethodArgumentResolver>) {
+		resolvers.add(userArgumentResolver)
+	}
+}
+
 
 @Component
 class StartSpring(private val gameServices: GameServices): CommandLineRunner {
