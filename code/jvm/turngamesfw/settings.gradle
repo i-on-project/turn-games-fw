@@ -1,1 +1,3 @@
 rootProject.name = 'turngamesfw'
+include 'tictactow-module'
+
