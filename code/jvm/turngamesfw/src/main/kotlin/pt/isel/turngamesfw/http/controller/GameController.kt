@@ -46,7 +46,7 @@ class GameController(
             }
             is Either.Right -> {
                 val headers = HttpHeaders()
-                headers.add("Location", Uris.Game.FOUND)
+                headers.add("Location", Uris.Game.foundByGameName(nameGame))
                 SirenPages.empty().toResponseEntity(status = HttpStatus.SEE_OTHER, headers = headers) {  }
             }
         }
@@ -56,7 +56,7 @@ class GameController(
         when (val res = gameServices.foundMatch(nameGame, user.id)) {
             is Either.Left -> when (res.value) {
                 FoundMatchError.ServerError -> problemResponse(Problem.SERVER_ERROR)
-                FoundMatchError.UserNotFound -> problemResponse(Problem.USER_NOT_FOUND)
+                FoundMatchError.UserNotInGame -> problemResponse(Problem.USER_NOT_IN_MATCH)
             }
             is Either.Right -> SirenPages.match(MatchOutputModel.fromMatch(res.value)).toResponseEntity {  }
         }

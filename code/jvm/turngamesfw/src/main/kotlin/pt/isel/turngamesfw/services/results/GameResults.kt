@@ -13,7 +13,7 @@ sealed class FindMatchError {
 typealias FindMatchResult = Either<FindMatchError, FindMatchSuccess>
 
 sealed class FoundMatchError {
-    object UserNotFound: FoundMatchError()
+    object UserNotInGame: FoundMatchError()
     object ServerError: FoundMatchError()
 }
 typealias FoundMatchResult = Either<FoundMatchError, Match>

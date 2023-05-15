@@ -58,7 +58,7 @@ class GameServices(
         return transactionManager.run {
             val userState = it.gamesRepository.getUserState(userId, gameName)
             if (userState != User.Stats.State.IN_GAME) {
-                return@run Either.Left(FoundMatchError.UserNotFound)
+                return@run Either.Left(FoundMatchError.UserNotInGame)
             }
 
             val matches = it.gamesRepository.getAllGameMatchesByUser(gameName, userId)
