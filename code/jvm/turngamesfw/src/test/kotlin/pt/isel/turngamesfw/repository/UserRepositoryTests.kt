@@ -2,12 +2,9 @@ package pt.isel.turngamesfw.repository
 
 import org.jdbi.v3.core.Handle
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.fail
-import pt.isel.turngamesfw.domain.Game
 import pt.isel.turngamesfw.domain.Token
 import pt.isel.turngamesfw.domain.User
 import pt.isel.turngamesfw.domain.UserLogic
-import pt.isel.turngamesfw.repository.jdbi.JdbiGameRepository
 import pt.isel.turngamesfw.repository.jdbi.JdbiUserRepository
 import pt.isel.turngamesfw.utils.Clock
 import pt.isel.turngamesfw.utils.Sha256TokenEncoder

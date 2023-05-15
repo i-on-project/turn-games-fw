@@ -97,7 +97,7 @@ class GameControllerTests {
 
         mockMvc.perform(post("/game/Chess/find"))
             .andExpect(status().is3xxRedirection)
-            .andExpect(header().stringValues("Location", Uris.Game.FOUND))
+            .andExpect(header().stringValues("Location", Uris.Game.foundByGameName("Chess").toString()))
     }
 
     @Test
@@ -135,8 +135,8 @@ class GameControllerTests {
 
     @Test
     fun `foundMatch with invalid user returns error`() {
-        every { gameService.foundMatch("Chess", 1) } returns Either.Left(FoundMatchError.UserNotFound)
-        val expectedJson = Gson().toJson(Problem.USER_NOT_FOUND)
+        every { gameService.foundMatch("Chess", 1) } returns Either.Left(FoundMatchError.UserNotInGame)
+        val expectedJson = Gson().toJson(Problem.USER_NOT_IN_MATCH)
 
         mockMvc.perform(get("/game/Chess/found"))
             .andExpect(status().is4xxClientError)

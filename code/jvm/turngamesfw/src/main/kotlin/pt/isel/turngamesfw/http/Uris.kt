@@ -17,7 +17,7 @@ object Uris {
 
         fun infoByGameName(gameName: String) = UriTemplate(INFO).expand(gameName)
         fun findByGameName(gameName: String) = UriTemplate(FIND).expand(gameName)
-        fun foundByGameName(gameName: String) = UriTemplate(FOUND).expand(gameName).toString()
+        fun foundByGameName(gameName: String) = UriTemplate(FOUND).expand(gameName)
         fun leaderboardByGameName(gameName: String) = UriTemplate(LEADERBOARD).expand(gameName)
         fun matchById(gameName: String, matchId: String) = UriTemplate(MATCH).expand(gameName, matchId)
         fun doTurnByGameName(gameName: String) = UriTemplate(DO_TURN).expand(gameName)

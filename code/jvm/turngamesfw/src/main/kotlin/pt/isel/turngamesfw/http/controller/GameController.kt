@@ -46,7 +46,7 @@ class GameController(
             }
             is Either.Right -> {
                 val headers = HttpHeaders()
-                headers.add("Location", Uris.Game.foundByGameName(nameGame))
+                headers.add("Location", Uris.Game.foundByGameName(nameGame).toString())
                 SirenPages.empty().toResponseEntity(status = HttpStatus.SEE_OTHER, headers = headers) {  }
             }
         }

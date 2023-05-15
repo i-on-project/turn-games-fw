@@ -187,7 +187,7 @@ class GameServicesTests {
         every { gameRepository.getUserState(playerId, chessGame.name) } returns User.Stats.State.INACTIVE
 
         when( val res = gameServices.foundMatch(chessGame.name, playerId)) {
-            is Either.Left -> assertEquals(FoundMatchError.UserNotFound::class.java, res.value::class.java)
+            is Either.Left -> assertEquals(FoundMatchError.UserNotInGame::class.java, res.value::class.java)
             is Either.Right -> fail("Should not return success")
         }
     }
