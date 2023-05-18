@@ -133,6 +133,21 @@ class GameServices(
         }
     }
 
+    fun isMyTurn(userId: Int, matchId: UUID): MyTurnResult {
+        return transactionManager.run {
+            val match = it.gamesRepository.getMatchById(matchId) ?: return@run Either.Left(MyTurnError.MatchNotExist)
+            if (!match.players.contains(userId)) {
+                return@run Either.Left(MyTurnError.UserNotInMatch)
+            }
+
+            if (match.currPlayer == userId) {
+                return@run Either.Right(true)
+            } else {
+                return@run Either.Right(false)
+            }
+        }
+    }
+
     fun checkAndSaveAllGames() {
         transactionManager.run {
             gameProvider.getAllGameLogic().forEach { gameLogic ->

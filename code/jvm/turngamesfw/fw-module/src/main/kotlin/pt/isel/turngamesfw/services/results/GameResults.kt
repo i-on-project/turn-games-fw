@@ -49,3 +49,10 @@ sealed class DoTurnMatchError {
     object NotYourTurn: DoTurnMatchError()
 }
 typealias DoTurnMatchResult = Either<DoTurnMatchError, DoTurnMatchSuccess>
+
+sealed class MyTurnError {
+    object MatchNotExist: MyTurnError()
+    object UserNotInMatch: MyTurnError()
+    object ServerError: MyTurnError()
+}
+typealias MyTurnResult = Either<MyTurnError, Boolean>

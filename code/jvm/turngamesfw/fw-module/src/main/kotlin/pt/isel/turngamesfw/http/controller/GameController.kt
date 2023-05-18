@@ -110,4 +110,16 @@ class GameController(
             }
         }
     }
+
+    @GetMapping(Uris.Game.MY_TURN)
+    fun isMyTurn(user: User, @PathVariable nameGame: String, @PathVariable id: String): ResponseEntity<*> {
+        return when (val res = gameServices.isMyTurn(user.id, UUID.fromString(id))) {
+            is Either.Left -> when (res.value) {
+                MyTurnError.MatchNotExist -> problemResponse(Problem.MATCH_NOT_EXIST)
+                MyTurnError.ServerError -> problemResponse(Problem.SERVER_ERROR)
+                MyTurnError.UserNotInMatch -> problemResponse(Problem.USER_NOT_IN_MATCH)
+            }
+            is Either.Right -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(res.value)
+        }
+    }
 }
