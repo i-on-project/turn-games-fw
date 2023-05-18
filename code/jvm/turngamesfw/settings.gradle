@@ -1,3 +1,6 @@
 rootProject.name = 'turngamesfw'
 include 'tictactow-module'
+include 'application-module'
+include 'fw-module'
+include 'fw-interfaces-module'
 

@@ -1,6 +1,4 @@
 plugins {
-    id("org.springframework.boot") version "3.0.5"
-    id("io.spring.dependency-management") version "1.1.0"
     java
     kotlin("jvm") version "1.7.22"
     kotlin("plugin.spring") version "1.7.22"
@@ -15,8 +13,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":fw-interfaces-module"))
-
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
 }
 

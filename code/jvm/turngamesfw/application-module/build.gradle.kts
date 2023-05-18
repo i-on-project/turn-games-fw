@@ -15,9 +15,12 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":fw-module"))
     implementation(project(":fw-interfaces-module"))
+    implementation(project(":tictactow-module"))
 
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webflux")
 }
 
 tasks.getByName<Test>("test") {
