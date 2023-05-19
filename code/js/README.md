@@ -1,0 +1,1 @@
+create a directory named *dist* in this directory and then execute *npm install*, *npm run build* and *npm start*
