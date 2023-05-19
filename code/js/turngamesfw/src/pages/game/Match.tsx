@@ -2,10 +2,11 @@ import * as React from 'react'
 import { useState, useEffect, } from 'react'
 import { useNavigate } from "react-router-dom";
 
-import { getAllUsers } from '../../utils/game/MatchUtils';
-
 export function MatchLayout(match: Match) {
-    var players: User[] = getAllUsers(match.players);
+    var players: User[] = [
+        new User(0, "User A"),
+        new User(1, "User B"),
+    ];
 
     return (
         <>
