@@ -16,14 +16,14 @@ module.exports = {
         proxy: {
             "/api": {
                 target: "http://localhost:8080",
-                // introducing an API delay to make testing easier
                 pathRewrite: async function (path, req) {
-                    await delay(1000)
+                    console.log(path)
+                    path = path.slice(4) // Cut "/api" to make request to localhost:8080 without "/api"
+                    console.log(path)
                     return path
                 }
             }
         },
-        allowedHosts: "all"
     },
     module: {
         rules: [
