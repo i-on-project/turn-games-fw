@@ -22,10 +22,6 @@ data class LeaderBoardInputModel(
     val page: Int,
 )
 
-data class GameNameInputModel(
-    val gameName: String,
-)
-
 data class GameOutputModel(
     val name: String,
     val numPlayers: Int,
@@ -43,7 +39,7 @@ data class MatchOutputModel(
     val id: UUID,
     val gameName: String,
     val state: Match.State,
-    val players: List<Int>,/****/
+    val players: List<Int>,
     val currPlayer: Int,
     val currTurn: Int,
     val deadlineTurn: Instant?,

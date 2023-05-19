@@ -1,7 +1,6 @@
 package pt.isel.turngamesfw.http.model
 
 import com.fasterxml.jackson.annotation.JsonUnwrapped
-import pt.isel.turngamesfw.domain.Token
 import pt.isel.turngamesfw.domain.User
 
 data class RegisterInputModel(
@@ -18,16 +17,6 @@ data class UpdateUserInputModel(
     val username: String,
 )
 
-
-data class UserTokenOutputModel(val token: String) {
-    companion object {
-        val clazz = "token"
-    }
-}
-
-fun Token.toUserTokenOutputModel() =
-    UserTokenOutputModel(this.tokenValidation.validationInfo)
-
 data class UserDetailsOutputModel(
     val id: Int,
     val username: String,
@@ -40,8 +29,6 @@ data class UserDetailsOutputModel(
 
 data class UserCreationOutputModel(
     val details: UserDetailsOutputModel,
-    @JsonUnwrapped
-    val token: UserTokenOutputModel
 ) {
     companion object {
         val clazz = "userCreation"
