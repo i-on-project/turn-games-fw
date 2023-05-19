@@ -17,7 +17,7 @@ repositories {
 dependencies {
     implementation(project(":fw-module"))
     implementation(project(":fw-interfaces-module"))
-    implementation(project(":tictactow-module"))
+    implementation(project(":tictactoe-module"))
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
 

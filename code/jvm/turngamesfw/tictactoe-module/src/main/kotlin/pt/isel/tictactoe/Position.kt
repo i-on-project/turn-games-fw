@@ -1,4 +1,4 @@
-package pt.isel.tictactow
+package pt.isel.tictactoe
 
 data class Position(
     val col: Int,

@@ -1,4 +1,4 @@
-package pt.isel.tictactow
+package pt.isel.tictactoe
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.databind.DeserializationContext
@@ -11,7 +11,7 @@ import pt.isel.fwinterfaces.GameLogic
 import pt.isel.fwinterfaces.Match
 import java.lang.IllegalArgumentException
 
-class TicTacTowGameLogic: GameLogic {
+class TicTacToeGameLogic: GameLogic {
 
     companion object {
         class PositionDeserializer : JsonDeserializer<Position>() {
@@ -49,7 +49,7 @@ class TicTacTowGameLogic: GameLogic {
             throw IllegalArgumentException()
         }
         return Match(
-            gameName = "TicTacTow",
+            gameName = "TicTacToe",
             state = Match.State.ON_GOING,
             players = users,
             currPlayer = users.first(),
@@ -72,7 +72,7 @@ class TicTacTowGameLogic: GameLogic {
     }
 
     override fun getGameInfo(): Game = Game(
-        "TicTacTow",
+        "TicTacToe",
         2,
         "Description",
         "Rules"

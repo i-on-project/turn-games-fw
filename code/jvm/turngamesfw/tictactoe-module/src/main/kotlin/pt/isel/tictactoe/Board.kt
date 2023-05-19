@@ -1,4 +1,4 @@
-package pt.isel.tictactow
+package pt.isel.tictactoe
 
 data class Board(
     val cells: Array<Array<State>>

@@ -12,19 +12,18 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
-import pt.isel.tictactow.Position
-import pt.isel.tictactow.TicTacTowGameLogic
+import pt.isel.tictactoe.Position
+import pt.isel.tictactoe.TicTacToeGameLogic
 import pt.isel.turngamesfw.TurnGamesFwApplication
 import pt.isel.turngamesfw.gameProvider
 import pt.isel.turngamesfw.http.Uris
 import pt.isel.turngamesfw.http.model.SirenModel
-import pt.isel.turngamesfw.http.model.TurnInputModel
 import pt.isel.turngamesfw.services.GameServices
 import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = [TurnGamesFwApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class TicTacTowTests {
+class TicTacToeTests {
 
     @LocalServerPort
     var port: Int = 0
@@ -32,12 +31,12 @@ class TicTacTowTests {
     @Autowired
     private lateinit var gameServices: GameServices
 
-    private val gameName = "TicTacTow"
+    private val gameName = "TicTacToe"
 
     @BeforeAll
     @Order(1)
     fun `setup gameProvider`() {
-        gameProvider.addGame(gameName, TicTacTowGameLogic())
+        gameProvider.addGame(gameName, TicTacToeGameLogic())
         gameServices.checkAndSaveAllGames()
     }
 
