@@ -6,9 +6,6 @@ import { GameList, MockGameList } from './GameList';
 
 export function Home(games: Game[]) {
     return (<>
-            <div className="navbar">
-            </div>
-
             <div className="home-content">
                 <GameList {...games}/>
             </div>
@@ -19,9 +16,6 @@ export function Home(games: Game[]) {
 export function MockHome() { 
     return (
         <>
-            <div className="navbar">
-            </div>
-
             <div className="home-content">
                 <MockGameList/>
             </div>

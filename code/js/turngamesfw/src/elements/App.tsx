@@ -10,26 +10,19 @@ import '@fontsource/roboto/400.css';
 import '@fontsource/roboto/500.css';
 import '@fontsource/roboto/700.css';
 
-import { Home, MockHome } from './pages/home/Home'
-import { GameInfo, MockGameInfo } from './pages/game/GameInfo'
-import { Leaderboard, MockLeaderboard } from './pages/game/Leaderboard'
-import { MatchLayout, MockMatchLayout } from './pages/game/Match'
-import { UserInfo, MockUserInfo } from './pages/user/UserInfo'
-import { Login, Register } from './pages/home/LoginAndRegister'
-import NavBar from './pages/NavBar'
-import SignIn  from './imported_components/SignIn'
 
-import Button from '@mui/material/Button';
+import { Home, MockHome } from './home/Home';
+import { GameInfo, MockGameInfo } from './game/GameInfo'
+import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
+import { MatchLayout, MockMatchLayout } from './game/Match'
+import { UserInfo, MockUserInfo } from './user/UserInfo'
+import { Login, Register } from './home/LoginAndRegister'
+import NavBar from './NavBar'
 
 const router = createBrowserRouter([
     {
         path: "/",
         element:<MockHome/> 
-    },
-
-    {
-        path: "/test",
-        element: <SignIn/>
     },
 
     {
