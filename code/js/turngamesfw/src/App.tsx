@@ -5,14 +5,21 @@ import {
     RouterProvider
 } from 'react-router-dom'
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+
 import { Home, MockHome } from './pages/home/Home'
 import { GameInfo, MockGameInfo } from './pages/game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './pages/game/Leaderboard'
 import { MatchLayout, MockMatchLayout } from './pages/game/Match'
 import { UserInfo, MockUserInfo } from './pages/user/UserInfo'
-import { Login } from './pages/home/Login'
-import { Register } from './pages/home/Register'
-import { NavBar } from './pages/NavBar'
+import { Login, Register } from './pages/home/LoginAndRegister'
+import NavBar from './pages/NavBar'
+import SignIn  from './imported_components/SignIn'
+
+import Button from '@mui/material/Button';
 
 const router = createBrowserRouter([
     {
@@ -21,21 +28,13 @@ const router = createBrowserRouter([
     },
 
     {
-        path: "/homeNav",
-        element: <>
-            <NavBar name = {null} id = {null}/>
-            <MockHome/> 
-        </>
+        path: "/test",
+        element: <SignIn/>
     },
 
     {
         path: "/nav",
-        element:<NavBar name = {null} id = {null}/>
-    },
-
-    {
-        path: "/nav2",
-        element:<NavBar name = {"test"} id = {1}/>
+        element:<NavBar/>
     },
 
     {
@@ -72,7 +71,7 @@ const router = createBrowserRouter([
 export function App() {
     return (
         <div className='main'>
-            <NavBar name = {null} id = {null}/>
+            <NavBar/>
             <RouterProvider router={router}/>
         </div>
     )

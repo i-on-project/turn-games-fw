@@ -7,7 +7,7 @@ function delay(ms) {
 module.exports = {
     mode: "development",
     resolve: {
-        extensions: [".js", ".ts", ".tsx"]
+        extensions: [".js", ".ts", ".tsx", ".css"]
     },
     devServer: {
         port: 8000,
@@ -31,7 +31,11 @@ module.exports = {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
-            }
+            },
+            {
+                test: /\.css$/i,                                                                                                                                                             
+                use: ["style-loader", "css-loader"],                                                                                                                          
+            },  
         ]
     }
 }
