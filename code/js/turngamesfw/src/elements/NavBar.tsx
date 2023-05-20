@@ -1,57 +1,37 @@
 import * as React from 'react';
+
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
 
-const navItems = ['Home', 'About', 'Contact'];
+const navItems = [
+    {name: 'Login', url: "/login"}, 
+    {name: 'Register', url: "/register"}
+];
 
-const defaultTheme = createTheme(
-    {
-        palette: {
-            mode: 'dark',
-            primary: {
-                main: '#90caf9',
-            },
-            secondary: {
-                main: '#f48fb1',
-            },
-        },
-    },
-);
-
-export default function DrawerAppBar() {
+export function NavBar() {
     return (
-        <ThemeProvider theme={defaultTheme}>
-            <Box sx={{ display: 'flex' }}>
-                <CssBaseline />
-                
-                <AppBar component="nav">
-                    <Toolbar>
-                    
-                        {/*Name of company*/}
-                        <Typography 
-                            variant="h6"
-                            component="div"
-                            sx={{ flexGrow: 1, display: { xs: 'flex', sm: 'block' } }}
-                        >
-                            TGFW
-                        </Typography>
-                        
-                        {/*Navbar elements*/}
-                        <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
-                            {navItems.map((item) => (
-                            <Button key={item} sx={{ color: '#fff' }}>
-                                {item}
-                            </Button>
-                            ))}
-                        </Box>
-                    </Toolbar>
-                </AppBar>
-            </Box>
-        </ThemeProvider>
+        <Box sx={{ display: 'relative'}}> 
+            <AppBar position="relative">
+                <Toolbar>
+                    <Typography variant="h4" noWrap component="div"
+                    onClick={()=>{window.location.href = "/"}}
+                    sx={{ flexGrow: 1, display: 'block', cursor: 'pointer' }}>
+                        TurnGamesFw
+                    </Typography>
+
+                    <Box sx={{display: 'flex' }}>
+                        {navItems.map((item) => ( 
+                        <Button key={item.name} sx={{ color: 'white' }}
+                        onClick={()=>{window.location.href = item.url}}>
+                            {item.name}
+                        </Button>
+                        ))}
+                    </Box>
+                </Toolbar>
+            </AppBar>
+        </Box>
     );
 }

@@ -17,17 +17,12 @@ import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
 import { MatchLayout, MockMatchLayout } from './game/Match'
 import { UserInfo, MockUserInfo } from './user/UserInfo'
 import { Login, Register } from './home/LoginAndRegister'
-import NavBar from './NavBar'
+import { NavBar } from './NavBar'
 
 const router = createBrowserRouter([
     {
         path: "/",
-        element:<MockHome/> 
-    },
-
-    {
-        path: "/nav",
-        element:<NavBar/>
+        element:<MockHome/>
     },
 
     {
@@ -64,7 +59,6 @@ const router = createBrowserRouter([
 export function App() {
     return (
         <div className='main'>
-            <NavBar/>
             <RouterProvider router={router}/>
         </div>
     )

@@ -9,22 +9,6 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
-
-
-const defaultTheme = createTheme(
-    {
-        palette: {
-            mode: 'dark',
-            primary: {
-                main: '#90caf9',
-            },
-            secondary: {
-                main: '#f48fb1',
-            },
-        },
-    },
-);
 
 export function Login() {
     return LoginAndRegisterForm({header: "Login", goToMessage: "Don't have an account? Sign Up", goToLink: "/register"});
@@ -45,7 +29,6 @@ function LoginAndRegisterForm(props: {header: string, goToMessage: string, goToL
   };
 
   return (
-    <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
         <CssBaseline />
         <Box
@@ -103,6 +86,5 @@ function LoginAndRegisterForm(props: {header: string, goToMessage: string, goToL
           </Box>
         </Box>
       </Container>
-    </ThemeProvider>
   );
 }

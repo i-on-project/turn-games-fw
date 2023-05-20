@@ -3,7 +3,7 @@ import { useState, useEffect, } from 'react'
 import { useNavigate } from "react-router-dom";
 
 export function GameList(games: Game[]) {
-    const gameList = games.map(g => <GameListElement name={g.name}/>)
+    const gameList = games.map(g => <GameListElement name={g.name} key={g.name}/>)
 
     return (
         <table className="gameList">
