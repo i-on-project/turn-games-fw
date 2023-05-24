@@ -1,24 +1,14 @@
 import * as React from 'react'
 import { useState, useEffect, } from 'react'
 import { Navigate } from "react-router-dom";
-
 import { GameList, MockGameList } from './GameList';
 
 export function Home(games: Game[]) {
-    return (<>
-            <div className="home-content">
-                <GameList {...games}/>
-            </div>
-        </>
+    return (
+        <GameList {...games}/>
     )
 };
 
 export function MockHome() { 
-    return (
-        <>
-            <div className="home-content">
-                <MockGameList/>
-            </div>
-        </>
-    )
- }
+    return MockGameList()
+}

@@ -5,12 +5,6 @@ import {
     RouterProvider
 } from 'react-router-dom'
 
-import '@fontsource/roboto/300.css';
-import '@fontsource/roboto/400.css';
-import '@fontsource/roboto/500.css';
-import '@fontsource/roboto/700.css';
-
-
 import { Home, MockHome } from './home/Home';
 import { GameInfo, MockGameInfo } from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
