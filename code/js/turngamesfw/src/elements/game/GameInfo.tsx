@@ -1,13 +1,23 @@
 import * as React from 'react'
 import { useState, useEffect, } from 'react'
-import { useNavigate } from "react-router-dom";
+import { useLoaderData, useNavigate } from "react-router-dom";
 import { styled } from '@mui/material/styles';
 import Container from '@mui/material/Container';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 
-export function GameInfo(game: Game) {
+import { fetchAPI } from '../../utils/fetchApi';
+
+export async function loadGameInfo({params}) {
+    const resp = await fetchAPI("/api/game/" + params.gameName, "GET", true)
+
+    return resp.body["properties"]
+}
+
+export function GameInfo() {
+    const game = useLoaderData() as Game
+
     const navigate = useNavigate()
 
     const goToLeaderboard = () => navigate("/game/" + game.name + "/leaderboard")
@@ -56,6 +66,6 @@ const StyledButton = styled(Button)(({ theme }) => ({
     padding: '1.2rem',
 }));
 
-export function MockGameInfo() { return GameInfo(exampleGame) }
+export function MockGameInfo() { return GameInfo() }
 
 const exampleGame: Game = {name: 'TicTacToe', numPlayers: 2, description: 'A classic game of TicTacToe', rules: 'Get 3 in a row to win'}

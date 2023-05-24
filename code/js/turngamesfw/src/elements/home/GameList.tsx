@@ -13,8 +13,8 @@ import Container from '@mui/material/Container';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
-export function GameList(games: Game[]) {
-    const gameList = games.map(g => <GameListElement name={g.name} key={g.name}/>)
+export function GameList(games: {gameList: string[]}) {
+  console.log(games)
 
     return (
       <Container>
@@ -28,7 +28,9 @@ export function GameList(games: Game[]) {
               </TableRow>
             </TableHead>
             <TableBody>
-              {gameList}
+              {games.gameList.map( gameName => (
+                GameListElement(gameName)
+              ))}
             </TableBody>
           </Table>
         </TableContainer>
@@ -36,16 +38,16 @@ export function GameList(games: Game[]) {
   );
 };
 
-function GameListElement(game: {name: string}) {
+function GameListElement(name: string) {
     const navigate = useNavigate()
 
-    const goToGameInfo = () => navigate("/game/" + game.name)
-    const goToLeaderboard = () => navigate("/game/" + game.name + "/leaderboard")
-    const findMatch = () => { console.log("find match requested for game " + game.name) }
+    const goToGameInfo = () => navigate("/game/" + name)
+    const goToLeaderboard = () => navigate("/game/" + name + "/leaderboard")
+    const findMatch = () => { console.log("find match requested for game " + name) }
     
     return (
-        <StyledTableRow key={game.name}>
-            <StyledTableCell sx={{textAlign: 'left'}} onClick={goToGameInfo}>{game.name}</StyledTableCell>
+        <StyledTableRow key={name}>
+            <StyledTableCell sx={{textAlign: 'left'}} onClick={goToGameInfo}>{name}</StyledTableCell>
             <StyledTableCell onClick={goToLeaderboard}>
                 <EmojiEventsIcon sx={{ fontSize: 18 }}/>
             </StyledTableCell>
@@ -90,11 +92,11 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export function MockGameList() { return GameList(exampleGameList) }
 
-const exampleGameList: Game[] = [
-    {name: 'TicTacToe', numPlayers: 2, description: 'A classic game of TicTacToe', rules: 'Get 3 in a row to win'},
-    {name: 'ConnectFour', numPlayers: 2, description: 'A classic game of Connect4', rules: 'Get 4 in a row to win'},
-    {name: 'Chess', numPlayers: 2, description: 'A classic game of Chess', rules: 'Checkmate the opponent to win'},
-    {name: 'Checkers', numPlayers: 2, description: 'A classic game of Checkers', rules: 'Capture all the opponents pieces to win'},
-    {name: 'Go', numPlayers: 2, description: 'A classic game of Go', rules: 'Capture more territory than your opponent to win'},
-    {name: 'CastleRun', numPlayers: 2, description: 'A classic game of CastleRun', rules: 'Get to the end of the board with 3 pieces to win'},
-]
+const exampleGameList: {gameList: string[]} = {gameList: [
+    'TicTacToe',
+    'ConnectFour',
+    'Chess',
+    'Checkers',
+    'Go',
+    'CastleRun',
+]}

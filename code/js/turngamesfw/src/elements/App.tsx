@@ -5,8 +5,8 @@ import {
     RouterProvider
 } from 'react-router-dom'
 
-import { Home, MockHome } from './home/Home';
-import { GameInfo, MockGameInfo } from './game/GameInfo'
+import { Home, loadHome, MockHome } from './home/Home';
+import { GameInfo, loadGameInfo, MockGameInfo } from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
 import { MatchLayout, MockMatchLayout } from './game/Match'
 import { UserInfo, MockUserInfo } from './user/UserInfo'
@@ -16,12 +16,14 @@ import { NavBar } from './NavBar'
 const router = createBrowserRouter([
     {
         path: "/",
-        element:<MockHome/>
+        element:<Home/>,
+        loader: loadHome
     },
 
     {
         path: "/game/:gameName",
-        element:<MockGameInfo/>
+        element:<GameInfo/>,
+        loader: loadGameInfo
     },
 
     {

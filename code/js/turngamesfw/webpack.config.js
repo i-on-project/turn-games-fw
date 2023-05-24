@@ -11,9 +11,7 @@ module.exports = {
             "/api": {
                 target: "http://localhost:8080",
                 pathRewrite: async function (path, req) {
-                    console.log(path)
                     path = path.slice(4) // Cut "/api" to make request to localhost:8080 without "/api"
-                    console.log(path)
                     return path
                 }
             }

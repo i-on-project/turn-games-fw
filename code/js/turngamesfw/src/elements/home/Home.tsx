@@ -1,11 +1,23 @@
 import * as React from 'react'
 import { useState, useEffect, } from 'react'
-import { Navigate } from "react-router-dom";
+import { Navigate, useLoaderData } from "react-router-dom";
 import { GameList, MockGameList } from './GameList';
 
-export function Home(games: Game[]) {
+import { fetchAPI } from '../../utils/fetchApi';
+
+export async function loadHome() {
+    const resp = await fetchAPI("/api/gameList", "GET", true)
+
+    console.log(resp.body)
+
+    return resp.body["properties"]
+}
+
+export function Home() {
+    const gameNames = useLoaderData() as {gameList: string[]}
+
     return (
-        <GameList {...games}/>
+        <GameList {...gameNames}/>
     )
 };
 
