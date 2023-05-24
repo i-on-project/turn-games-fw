@@ -25,6 +25,13 @@ class GameController(
     private val gameServices: GameServices,
 ) {
 
+    @GetMapping(Uris.Game.ALL_GAMES)
+    fun getGameList(): ResponseEntity<*> {
+        val gameList = gameServices.getGameList()
+
+        return SirenPages.gameList(GameListOutputModel(gameList)).toResponseEntity {  }
+    }
+
     @GetMapping(Uris.Game.INFO)
     fun getGameInfo(@PathVariable nameGame: String): ResponseEntity<*> {
         val game = gameServices.getGameInfo(nameGame) ?: return problemResponse(Problem.GAME_NOT_EXIST)

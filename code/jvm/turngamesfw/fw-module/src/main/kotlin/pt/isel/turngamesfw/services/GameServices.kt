@@ -16,6 +16,12 @@ class GameServices(
     private val transactionManager: TransactionManager
 ) {
 
+    fun getGameList(): List<String> {
+        return transactionManager.run {
+            return@run it.gamesRepository.getAllGameNames()
+        }
+    }
+
     fun getGameInfo(gameName: String): Game? {
         return transactionManager.run {
             return@run it.gamesRepository.getGame(gameName)

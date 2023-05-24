@@ -37,6 +37,12 @@ class JdbiGameRepository(private val handle: Handle) : GameRepository {
 
     }
 
+    override fun getAllGameNames(): List<String> {
+        return handle.createQuery("select name from dbo.Games")
+            .mapTo<String>()
+            .toList()
+    }
+
     override fun createGame(game: Game) {
         handle.createUpdate("insert into dbo.Games (name, description, num_players, rules) values (:name, :description, :numPlayers, :rules)")
             .bind("name", game.name)

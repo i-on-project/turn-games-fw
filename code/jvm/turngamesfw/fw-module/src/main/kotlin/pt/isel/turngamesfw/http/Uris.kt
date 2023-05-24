@@ -7,6 +7,7 @@ object Uris {
     const val ABOUT = "/about"
 
     object Game {
+        const val ALL_GAMES = "/gameList"
         const val INFO = "/game/{nameGame}"
         const val FIND = "$INFO/find"
         const val FOUND = "$INFO/found"

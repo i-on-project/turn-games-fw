@@ -81,6 +81,14 @@ class SirenPages {
             link(Uris.HOME, Rels.HOME)
         }
 
+        fun gameList(gameList: GameListOutputModel) = siren(gameList) {
+            clazz("gameList")
+
+            linkSelf(Uris.Game.ALL_GAMES)
+
+            link(Uris.HOME, Rels.HOME)
+        }
+
         fun gameInfo(game: GameOutputModel) = siren(game) {
             clazz("game")
 

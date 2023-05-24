@@ -22,6 +22,10 @@ data class LeaderBoardInputModel(
     val page: Int,
 )
 
+data class GameListOutputModel(
+    val gameList: List<String>
+)
+
 data class GameOutputModel(
     val name: String,
     val numPlayers: Int,

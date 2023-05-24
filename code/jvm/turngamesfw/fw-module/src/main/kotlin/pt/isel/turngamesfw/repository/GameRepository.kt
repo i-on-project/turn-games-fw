@@ -7,6 +7,8 @@ import pt.isel.turngamesfw.domain.User
 import java.util.UUID
 
 interface GameRepository {
+    fun getAllGameNames(): List<String>
+
     fun createGame(game: Game)
 
     fun getGame(name: String): Game?
