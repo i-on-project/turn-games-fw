@@ -14,8 +14,6 @@ import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 export function GameList(games: {gameList: string[]}) {
-  console.log(games)
-
     return (
       <Container>
         <TableContainer component={Paper} sx={{pt:'10px'}}>

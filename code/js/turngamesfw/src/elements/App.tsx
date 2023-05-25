@@ -10,8 +10,8 @@ import { GameInfo, loadGameInfo, MockGameInfo } from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
 import { MatchLayout, MockMatchLayout } from './game/Match'
 import { UserInfo, MockUserInfo } from './user/UserInfo'
-import { Login, Register } from './home/LoginAndRegister'
-import { NavBar } from './NavBar'
+import { Login, Register } from './user/LoginAndRegister'
+import { Logout } from './user/Logout';
 
 const router = createBrowserRouter([
     {
@@ -49,6 +49,11 @@ const router = createBrowserRouter([
     {
         path: "/register",
         element:<Register/>
+    },
+
+    {
+        path: "/logout",
+        element:<Logout/>
     },
 ])
 

@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { createRoot } from 'react-dom/client'
+import { CookiesProvider } from 'react-cookie'
 
 import { App } from './elements/App'
 import { NavBar } from './elements/NavBar'
@@ -23,8 +24,10 @@ const defaultTheme = createTheme(
 
 root.render(
     <ThemeProvider theme={defaultTheme}>
-        <CssBaseline />
-        <NavBar/>
-        <App/>
+        <CookiesProvider>
+            <CssBaseline />
+            <NavBar/>
+            <App/>
+        </CookiesProvider>
     </ThemeProvider>
 )

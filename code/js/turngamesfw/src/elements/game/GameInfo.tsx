@@ -10,7 +10,7 @@ import Box from '@mui/material/Box';
 import { fetchAPI } from '../../utils/fetchApi';
 
 export async function loadGameInfo({params}) {
-    const resp = await fetchAPI("/api/game/" + params.gameName, "GET", true)
+    const resp = await fetchAPI("/api/game/" + params.gameName, "GET")
 
     return resp.body["properties"]
 }

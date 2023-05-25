@@ -6,7 +6,7 @@ import { GameList, MockGameList } from './GameList';
 import { fetchAPI } from '../../utils/fetchApi';
 
 export async function loadHome() {
-    const resp = await fetchAPI("/api/gameList", "GET", true)
+    const resp = await fetchAPI("/api/gameList", "GET")
 
     console.log(resp.body)
 

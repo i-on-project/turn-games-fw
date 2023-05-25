@@ -3,7 +3,7 @@ interface Resp {
     body: any | undefined,
 }
 
-export async function fetchAPI(url: string, method: string, sendCookies: boolean, reqBody?: any, getBody: boolean = true): Promise<Resp> {
+export async function fetchAPI(url: string, method: string, reqBody?: any, getBody: boolean = true): Promise<Resp> {
 
     try {
         const resp = await fetch(url, {
