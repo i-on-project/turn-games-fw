@@ -26,7 +26,6 @@ root.render(
     <ThemeProvider theme={defaultTheme}>
         <CookiesProvider>
             <CssBaseline />
-            <NavBar/>
             <App/>
         </CookiesProvider>
     </ThemeProvider>

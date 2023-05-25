@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useCookies } from 'react-cookie'
 import { useState } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
@@ -28,12 +29,15 @@ export function NavBar() {
         ]
     }
 
+    const navigate = useNavigate()
+
     return (
+        <>
         <Box sx={{ display: 'relative'}}> 
             <AppBar position="relative">
                 <Toolbar>
                     <Typography variant="h4" noWrap component="div"
-                    onClick={()=>{window.location.href = "/"}}
+                    onClick={()=>{navigate("/")}}
                     sx={{ flexGrow: 1, display: 'block', cursor: 'pointer' }}>
                         TurnGamesFw
                     </Typography>
@@ -41,7 +45,7 @@ export function NavBar() {
                     <Box sx={{display: 'flex' }}>
                         {navItems.map((item) => ( 
                         <Button key={item.name} sx={{ color: 'white' }}
-                        onClick={()=>{window.location.href = item.url}}>
+                        onClick={()=>{navigate(item.url)}}>
                             {item.name}
                         </Button>
                         ))}
@@ -49,5 +53,7 @@ export function NavBar() {
                 </Toolbar>
             </AppBar>
         </Box>
+        <Outlet/>
+        </>
     );
 }
