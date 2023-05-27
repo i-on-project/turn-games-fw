@@ -50,6 +50,7 @@ class GameServices(
                 return@run
             }
 
+
             val inGamePlayers = searchingPlayers.take(numPlayers).map{ user -> user.id}
             val gameLogic = gameProvider.getGameLogic(gameName) ?: return@run // TODO: "Return server error gameLogic not found"
             val match = gameLogic.create(inGamePlayers) // TODO: Maybe gameLogic create should only create whats important

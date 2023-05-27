@@ -21,9 +21,9 @@ class Match {
     currTurn: number;
     deadlineTurn: Date;
     created: Date;
-    info: string; //JsonNode
+    info; //JsonNode
 
-    constructor(id: string, gameName: string, state: MatchState, players: number[], currPlayer: number, currTurn: number, deadlineTurn: Date, created: Date, info: string) {
+    constructor(id: string, gameName: string, state: MatchState, players: number[], currPlayer: number, currTurn: number, deadlineTurn: Date, created: Date, info) {
         this.id = id;
         this.gameName = gameName;
         this.state = state;
