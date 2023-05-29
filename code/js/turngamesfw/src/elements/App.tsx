@@ -8,7 +8,7 @@ import {
 import { Home, loadHome, MockHome } from './home/Home';
 import { GameInfo, loadGameInfo, MockGameInfo } from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
-import { MatchLayout, MockMatchLayout } from './game/Match'
+import { MatchLayout, MockMatchLayout } from './game/MatchLayout'
 import { UserInfo, MockUserInfo } from './user/UserInfo'
 import { Login, Register } from './user/LoginAndRegister'
 import { Logout } from './user/Logout';

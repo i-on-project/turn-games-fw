@@ -4,8 +4,8 @@ import Box from '@mui/material/Box';
 import { TicTacToeLogic } from './TicTacToeLogic';
 import Button from '@mui/material/Button';
 
-export function TicTacToeBoard({ match, onMatchUpdate }) {
-  const [game, setGame] = useState(match.info);
+export function TicTacToeBoard(props: { match: Match, onMatchUpdate: (match: Match) => void }) {
+  const [game, setGame] = useState(props.match.info);
 
   const handleClick = (index) => {
     const updatedGame = TicTacToeLogic.newTurn(game, index);
@@ -13,9 +13,9 @@ export function TicTacToeBoard({ match, onMatchUpdate }) {
     if (updatedGame == game) return;
     
     setGame(updatedGame);
-    onMatchUpdate({ ...match, 
-      currPlayer: match.currPlayer === 0 ? 1 : 0,
-      currTurn: match.currTurn + 1,
+    props.onMatchUpdate({ ...props.match, 
+      currPlayer: props.match.currPlayer === 0 ? 1 : 0,
+      currTurn: props.match.currTurn + 1,
       info: updatedGame 
     });
   };
@@ -23,17 +23,17 @@ export function TicTacToeBoard({ match, onMatchUpdate }) {
   const handleReset = () => {
     const resetGame = TicTacToeLogic.resetGame();
     setGame(resetGame);
-    onMatchUpdate({ ...match, info: resetGame });
+    props.onMatchUpdate({ ...props.match, info: resetGame });
   };
 
   useEffect(() => {
-    setGame(match.info);
-  }, [match.info]);
+    setGame(props.match.info);
+  }, [props.match.info]);
 
   useEffect(() => {
     // Update the game state when the match prop changes
-    setGame(match.info);
-  }, [match]);
+    setGame(props.match.info);
+  }, [props.match]);
 
   return (
     <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '310px', margin: '0 auto', marginTop: '40px' }}>

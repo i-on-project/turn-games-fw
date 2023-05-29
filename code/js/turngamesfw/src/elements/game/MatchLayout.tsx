@@ -7,8 +7,8 @@ import { TicTacToeBoard } from '../tictactoe/TicTacToeElement';
 import { TicTacToeMatch } from '../tictactoe/TicTacToeLogic';
 import { useTimer } from './Timer';
 
-export function MatchLayout({ match, content }) {
-  const [currentMatch, setCurrentMatch] = useState(match);
+export function MatchLayout(props: { match: Match, content }) {
+  const [currentMatch, setCurrentMatch] = useState(props.match);
 
   const handleMatchChange = (updatedMatch) => {
     console.log('MatchLayout.handleMatchChange', updatedMatch);
@@ -29,7 +29,7 @@ export function MatchLayout({ match, content }) {
         players={players}
         currPlayer={currentMatch.currPlayer}
       />
-      {React.cloneElement(content, { match: currentMatch, onMatchUpdate: handleMatchChange })}
+      {React.cloneElement(props.content, { match: currentMatch, onMatchUpdate: handleMatchChange })}
     </Container>
   );
 }
@@ -105,7 +105,7 @@ export function MockMatchLayout() {
   return (
     <MatchLayout
       match={TicTacToeMatch}
-      content={<TicTacToeBoard match={TicTacToeMatch} onMatchUpdate={() => {}} />}
+      content={<TicTacToeBoard match={TicTacToeMatch} onMatchUpdate={(match: Match) => {}} />}
     />
   );
 }
