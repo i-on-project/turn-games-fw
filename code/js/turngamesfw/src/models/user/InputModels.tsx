@@ -1,14 +1,19 @@
-interface TokenInputModel {
-    token: string
-}
-
-enum UserStatus {
-    ONLINE = "ONLINE",
-    OFFLINE = "OFFLINE",
-}
-
-interface UserDetailInputModel {
-    id: number
+export class LoginInputModel {
     username: string
-    status: UserStatus
+    password: string
+
+    public constructor(username: string, password: string) {
+        this.username = username
+        this.password = password
+    }
+}
+
+export class RegisterInputModel {
+    username: string
+    password: string
+
+    public constructor(username: string, password: string) {
+        this.username = username
+        this.password = password
+    }
 }

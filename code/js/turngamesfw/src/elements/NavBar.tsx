@@ -1,6 +1,4 @@
 import * as React from 'react'
-import { useCookies } from 'react-cookie'
-import { useState } from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
 
 import AppBar from '@mui/material/AppBar'
@@ -8,6 +6,7 @@ import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
+import { useLoggedIn, useUsername } from '../utils/LoggedInContext'
 
 var navItems = [
     {name: 'Login', url: "/login"}, 
@@ -15,11 +14,12 @@ var navItems = [
 ]
 
 export function NavBar() {
-    const [cookies, setCookie, removeCookie] = useCookies(["isLogged"])
+    const loggedin = useLoggedIn()
+    const username = useUsername()
 
-    if (cookies.isLogged == "true") {
+    if (loggedin == true) {
         navItems = [
-            {name: 'Me', url: "/me"},
+            {name: username, url: "/me"},
             {name: 'Logout', url: "/logout"}
         ]
     } else {
@@ -53,7 +53,9 @@ export function NavBar() {
                 </Toolbar>
             </AppBar>
         </Box>
-        <Outlet/>
+        <div className='content'>
+            <Outlet/>
+        </div>
         </>
     );
 }

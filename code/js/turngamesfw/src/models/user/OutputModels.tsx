@@ -1,20 +1,10 @@
-class RegisterOutputModel {
-    username: string
-    password: string
-    
-    public constructor(username: string, password: string) {
-        this.username = username
-        this.password = password
-    }
+enum UserStatus {
+    ONLINE = "ONLINE",
+    OFFLINE = "OFFLINE",
 }
 
-class LoginOutputModel {
+interface UserDetailsOutputModel {
+    id: number
     username: string
-    password: string
-
-    public constructor(username: string, password: string) {
-        this.username = username
-        this.password = password
-    }
+    status: UserStatus
 }
-

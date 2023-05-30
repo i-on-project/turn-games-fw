@@ -10,9 +10,11 @@ import { GameInfo, loadGameInfo, MockGameInfo } from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
 import { MatchLayout, MockMatchLayout } from './game/MatchLayout'
 import { UserInfo, MockUserInfo } from './user/UserInfo'
-import { Login, Register } from './user/LoginAndRegister'
 import { Logout } from './user/Logout';
 import { NavBar } from './NavBar';
+import { Login } from './user/Login';
+import { Register } from './user/Register';
+import { LoggedInProvider } from '../utils/LoggedInContext';
 
 const router = createBrowserRouter([
     {
@@ -67,7 +69,9 @@ const router = createBrowserRouter([
 export function App() {
     return (
         <>
-            <RouterProvider router={router}/>
+            <LoggedInProvider>
+                <RouterProvider router={router}/>
+            </LoggedInProvider>
         </>
     )
 }

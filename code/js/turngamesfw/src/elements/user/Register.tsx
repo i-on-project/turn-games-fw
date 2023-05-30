@@ -1,6 +1,5 @@
 import * as React from 'react'
 import { useState } from "react"
-import { useCookies } from 'react-cookie'
 import { useNavigate } from 'react-router-dom'
 
 import Button from '@mui/material/Button'
@@ -12,70 +11,53 @@ import Typography from '@mui/material/Typography'
 import Container from '@mui/material/Container'
 
 import { fetchAPI } from '../../utils/fetchApi'
-
-export function Login() {
-	return LoginAndRegisterForm({
-		action: "/login",
-		setCookie: true,
-		header: "Login",
-		errorMessage: "Invalid username or password",
-		afterAction: "/",
-		goToMessage: "Don't have an account? Sign Up",
-		goToLink: "/register"
-	});
-}
+import { RegisterInputModel } from '../../models/user/InputModels'
 
 export function Register() {
-	return LoginAndRegisterForm({
-		action: "/register",
-		setCookie: false,
-		header: "Register",
-		errorMessage: "Username taken",
-		afterAction: "/login",
-		goToMessage: "Already have an account? Sign In",
-		goToLink: "/login"
-	});
-}
-
-function LoginAndRegisterForm(props: { action: string, setCookie: boolean, header: string, errorMessage: string, afterAction: string, goToMessage: string, goToLink: string }) {
-	
-	const [cookies, setCookie, removeCookie] = useCookies(["isLogged"]);
 
 	const [error, setError] = useState(undefined)
+    const [registered, setResgistered] = useState(false)
 
 	const navigate = useNavigate()
-	const goTo = () => navigate(props.goToLink)
-	const afterAction = () => navigate(props.afterAction)
+	const goTo = () => navigate("/login")
+	const afterAction = () => navigate("/login")
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 
 		const data = new FormData(event.currentTarget);
 
-		const resp = await fetchAPI("/api/user" + props.action, "POST", {
-			username: data.get('username'),
-			password: data.get('password'),
-		}, false)
+		const username = data.get('username').toString()
+		const password = data.get('password').toString()
+
+		const resp = await fetchAPI("/api/user/register", "POST", new RegisterInputModel(username, password), false)
 		switch (resp.status) {
-            case 200: {
+            case 201: {
 				setError(undefined)
-				if (props.setCookie === true) {
-					setCookie("isLogged", true, { path: "/" })
-					afterAction()
-				}
+                setResgistered(true)
                 break
             }
             case 400: {
-				setError(props.errorMessage)
+				setError("Username taken")
                 break
             }
         }
 		
 	};
 
+    if (registered == true) {
+        return (
+            <Container component="main" maxWidth="xs">
+                <Typography component="h1" variant="h4" align='center'>Register</Typography>
+                <Typography variant="h6" align='center'>Registered with success</Typography>
+                <Typography align='center'><Link variant="body1" onClick={afterAction} sx={{cursor: "pointer"}}>Login here</Link></Typography>
+            </Container>
+        )
+    }
+
 	return (
 		<Container component="main" maxWidth="xs">
-			<Typography component="h1" variant="h4"> {props.header} </Typography>
+			<Typography component="h1" variant="h4" align='center'> Register </Typography>
 
 			<Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
 				<TextField
@@ -112,10 +94,11 @@ function LoginAndRegisterForm(props: { action: string, setCookie: boolean, heade
 				<Grid container>
 					<Grid item xs />
 					<Grid item>
-						<Link variant="body2" onClick={goTo} sx={{cursor: "pointer"}}> {props.goToMessage} </Link>
+						<Link variant="body2" onClick={goTo} sx={{cursor: "pointer"}}> Already have an account? Sign In </Link>
 					</Grid>
 				</Grid>
 			</Box>
 		</Container>
 	);
 }
+
