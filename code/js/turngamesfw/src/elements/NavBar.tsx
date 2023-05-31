@@ -1,12 +1,12 @@
 import * as React from 'react'
 import { Outlet, useNavigate } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
 
 import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
-import { useLoggedIn, useUsername } from '../utils/LoggedInContext'
 
 var navItems = [
     {name: 'Login', url: "/login"}, 
@@ -14,12 +14,11 @@ var navItems = [
 ]
 
 export function NavBar() {
-    const loggedin = useLoggedIn()
-    const username = useUsername()
+    const [cookies, setCookie, removeCookie] = useCookies(["login"])
 
-    if (loggedin == true) {
+    if (cookies.login.loggedin == true) {
         navItems = [
-            {name: username, url: "/me"},
+            {name: cookies.login.username, url: "/me"},
             {name: 'Logout', url: "/logout"}
         ]
     } else {

@@ -36,8 +36,7 @@ export async function fetchAPI(url: string, method: string, reqBody?: any, getBo
             }
             case 401: {
                 // TODO: Logout in case of 401
-                alert("ERROR 401!")
-                window.location.href = "/logout"
+                alert("Not logged!")
                 break
             }
             default: {

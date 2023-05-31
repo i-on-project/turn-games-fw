@@ -1,12 +1,12 @@
 import * as React from "react"
 import { useEffect, useState } from "react"
 import { Navigate, useLocation } from 'react-router-dom'
+import { useCookies } from "react-cookie";
 
 import { fetchAPI } from "../../utils/fetchApi";
-import { useSetLogin } from "../../utils/LoggedInContext";
 
 export function Logout() {
-    const setLogin = useSetLogin()
+    const [cookies, setCookie, removeCookie] = useCookies(["login"]);
 
     const [isDone, setDone] = useState(false)
 
@@ -15,7 +15,10 @@ export function Logout() {
     useEffect(() => {
         async function logout() {
             const resp = await fetchAPI("/api/user/logout", "POST")
-            setLogin(false, undefined)
+            setCookie("login", {
+                loggedin: false,
+                username: undefined
+            }, { path: "/" })
             setDone(true)
         }
 

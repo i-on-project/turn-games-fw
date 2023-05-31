@@ -14,7 +14,6 @@ import { Logout } from './user/Logout';
 import { NavBar } from './NavBar';
 import { Login } from './user/Login';
 import { Register } from './user/Register';
-import { LoggedInProvider } from '../utils/LoggedInContext';
 
 const router = createBrowserRouter([
     {
@@ -69,9 +68,7 @@ const router = createBrowserRouter([
 export function App() {
     return (
         <>
-            <LoggedInProvider>
-                <RouterProvider router={router}/>
-            </LoggedInProvider>
+            <RouterProvider router={router}/>
         </>
     )
 }

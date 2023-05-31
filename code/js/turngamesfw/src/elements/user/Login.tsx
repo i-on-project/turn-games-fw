@@ -1,6 +1,7 @@
 import * as React from 'react'
 import { useState, useContext, useEffect } from "react"
 import { useNavigate } from 'react-router-dom'
+import { useCookies } from 'react-cookie'
 
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
@@ -12,16 +13,14 @@ import Container from '@mui/material/Container'
 
 import { fetchAPI } from '../../utils/fetchApi'
 import { LoginInputModel } from '../../models/user/InputModels'
-import { useSetLogin } from '../../utils/LoggedInContext'
 
 export function Login() {
+	const [cookies, setCookie, removeCookie] = useCookies(["login"]);
 	const [error, setError] = useState(undefined)
 
 	const navigate = useNavigate()
 	const goTo = () => navigate("/register")
 	const afterAction = () => navigate("/")
-
-	const setLogin = useSetLogin()
 
 	const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
@@ -35,7 +34,11 @@ export function Login() {
 		switch (resp.status) {
             case 200: {
 				setError(undefined)
-				setLogin(true, username)
+				setCookie("login", {
+					loggedin: true,
+					username: username
+				}, { path: "/" })
+				afterAction()
                 break
             }
             case 400: {
