@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":fw-interfaces-module"))
+    api(project(":fw-interfaces-module"))
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
 }

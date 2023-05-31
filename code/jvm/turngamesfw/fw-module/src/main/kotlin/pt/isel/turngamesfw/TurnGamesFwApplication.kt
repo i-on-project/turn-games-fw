@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import pt.isel.fwinterfaces.GameLogic
 import pt.isel.turngamesfw.domain.GameProvider
 import pt.isel.turngamesfw.domain.UserLogic
 import pt.isel.turngamesfw.http.pipeline.AuthenticationInterceptor
@@ -23,6 +24,7 @@ import pt.isel.turngamesfw.utils.RealClock
 import pt.isel.turngamesfw.utils.Sha256TokenEncoder
 
 val gameProvider = GameProvider()
+var dbUrl = "jdbc:postgresql://localhost:5432/dbTurnGamesFW?user=dbuser&password=12345"
 
 @SpringBootApplication
 class TurnGamesFwApplication {
@@ -30,7 +32,7 @@ class TurnGamesFwApplication {
 	@Bean
 	fun jdbi() = Jdbi.create(
 		PGSimpleDataSource().apply {
-			setURL("jdbc:postgresql://localhost:5432/dbTurnGamesFW?user=dbuser&password=12345")
+			setURL(dbUrl)
 		}
 	).configure()
 
@@ -78,8 +80,18 @@ class StartSpring(private val gameServices: GameServices): CommandLineRunner {
 
 }
 
-fun runServer() {
-	runApplication<TurnGamesFwApplication>()
+class Framework {
+	fun setDbUrl(url: String) {
+		dbUrl = url
+	}
+
+	fun addGameLogic(gameName: String, gameLogic: GameLogic) {
+		gameProvider.addGame(gameName, gameLogic)
+	}
+
+	fun runServer() {
+		runApplication<TurnGamesFwApplication>()
+	}
 }
 
 fun main(args: Array<String>) {
