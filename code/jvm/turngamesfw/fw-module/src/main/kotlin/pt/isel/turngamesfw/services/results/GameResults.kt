@@ -16,7 +16,12 @@ sealed class FoundMatchError {
     object UserNotInGame: FoundMatchError()
     object ServerError: FoundMatchError()
 }
-typealias FoundMatchResult = Either<FoundMatchError, Match>
+sealed class FoundMatchSuccess {
+    object SearchingMatch: FoundMatchSuccess()
+
+    data class FoundMatch(val match: Match): FoundMatchSuccess()
+}
+typealias FoundMatchResult = Either<FoundMatchError, FoundMatchSuccess>
 
 sealed class MatchByIdError {
     object MatchNotExist: MatchByIdError()

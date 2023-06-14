@@ -13,27 +13,11 @@ data class LoginInputModel(
     val password: String,
 )
 
-data class UpdateUserInputModel(
-    val username: String,
-)
-
 data class UserDetailsOutputModel(
     val id: Int,
     val username: String,
     val status: User.Status
-) {
-    companion object {
-        val clazz = "user"
-    }
-}
-
-data class UserCreationOutputModel(
-    val details: UserDetailsOutputModel,
-) {
-    companion object {
-        val clazz = "userCreation"
-    }
-}
+)
 
 fun User.toUserDetailsOutputModel() =
     UserDetailsOutputModel(

@@ -42,7 +42,7 @@ function GameListElement(name: string) {
 
     const goToGameInfo = () => navigate("/game/" + name)
     const goToLeaderboard = () => navigate("/game/" + name + "/leaderboard")
-    const findMatch = () => { console.log("find match requested for game " + name) }
+    const findMatch = () => navigate("/game/" + name + "/findMatch")
     
     return (
         <StyledTableRow key={name}>

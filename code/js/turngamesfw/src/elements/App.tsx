@@ -5,15 +5,17 @@ import {
     RouterProvider
 } from 'react-router-dom'
 
-import { Home, loadHome, MockHome } from './home/Home';
-import { GameInfo, loadGameInfo, MockGameInfo } from './game/GameInfo'
+import { Home, loadHome} from './home/Home';
+import { GameInfo, loadGameInfo} from './game/GameInfo'
 import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
-import { MatchLayout, MockMatchLayout } from './game/MatchLayout'
-import { UserInfo, MockUserInfo } from './user/UserInfo'
+import { loadMatchLayout, MatchLayout} from './game/MatchLayout'
+import { Me, UserInfo, loadMe, loadUserInfo } from './user/UserInfo'
 import { Logout } from './user/Logout';
 import { NavBar } from './NavBar';
 import { Login } from './user/Login';
 import { Register } from './user/Register';
+import { FindMatch} from './game/FindMatch';
+import { RequireAuthn } from '../utils/RequireAuthn';
 
 const router = createBrowserRouter([
     {
@@ -36,15 +38,28 @@ const router = createBrowserRouter([
                 path: "/game/:gameName/leaderboard",
                 element:<MockLeaderboard/>
             },
-        
+
             {
-                path: "/game/:gameName/match/:matchId",
-                element:<MockMatchLayout/>
+                path: "/game/:gameName/findMatch",
+                element:<RequireAuthn><FindMatch/></RequireAuthn>
             },
         
             {
+                path: "/game/:gameName/match/:matchId",
+                element:<RequireAuthn><MatchLayout/></RequireAuthn>,
+                loader: loadMatchLayout
+            },
+        
+            {
+                path: "/me",
+                element:<Me/>,
+                loader: loadMe
+            },
+
+            {
                 path: "/user/:userId",
-                element:<MockUserInfo/>
+                element:<UserInfo/>,
+                loader: loadUserInfo
             },
         
             {

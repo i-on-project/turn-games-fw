@@ -8,6 +8,7 @@ export async function fetchAPI(url: string, method: string, reqBody?: any, getBo
     try {
         const resp = await fetch(url, {
             method: method,
+            redirect: 'manual',
             credentials: "include",
             headers: {
                 "content-type": "application/json",
@@ -15,6 +16,12 @@ export async function fetchAPI(url: string, method: string, reqBody?: any, getBo
             },
             body: JSON.stringify(reqBody)
         })
+        if (resp.type == "opaqueredirect") {
+            return {
+                status: 0,
+                body: null
+            }
+        }
         switch (resp.status) {
             case 200: 
             case 201:

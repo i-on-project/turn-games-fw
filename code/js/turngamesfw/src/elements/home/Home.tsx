@@ -1,6 +1,5 @@
 import * as React from 'react'
-import { useState, useEffect, } from 'react'
-import { Navigate, useLoaderData } from "react-router-dom";
+import { useLoaderData } from "react-router-dom";
 import { GameList, MockGameList } from './GameList';
 
 import { fetchAPI } from '../../utils/fetchApi';

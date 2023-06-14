@@ -11,6 +11,7 @@ object Uris {
         const val INFO = "/game/{nameGame}"
         const val FIND = "$INFO/find"
         const val FOUND = "$INFO/found"
+        const val MY_STATE = "$INFO/mystate"
         const val MATCH = "$INFO/match/{id}"
         const val SETUP = "$INFO/setup"
         const val DO_TURN = "$INFO/turn"
@@ -32,6 +33,7 @@ object Uris {
         const val LOGIN = "/user/login"
         const val LOGOUT = "/user/logout"
 
+        const val ME = "/user/me"
         const val GET_BY_ID = "/user/{id}"
         const val UPDATE = "/user/update"
         const val DELETE = "/user/delete"

@@ -3,6 +3,7 @@ package pt.isel.turngamesfw.http.model
 import com.fasterxml.jackson.databind.JsonNode
 import pt.isel.fwinterfaces.Game
 import pt.isel.fwinterfaces.Match
+import pt.isel.turngamesfw.domain.User
 import java.time.Instant
 import java.util.UUID
 
@@ -38,6 +39,15 @@ data class GameOutputModel(
 
     }
 }
+
+data class MyStateOutputModel(
+    val state: User.Stats.State
+)
+
+data class FoundMatchOutputModel(
+    val found: Boolean,
+    val game: MatchOutputModel?,
+)
 
 data class MatchOutputModel(
     val id: UUID,

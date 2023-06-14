@@ -112,6 +112,18 @@ class SirenPages {
             link(Uris.Game.LEADERBOARD, Rels.PREVIOUS)
         }
 
+        fun myState(myState: MyStateOutputModel) = siren(myState) {
+            clazz("myState")
+
+            // TODO: Add remaining links
+        }
+
+        fun foundMatch(foundMatch: FoundMatchOutputModel) = siren(foundMatch) {
+            clazz("foundMatch")
+
+            // TODO: Add remaining links
+        }
+
         fun match(match: MatchOutputModel) = siren(match) {
             clazz("match")
 

@@ -64,9 +64,18 @@ class GameServices(
         }
     }
 
+    fun getState(gameName: String, userId: Int): User.Stats.State {
+        return transactionManager.run {
+            return@run it.gamesRepository.getUserState(userId, gameName)
+        }
+    }
+
     fun foundMatch(gameName: String, userId: Int): FoundMatchResult {
         return transactionManager.run {
             val userState = it.gamesRepository.getUserState(userId, gameName)
+            if (userState == User.Stats.State.SEARCHING) {
+                return@run Either.Right(FoundMatchSuccess.SearchingMatch)
+            }
             if (userState != User.Stats.State.IN_GAME) {
                 return@run Either.Left(FoundMatchError.UserNotInGame)
             }
@@ -75,7 +84,7 @@ class GameServices(
 
             val match = matches.firstOrNull<Match> { match -> match.state != Match.State.FINISHED } ?: return@run Either.Left(FoundMatchError.ServerError)
 
-            return@run Either.Right(match)
+            return@run Either.Right(FoundMatchSuccess.FoundMatch(match))
         }
     }
 

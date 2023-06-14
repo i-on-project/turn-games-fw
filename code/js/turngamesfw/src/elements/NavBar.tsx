@@ -16,7 +16,7 @@ var navItems = [
 export function NavBar() {
     const [cookies, setCookie, removeCookie] = useCookies(["login"])
 
-    if (cookies.login.loggedin == true) {
+    if (cookies.login != undefined && cookies.login.loggedin == true) {
         navItems = [
             {name: cookies.login.username, url: "/me"},
             {name: 'Logout', url: "/logout"}

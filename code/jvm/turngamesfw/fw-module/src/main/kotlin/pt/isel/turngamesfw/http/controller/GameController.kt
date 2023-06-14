@@ -44,6 +44,12 @@ class GameController(
         TODO()
     }
 
+    @GetMapping(Uris.Game.MY_STATE)
+    fun myState(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
+        val state = gameServices.getState(nameGame, user.id)
+        return SirenPages.myState(MyStateOutputModel(state)).toResponseEntity {  }
+    }
+
     @PostMapping(Uris.Game.FIND)
     fun findMatch(user: User, @PathVariable nameGame: String): ResponseEntity<*> =
         when (val res = gameServices.findMatch(nameGame, user.id)) {
@@ -65,7 +71,10 @@ class GameController(
                 FoundMatchError.ServerError -> problemResponse(Problem.SERVER_ERROR)
                 FoundMatchError.UserNotInGame -> problemResponse(Problem.USER_NOT_IN_MATCH)
             }
-            is Either.Right -> SirenPages.match(MatchOutputModel.fromMatch(res.value)).toResponseEntity {  }
+            is Either.Right -> when (val r = res.value) {
+                is FoundMatchSuccess.FoundMatch -> SirenPages.foundMatch(FoundMatchOutputModel(true, MatchOutputModel.fromMatch(r.match))).toResponseEntity {  }
+                FoundMatchSuccess.SearchingMatch -> SirenPages.foundMatch(FoundMatchOutputModel(false, null)).toResponseEntity { }
+            }
         }
 
     @GetMapping(Uris.Game.MATCH)

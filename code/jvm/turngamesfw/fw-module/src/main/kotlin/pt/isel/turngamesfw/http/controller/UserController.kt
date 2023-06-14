@@ -71,6 +71,11 @@ class UserController(
         return SirenPages.empty().toResponseEntity(headers = headers) {  }
     }
 
+    @GetMapping(Uris.User.ME)
+    fun getMe(user: User): ResponseEntity<*> {
+        return getById(user.id.toString())
+    }
+
     @GetMapping(Uris.User.GET_BY_ID)
     fun getById(@PathVariable id: String): ResponseEntity<*> {
         val userId = try {
