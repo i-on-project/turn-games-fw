@@ -1,94 +1,94 @@
-class TicTacToeGame {
-    squares: string[];
-    currentPlayer: string;
-    gameOver: boolean;
+type TicTacToeInfo = { cells: Array<Array<string>> }
+
+export type TicTacToeMatch = {
+    id: string;
+    gameName: string;
+    state: MatchState;
+    players: number[];
+    currPlayer: number;
+    currTurn: number;
+    deadlineTurn: Date;
+    created: Date;
+    info: TicTacToeInfo;
 }
 
-export const TicTacToeMatch: Match = {
-    id: '1',
-    gameName: 'TicTacToe',
-    state: MatchState.ON_GOING,
-    currTurn: 1,
-    currPlayer: 0,
-    players: [0, 1],
-    deadlineTurn: new Date(Date.now() + 1000 * 60 * 15),
-    created: new Date(),
-    info: {
-      squares: Array(9).fill(null),
-      currentPlayer: 'X',
-      gameOver: false,
-    }
-  };
-
 export const TicTacToeLogic = {
-    newTurn: (game: TicTacToeGame, index: number): TicTacToeGame => {
-        if (game.gameOver || !TicTacToeLogic.isValidMove(game.squares, index)) {
-            return game;
+    newTurn: (match: TicTacToeMatch, row: number, col: number): TicTacToeMatch => {
+        if (match.state == MatchState.FINISHED || !TicTacToeLogic.isValidMove(match.info.cells, row, col)) {
+            return match;
         }
 
-        const newSquares = TicTacToeLogic.makeMove(game.squares, index, game.currentPlayer);
-        const newPlayer = TicTacToeLogic.changePlayer(game.currentPlayer);
-        const gameOver = TicTacToeLogic.isGameOver(newSquares);
+        const newMatch = TicTacToeLogic.makeMove(match, row, col);
+
+        return newMatch;
+    },
+
+    isValidMove: (cells: Array<Array<string>>, row: number, col: number) => {
+        return cells[row][col] === "EMPTY"
+    },
+
+    makeMove: (match: TicTacToeMatch, row: number, col: number): TicTacToeMatch => {
+        match.info.cells[row][col] = TicTacToeLogic.playerSymbol(match.currTurn)
+
+        const newInfo = match.info.cells
+        newInfo[row][col] = TicTacToeLogic.playerSymbol(match.currTurn)
+
+        let newCurrPlayer = TicTacToeLogic.changePlayer(match.currPlayer, match.players)
+        let newCurrTurn = match.currTurn + 1
+
+        let newState = match.state
+        if (TicTacToeLogic.isGameOver(newInfo)) {
+            newState = MatchState.FINISHED
+            newCurrPlayer = match.currPlayer
+            newCurrTurn = match.currTurn
+        }
 
         return {
-            squares: newSquares,
-            currentPlayer: newPlayer,
-            gameOver: gameOver,
-        };
+            ...match,
+            state: newState,
+            currPlayer: newCurrPlayer,
+            currTurn: newCurrTurn,
+            info: { cells: newInfo }
+        }
+
     },
 
-    isValidMove: (squares: string[], index: number) => {
-        return squares[index] === null;
+    changePlayer: (currentPlayer: number, players: number[]): number => {
+        return players.find(id => currentPlayer != id)
     },
 
-    makeMove: (squares: string[], index: number, currentPlayer: string): string[] => {
-        const newSquares = [...squares];
-        newSquares[index] = currentPlayer;
-        return newSquares;
+    playerSymbol: (currentTurn: number): string => {
+        return currentTurn % 2 == 0 ? 'PLAYER_O' : 'PLAYER_X'
     },
 
-    changePlayer: (currentPlayer: string): string => {
-        return currentPlayer === 'X' ? 'O' : 'X';
-    },
-
-    isGameOver: (squares: string[]): boolean => {        
+    isGameOver: (cells: Array<Array<string>>): boolean => {        
         const winningConditions = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6],
+            [{row: 0, col: 0}, {row: 0, col: 1}, {row: 0, col: 2}],
+            [{row: 1, col: 0}, {row: 1, col: 1}, {row: 1, col: 2}],
+            [{row: 2, col: 0}, {row: 2, col: 1}, {row: 2, col: 2}],
+            [{row: 0, col: 0}, {row: 1, col: 0}, {row: 2, col: 0}],
+            [{row: 0, col: 1}, {row: 1, col: 1}, {row: 2, col: 1}],
+            [{row: 0, col: 2}, {row: 1, col: 2}, {row: 2, col: 2}],
+            [{row: 0, col: 0}, {row: 1, col: 1}, {row: 2, col: 2}],
+            [{row: 0, col: 2}, {row: 1, col: 1}, {row: 2, col: 0}],
         ];
         
         for (let i = 0; i < winningConditions.length; i++) {
-            const [a, b, c] = winningConditions[i];
+            const [a, b, c] = winningConditions[i]
             if (
-                squares[a] &&
-                squares[a] === squares[b] &&
-                squares[a] === squares[c]
+                cells[a.row][a.col] != "EMPTY" &&
+                cells[a.row][a.col] === cells[b.row][b.col] &&
+                cells[a.row][a.col] === cells[c.row][c.col]
             ) {
-                console.log('Game Over by win');
-                return true;
+                return true
             }
         }
 
-        if (squares.every((square) => square !== null)) {
-            console.log('Game Over by draw');
-            return true;
+        if (cells.every(row => row.every(col => col != "EMPTY"))) {
+            return true
         }
 
-        
-        return false;
+        return false
     },
     
-    resetGame: () => {
-        return {
-            squares: Array(9).fill(null),
-            currentPlayer: 'X',
-            gameOver: false
-        };
-    },
 }

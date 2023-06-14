@@ -138,14 +138,19 @@ class GameServices(
             val gameLogic = gameProvider.getGameLogic(match.gameName) ?: return@run Either.Left(DoTurnMatchError.ServerError)
             val updateInfo = gameLogic.doTurn(match, infoTurn)
 
-            if (!updateInfo.error) {
-                val updatedMatch = updateInfo.match ?: return@run Either.Left(DoTurnMatchError.ServerError)
-                it.gamesRepository.updateMatch(updatedMatch)
-                // TODO: Rating checks
-                return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
-            } else {
+            if (updateInfo.error) {
                 return@run Either.Right(DoTurnMatchSuccess.ErrorInGameLogic(updateInfo.message))
             }
+
+            val updatedMatch = updateInfo.match ?: return@run Either.Left(DoTurnMatchError.ServerError)
+            it.gamesRepository.updateMatch(updatedMatch)
+            if (updatedMatch.state == Match.State.FINISHED) {
+                updatedMatch.players.forEach { playerId ->
+                    it.gamesRepository.updateState(playerId, updatedMatch.gameName, User.Stats.State.INACTIVE)
+                }
+            }
+            // TODO: Rating checks
+            return@run Either.Right(DoTurnMatchSuccess.DoTurnDone(updateInfo.message))
         }
     }
 
@@ -156,10 +161,14 @@ class GameServices(
                 return@run Either.Left(MyTurnError.UserNotInMatch)
             }
 
+            if (match.state == Match.State.FINISHED) {
+                return@run Either.Right(MyTurnSuccess.GameOver)
+            }
+
             if (match.currPlayer == userId) {
-                return@run Either.Right(true)
+                return@run Either.Right(MyTurnSuccess.MyTurn(true))
             } else {
-                return@run Either.Right(false)
+                return@run Either.Right(MyTurnSuccess.MyTurn(false))
             }
         }
     }

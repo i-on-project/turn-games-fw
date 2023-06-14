@@ -65,3 +65,8 @@ data class MatchOutputModel(
             MatchOutputModel(match.id, match.gameName, match.state, match.players, match.currPlayer, match.currTurn, match.deadlineTurn, match.created, match.info)
     }
 }
+
+data class MyTurnOutputModel(
+    val gameOver: Boolean,
+    val myTurn: Boolean?,
+)

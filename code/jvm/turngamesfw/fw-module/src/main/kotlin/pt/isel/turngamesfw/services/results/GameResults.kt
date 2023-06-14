@@ -60,4 +60,9 @@ sealed class MyTurnError {
     object UserNotInMatch: MyTurnError()
     object ServerError: MyTurnError()
 }
-typealias MyTurnResult = Either<MyTurnError, Boolean>
+sealed class MyTurnSuccess {
+    data class MyTurn(val myTurn: Boolean): MyTurnSuccess()
+
+    object GameOver: MyTurnSuccess()
+}
+typealias MyTurnResult = Either<MyTurnError, MyTurnSuccess>

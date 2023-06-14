@@ -1,102 +1,95 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect, useReducer } from 'react';
+
 import Box from '@mui/material/Box';
-import { TicTacToeLogic } from './TicTacToeLogic';
-import Button from '@mui/material/Button';
 
-export function TicTacToeBoard(props: { match: Match, onMatchUpdate: (match: Match) => void }) {
-  const [game, setGame] = useState(props.match.info);
+import { TicTacToeLogic, TicTacToeMatch } from './TicTacToeLogic';
 
-  const handleClick = (index) => {
-    const updatedGame = TicTacToeLogic.newTurn(game, index);
+type ActionMatch = {
+	type: 'play',
+	row: number,
+	col: number,
+} | {
+	type: 'update',
+	match: TicTacToeMatch
+}
 
-    if (updatedGame == game) return;
-    
-    setGame(updatedGame);
-    props.onMatchUpdate({ ...props.match, 
-      currPlayer: props.match.currPlayer === 0 ? 1 : 0,
-      currTurn: props.match.currTurn + 1,
-      info: updatedGame 
-    });
-  };
+function reduceMatch(state: TicTacToeMatch, action: ActionMatch): Match {
+	switch (action.type) {
+		case 'play': return TicTacToeLogic.newTurn(state, action.row, action.col)
+		case 'update': return action.match
+	}
+}
 
-  const handleReset = () => {
-    const resetGame = TicTacToeLogic.resetGame();
-    setGame(resetGame);
-    props.onMatchUpdate({ ...props.match, info: resetGame });
-  };
+export function TicTacToeBoard(props: { match: Match, playerId: number, onMatchUpdate: (match: Match) => void, doAction: (action: any) => void }) {
+	const [match, dispatchMatch] = useReducer(reduceMatch, props.match as TicTacToeMatch)
 
-  useEffect(() => {
-    setGame(props.match.info);
-  }, [props.match.info]);
+	const handleClick = (row: number, col: number) => {
+		dispatchMatch({
+			type: 'play',
+			row: row, 
+			col: col
+		})
 
-  useEffect(() => {
-    // Update the game state when the match prop changes
-    setGame(props.match.info);
-  }, [props.match]);
+		props.doAction({
+			col: col, 
+			row: row
+		})
+	};
 
-  return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', width: '310px', margin: '0 auto', marginTop: '40px' }}>
-      {game.squares.map((value, index) => (
-        <Square
-          key={index}
-          value={value}
-          onClick={() => handleClick(index)}
-          disabled={value || game.gameOver}
-          gameOver={game.gameOver}
-        />
-      ))}
+	useEffect(() => {
+		dispatchMatch({
+			type: 'update',
+			match: props.match
+		})
+	}, [props.match])
 
-      {game.gameOver && (
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: '16px',
-          }}
-        >
-          <Button
-            onClick={handleReset}
-            variant="contained"
-            color="primary"
-            sx={{
-              backgroundColor: '#ff4081',
-              '&:hover': {
-                backgroundColor: '#f50057',
-              },
-            }}
-          >
-            Reset Game
-          </Button>
-        </Box>
-      )}
-    </Box>
-  );
+	useEffect(() => {
+		props.onMatchUpdate(match)
+	}, [match]);
+
+	return (
+		<Box sx={{ display: 'flex', flexWrap: 'wrap', width: '310px', margin: '0 auto', marginTop: '40px' }}>
+			{match.info.cells.map((row, rowIndex) => (
+				row.map((value, colIndex) => {
+					const index = (rowIndex * match.info.cells.length) + (colIndex + 1);
+
+					return <Square
+						key={index}
+						value={value}
+						onClick={() => handleClick(rowIndex, colIndex)}
+						disabled={value != "EMPTY" || match.currPlayer != props.playerId || match.state == MatchState.FINISHED}
+					/>
+				})
+				
+			))}
+		</Box>
+	);
 }
 
 import { Clear, RadioButtonUnchecked } from '@mui/icons-material';
 
-function Square({ value, onClick, disabled, gameOver }) {
-  const IconComponent = value === 'X' ? Clear : value === 'O' ? RadioButtonUnchecked : null;
-  const iconColor = value === 'X' ? 'red' : value === 'O' ? 'blue' : 'inherit';
+function Square(props: { value: string, onClick: () => any, disabled: boolean }) {
+	const IconComponent = props.value === 'PLAYER_X' ? Clear : props.value === 'PLAYER_O' ? RadioButtonUnchecked : null;
+	const iconColor = props.value === 'PLAYER_X' ? 'red' : props.value === 'PLAYER_O' ? 'blue' : 'inherit';
 
-  return (
-    <Box
-      className="Square"
-      sx={{
-        width: '100px',
-        height: '100px',
-        border: '1px solid black',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        fontSize: '24px',
-        cursor: value || disabled || gameOver ? 'default' : 'pointer',
-      }}
-      onClick={onClick}
-    >
-      {IconComponent && <IconComponent sx={{ fontSize: '48px', color: iconColor }} />}
-    </Box>
-  );
+	return (
+		<Box
+			className="Square"
+			sx={{
+				width: '100px',
+				height: '100px',
+				border: '1px solid black',
+				display: 'flex',
+				justifyContent: 'center',
+				alignItems: 'center',
+				fontSize: '24px',
+				cursor: props.disabled ? 'default' : 'pointer',
+			}}
+
+			onClick={!props.disabled ? props.onClick : undefined}
+		>
+			{IconComponent && <IconComponent sx={{ fontSize: '48px', color: iconColor }} />}
+		</Box>
+	);
 }

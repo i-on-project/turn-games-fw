@@ -1,16 +1,17 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { useLoaderData } from 'react-router-dom';
+import { useLoaderData, useParams } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 
 import { fetchAPI } from '../../utils/fetchApi';
-import { useTimer } from './Timer';
+import { useTimer } from '../../utils/timer';
+import { TurnInputModel } from '../../models/game/OutputModels';
 
 import { TicTacToeBoard } from '../tictactoe/TicTacToeElement';
-import { TicTacToeMatch } from '../tictactoe/TicTacToeLogic';
 
 async function getPlayerInfo(playersId: number[]): Promise<User[]> {
 	const tempPlayers = []
@@ -34,14 +35,60 @@ export async function loadMatchLayout({params}) {
 }
 
 export function MatchLayout() {
+	const { gameName, matchId } = useParams()
+
 	const {match, players} = useLoaderData() as {match: Match, players: User[]}
 
-	const [currentMatch, setCurrentMatch] = useState(match);
+	const [cookies, setCookie, removeCookie] = useCookies(["login"])
+	const playerId = players.find(player => player.username == cookies.login.username).id
 
-	const handleMatchChange = (updatedMatch) => {
-		console.log('MatchLayout.handleMatchChange', updatedMatch);
-		setCurrentMatch(updatedMatch);
-	};
+	const [currentMatch, setCurrentMatch] = useState(match);
+	const [waiting, setWaiting] = useState(match.currPlayer != playerId ? true : false)
+
+	const handleMatchChange = (updatedMatch: Match) => {
+		setCurrentMatch(updatedMatch)
+	}
+
+	const doAction = async (action: any) => {
+		const body = new TurnInputModel(matchId, action)
+
+		const resp = await fetchAPI("/api/game/" + gameName + "/turn", "POST", body, false)
+		if (resp.status != 200) {
+			// TODO: Error catching
+			return
+		}
+
+		setWaiting(true)
+	}
+
+	async function getState(intervalId: number) {
+        const resp = await fetchAPI("/api/game/" + gameName + "/" + matchId + "/myturn", "GET")
+		if (resp.body.gameOver == true) {
+			clearInterval(intervalId)
+			setWaiting(false)
+			return
+		}
+
+		if (resp.body.myTurn) {
+			clearInterval(intervalId)
+			setWaiting(false)
+		}
+    }
+
+	async function getUpdatedMatch() {
+		const resp = await fetchAPI("/api/game/" + gameName + "/match/" + matchId, "GET")
+		const updatedMatch = resp.body["properties"] as Match
+
+        setCurrentMatch(updatedMatch)
+    }
+
+	useEffect(() => {
+        if (waiting) {
+            const interval = setInterval(() => getState(interval), 1000)
+        } else {
+            getUpdatedMatch()
+        }
+    }, [waiting])
 
 	return (
 		<Container>
@@ -51,7 +98,9 @@ export function MatchLayout() {
 				deadlineTurn={currentMatch.deadlineTurn}
 				players={players}
 				currPlayer={currentMatch.currPlayer}
+				gameOver={currentMatch.state == MatchState.FINISHED}
 			/>
+			<TicTacToeBoard match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doAction={doAction}/>
 		</Container>
 	);
 }
@@ -62,6 +111,7 @@ function MatchStatus(status: {
 	deadlineTurn: Date;
 	players: User[];
 	currPlayer: number;
+	gameOver: boolean
 }) {
 
 	let t = false
@@ -111,7 +161,15 @@ function MatchStatus(status: {
 						position={'right'}
 					/>
 				</Box>
+
 			</Box>
+			{status.gameOver && <Box display="flex" mt="15px">
+				<Box sx={{ flexGrow: 1, textAlign: 'center' }}>
+					<Typography variant="h5" style={{ fontWeight: 'bold' }}>
+						GAME OVER!
+					</Typography>
+				</Box>
+			</Box>}
 		</Box>
 	);
 }
@@ -132,12 +190,3 @@ function StyledPlayer({ playerName, isCurrentPlayer, position }) {
 		</Box>
 	);
 }
-
-export function MockMatchLayout() {
-	return (
-		<MatchLayout
-			
-		/>
-	);
-}
-
