@@ -49,7 +49,7 @@ export function TicTacToeBoard(props: { match: Match, playerId: number, onMatchU
 	}, [match]);
 
 	return (
-		<Box sx={{ display: 'flex', flexWrap: 'wrap', width: '310px', margin: '0 auto', marginTop: '40px' }}>
+		<Box sx={{ display: 'flex', flexWrap: 'wrap', width: '302px', margin: '0 auto', marginTop: '40px', border: '1px solid black'}}>
 			{match.info.cells.map((row, rowIndex) => (
 				row.map((value, colIndex) => {
 					const index = (rowIndex * match.info.cells.length) + (colIndex + 1);
