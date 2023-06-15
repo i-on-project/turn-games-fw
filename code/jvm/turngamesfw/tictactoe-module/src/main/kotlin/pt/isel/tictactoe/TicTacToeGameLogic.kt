@@ -38,103 +38,79 @@ class TicTacToeGameLogic: GameLogic {
             }
         }
 
-        private val modulePosition: SimpleModule = SimpleModule().addDeserializer(Position::class.java, PositionDeserializer())
+        private val modulePosition: SimpleModule =
+            SimpleModule().addDeserializer(Position::class.java, PositionDeserializer())
         private val moduleBoard: SimpleModule = SimpleModule().addDeserializer(Board::class.java, BoardDeserializer())
-        private val objectMapper: ObjectMapper = ObjectMapper().registerModule(modulePosition).registerModule(moduleBoard)
+        private val objectMapper: ObjectMapper =
+            ObjectMapper().registerModule(modulePosition).registerModule(moduleBoard)
     }
 
-    override fun create(users: List<Int>): Match {
-        if (users.size != 2) {
-            // TODO: Should throw error because list of players does not contain the right number
-            throw IllegalArgumentException()
-        }
-        return Match(
-            gameName = "TicTacToe",
-            state = Match.State.ON_GOING,
-            players = users,
-            currPlayer = users.first(),
-            currTurn = 1,
-            info = objectMapper.valueToTree(Board.create())
-        )
-    }
-
-    override fun setup(match: Match, infoSetup: GameLogic.InfoSetup): GameLogic.UpdateInfo {
-        TODO("Not yet implemented")
-    }
-
-    override fun doTurn(match: Match, infoTurn: GameLogic.InfoTurn): GameLogic.UpdateInfo {
-        val position = objectMapper.treeToValue(infoTurn.info, Position::class.java)
-        return applyRound(match, infoTurn.playerId, position)
-    }
-
-    override fun matchPlayerView(match: Match, playerId: Int): Match {
-        return match
-    }
-
-    override fun getGameInfo(): Game = Game(
+    override fun getGameInfo() = Game(
         "TicTacToe",
         2,
         "Description",
         "Rules"
     )
 
-    private fun applyRound(
-        match: Match,
-        playerId: Int,
-        position: Position,
-    ): GameLogic.UpdateInfo {
-        if (!match.players.contains(playerId)) { // No need to exist
-            return GameLogic.UpdateInfo(true, "Player not in match", null)
+    override fun create(users: List<Int>) = Match(
+        gameName = "TicTacToe",
+        state = Match.State.ON_GOING,
+        players = users,
+        currPlayer = users.first(),
+        currTurn = 1,
+        info = objectMapper.valueToTree(Board.create())
+    )
+
+    override fun setup(match: Match, infoSetup: GameLogic.InfoSetup): GameLogic.UpdateInfo {
+        TODO("Not necessary")
+    }
+
+    override fun doTurn(match: Match, infoTurn: GameLogic.InfoTurn): GameLogic.UpdateInfo {
+        val position = objectMapper.treeToValue(infoTurn.info, Position::class.java)
+        val playerNext: Int
+        val playerState = if (match.currPlayer == match.players.first()) {
+            playerNext = 1
+            Board.State.PLAYER_X
+        } else {
+            playerNext = 0
+            Board.State.PLAYER_O
         }
-        return when (match.state) { // No need to exist
-            Match.State.SETUP -> GameLogic.UpdateInfo(true, "Impossible to be on setup", null)
-            Match.State.FINISHED -> GameLogic.UpdateInfo(false, "Game Already Ended", match)
-            Match.State.ON_GOING -> {
-                if (match.currPlayer != playerId) { // No need to exist
-                    return GameLogic.UpdateInfo(true, "Not player Turn", match)
-                }
-                val playerNext: Int
-                val playerState = if (match.currPlayer == match.players.first()) {
-                    playerNext = 1
-                    Board.State.PLAYER_X
-                } else {
-                    playerNext = 0
-                    Board.State.PLAYER_O
-                }
-                val board: Board = objectMapper.treeToValue(match.info, Board::class.java)
-                if (!board.canPlayOn(position)) {
-                    return GameLogic.UpdateInfo(true, "Position not available!", null)
-                }
 
-                val newBoard = board.mutate(position, playerState)
-                if (newBoard.hasWon(playerState)) {
-                    val newMatch = match.copy(info = objectMapper.valueToTree(newBoard), state = Match.State.FINISHED)
-                    return GameLogic.UpdateInfo(false, "Player ${playerState.char} won! Game Ended.", newMatch)
-                }
+        val board: Board = objectMapper.treeToValue(match.info, Board::class.java)
+        if (!board.canPlayOn(position)) {
+            return GameLogic.UpdateInfo(true, "Position not available!", null)
+        }
 
-                if (newBoard.isFull()) {
-                    val newMatch = match.copy(
-                        info = objectMapper.valueToTree(newBoard),
-                        state = Match.State.FINISHED,
-                    )
-                    return GameLogic.UpdateInfo(
-                        false,
-                        "Draw! Game Ended.",
-                        newMatch
-                    )
-                } else {
-                    val newMatch = match.copy(
-                        info = objectMapper.valueToTree(newBoard),
-                        currPlayer = match.players[playerNext],
-                        currTurn = match.currTurn + 1,
-                    )
-                    return GameLogic.UpdateInfo(
-                        false,
-                        "Next Player.",
-                        newMatch
-                    )
-                }
-            }
+        val newBoard = board.mutate(position, playerState)
+        if (newBoard.hasWon(playerState)) {
+            val newMatch = match.copy(info = objectMapper.valueToTree(newBoard), state = Match.State.FINISHED)
+            return GameLogic.UpdateInfo(false, "Player ${playerState.char} won! Game Ended.", newMatch)
+        }
+
+        if (newBoard.isFull()) {
+            val newMatch = match.copy(
+                info = objectMapper.valueToTree(newBoard),
+                state = Match.State.FINISHED,
+            )
+            return GameLogic.UpdateInfo(
+                false,
+                "Draw! Game Ended.",
+                newMatch
+            )
+        } else {
+            val newMatch = match.copy(
+                info = objectMapper.valueToTree(newBoard),
+                currPlayer = match.players[playerNext],
+                currTurn = match.currTurn + 1,
+            )
+            return GameLogic.UpdateInfo(
+                false,
+                "Next Player.",
+                newMatch
+            )
         }
     }
+
+    override fun matchPlayerView(match: Match, playerId: Int) = match
 }
+
