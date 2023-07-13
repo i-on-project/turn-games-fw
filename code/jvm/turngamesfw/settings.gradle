@@ -3,4 +3,5 @@ include 'tictactoe-module'
 include 'application-module'
 include 'fw-module'
 include 'fw-interfaces-module'
+include 'castlerun-module'
 
