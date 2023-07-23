@@ -1,5 +1,18 @@
 package pt.isel.domain
 
+data class PiecesLeft(val A: String, val B: String, val forA: Int, val forB:Int) {
+    fun dec(player: String): PiecesLeft {
+        if (player == A) return this.copy(forA = forA-1)
+        if (player == B) return this.copy(forB = forB-1)
+        else error("Player not recognized!")
+    }
+
+    fun inc(player: String): PiecesLeft {
+        if (player == A) return this.copy(forA = forA+1)
+        if (player == B) return this.copy(forB = forB+1)
+        else error("Player not recognized!")
+    }
+}
 data class Board(
     val playerA: String,
     val playerB: String,
@@ -8,14 +21,7 @@ data class Board(
     val numCols: Int,
     val numPieces: Int,
 
-    val entranceA: Coords,
-    val entranceB: Coords,
-
-    val drawerA: Drawer,
-    val drawerB: Drawer,
-
-    val playDices: Dices,
-    val duelDices: Dices,
+    val piecesLeft: PiecesLeft,
 
     val tiles: List<Tile>,
 ) {
@@ -35,23 +41,25 @@ data class Board(
     ) : this(
         playerA,
         playerB,
+
         numRows,
         numCols,
         numPieces,
-        entranceA,
-        entranceB,
-        Drawer(playerA, numPieces),
-        Drawer(playerB, numPieces),
-        Dices(),
-        Dices(),
-        createTiles(numRows, numCols, walls, exits)
+
+        PiecesLeft(playerA, playerB, numPieces, numPieces),
+        createTiles(numRows, numCols, walls, exits, entranceA, entranceB)
     )
 
     companion object {
-        private fun createTiles(numRows: Int, numCols: Int, walls: List<Coords>, exits: List<Coords>): List<Tile> {
+        private fun createTiles(numRows: Int, numCols: Int, walls: List<Coords>, exits: List<Coords>, entranceA: Coords, entranceB: Coords): List<Tile> {
             val tiles = Array(numRows) { row -> Array(numCols) { col -> Tile(Coords(row, col)) } }.flatten()
+
+            tiles[entranceA.row * numCols + entranceA.col].type = Tile.Type.EntranceA
+            tiles[entranceB.row * numCols + entranceB.col].type = Tile.Type.EntranceB
+
             walls.forEach { c -> tiles[c.row * numCols + c.col].type = Tile.Type.Wall }
             exits.forEach { c -> tiles[c.row * numCols + c.col].type = Tile.Type.Exit }
+
             repeat(numRows * numCols / 10) {
                 val t = tiles.random()
                 if (t.type == Tile.Type.Floor) t.type = Tile.Type.Equipment
@@ -71,6 +79,8 @@ data class Board(
                         Tile.Type.Exit -> "E"
                         Tile.Type.Floor -> " "
                         Tile.Type.Equipment -> "X"
+                        Tile.Type.EntranceA -> "/"
+                        Tile.Type.EntranceB -> "\\"
                     }
                     val playerSymbol = when {
                         tile.piece?.owner == board.playerA -> "A"

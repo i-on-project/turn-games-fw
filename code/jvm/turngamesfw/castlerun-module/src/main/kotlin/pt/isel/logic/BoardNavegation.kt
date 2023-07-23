@@ -29,27 +29,25 @@ fun possibleTiles(board: Board, start: Coords, distance: Int): MutableList<Coord
         val current = queue.removeFirst()
         visited.add(current)
 
-        if (current.second == distance || board.getTile(current.first).type == Tile.Type.Exit) {
+        if (current.second == distance || board.getTile(current.first).type == Tile.Type.Exit)
             possibleTiles.add(current.first)
-        } else {
-            val neighbours = getNeighbours(board, current.first)
-            neighbours.forEach {
-                if (!visited.contains(Pair(it, current.second + 1))) {
+        else
+            getNeighbours(board, current.first).forEach {
+                if (!visited.any { v -> v.first == it })
                     queue.add(Pair(it, current.second + 1))
-                }
             }
-        }
     }
 
     return possibleTiles
 }
 
-fun findPossibleMoves(board: Board, player: String): List<Pair<Piece?, Coords>> {
+fun findPossibleMoves(board: Board, player: String, distance: Int): List<Pair<Piece?, Coords>> {
     val list = mutableListOf<Pair<Piece?, Coords>>()
 
     //Deploy
-    val entrance = if (player == board.playerA) board.entranceA else board.entranceB
-    val deployTiles = possibleTiles(board, entrance, board.playDices.sum())
+    val entrance = board.tiles.first{tile -> tile.type == if (player == board.playerA) Tile.Type.EntranceA else Tile.Type.EntranceB }.coords
+    
+    val deployTiles = possibleTiles(board, entrance, distance)
     deployTiles
         .filter { c -> filter(board.getTile(c), player) }
         .forEach { c -> list.add(Pair(null, c))}
@@ -57,7 +55,7 @@ fun findPossibleMoves(board: Board, player: String): List<Pair<Piece?, Coords>> 
     //Move
     val pieces = board.tiles.filter { t -> t.piece?.owner == player && t.type != Tile.Type.Exit }
     pieces.forEach { p ->
-        val possibleCoords = possibleTiles(board, p.coords, board.playDices.sum())
+        val possibleCoords = possibleTiles(board, p.coords, distance)
         possibleCoords
             .filter { c -> filter(board.getTile(c), player) }
             .forEach { c -> list.add(Pair(p.piece, c))}
