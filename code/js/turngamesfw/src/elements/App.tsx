@@ -16,6 +16,8 @@ import { Login } from './user/Login';
 import { Register } from './user/Register';
 import { FindMatch} from './game/FindMatch';
 import { RequireAuthn } from '../utils/RequireAuthn';
+import { GamesProvider } from '../utils/GamesContext';
+import { TicTacToeBoard } from './tictactoe/TicTacToeElement';
 
 const router = createBrowserRouter([
     {
@@ -82,8 +84,10 @@ const router = createBrowserRouter([
 
 export function App() {
     return (
-        <>
+        <GamesProvider gamesComponents={new Map([
+            ['TicTacToe', TicTacToeBoard]
+        ])}>
             <RouterProvider router={router}/>
-        </>
+        </GamesProvider>
     )
 }

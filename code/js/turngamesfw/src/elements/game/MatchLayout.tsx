@@ -12,6 +12,7 @@ import { useTimer } from '../../utils/timer';
 import { TurnInputModel } from '../../models/game/OutputModels';
 
 import { TicTacToeBoard } from '../tictactoe/TicTacToeElement';
+import { useComponent } from '../../utils/GamesContext';
 
 async function getPlayerInfo(playersId: number[]): Promise<User[]> {
 	const tempPlayers = []
@@ -90,6 +91,8 @@ export function MatchLayout() {
         }
     }, [waiting])
 
+	const GameComponent = useComponent(gameName)
+
 	return (
 		<Container>
 			<MatchStatus
@@ -100,7 +103,7 @@ export function MatchLayout() {
 				currPlayer={currentMatch.currPlayer}
 				gameOver={currentMatch.state == MatchState.FINISHED}
 			/>
-			<TicTacToeBoard match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doAction={doAction}/>
+			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doAction={doAction}/>
 		</Container>
 	);
 }
