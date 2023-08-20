@@ -165,6 +165,10 @@ class GameServices(
                 return@run Either.Right(MyTurnSuccess.GameOver)
             }
 
+            if (match.state == Match.State.SETUP) {
+                return@run Either.Right(MyTurnSuccess.Setup)
+            }
+
             if (match.currPlayer == userId) {
                 return@run Either.Right(MyTurnSuccess.MyTurn(true))
             } else {

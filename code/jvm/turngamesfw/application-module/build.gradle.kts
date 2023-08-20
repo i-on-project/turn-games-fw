@@ -17,6 +17,7 @@ repositories {
 dependencies {
     implementation(project(":fw-module"))
     implementation(project(":tictactoe-module"))
+    implementation(project(":battleship-module"))
 
     implementation("com.fasterxml.jackson.core:jackson-databind:2.14.2")
 

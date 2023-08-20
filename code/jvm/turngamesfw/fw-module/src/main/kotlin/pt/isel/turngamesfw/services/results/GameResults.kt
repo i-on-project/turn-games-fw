@@ -64,5 +64,6 @@ sealed class MyTurnSuccess {
     data class MyTurn(val myTurn: Boolean): MyTurnSuccess()
 
     object GameOver: MyTurnSuccess()
+    object Setup: MyTurnSuccess()
 }
 typealias MyTurnResult = Either<MyTurnError, MyTurnSuccess>

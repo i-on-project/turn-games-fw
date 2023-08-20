@@ -122,7 +122,7 @@ class GameControllerTests {
 
     @Test
     fun `foundMatch returns correct match`() {
-        every { gameService.foundMatch("Chess", 1) } returns Either.Right(chessMatch)
+        every { gameService.foundMatch("Chess", 1) } returns Either.Right(FoundMatchSuccess.FoundMatch(chessMatch))
 
         val body = "{\"class\":[\"match\"],\"properties\":{\"gameName\":\"Chess\"}}"
 

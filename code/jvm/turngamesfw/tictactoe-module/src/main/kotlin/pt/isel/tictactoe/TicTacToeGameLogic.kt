@@ -82,8 +82,15 @@ class TicTacToeGameLogic: GameLogic {
 
         val newBoard = board.mutate(position, playerState)
         if (newBoard.hasWon(playerState)) {
-            val newMatch = match.copy(info = objectMapper.valueToTree(newBoard), state = Match.State.FINISHED)
-            return GameLogic.UpdateInfo(false, "Player ${playerState.char} won! Game Ended.", newMatch)
+            val newMatch = match.copy(
+                info = objectMapper.valueToTree(newBoard),
+                state = Match.State.FINISHED
+            )
+            return GameLogic.UpdateInfo(
+                false,
+                "Player ${playerState.char} won! Game Ended.",
+                newMatch
+            )
         }
 
         if (newBoard.isFull()) {

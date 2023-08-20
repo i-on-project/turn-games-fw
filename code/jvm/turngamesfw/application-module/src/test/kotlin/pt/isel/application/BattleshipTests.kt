@@ -2,18 +2,15 @@ package pt.isel.application
 
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.Order
-import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.fail
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
-import pt.isel.tictactoe.Position
-import pt.isel.tictactoe.TicTacToeGameLogic
+import pt.isel.battleship.BattleshipGameLogic
+import pt.isel.battleship.Ship
+import pt.isel.battleship.Position
 import pt.isel.turngamesfw.TurnGamesFwApplication
 import pt.isel.turngamesfw.gameProvider
 import pt.isel.turngamesfw.http.Uris
@@ -24,7 +21,7 @@ import java.util.*
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SpringBootTest(classes = [TurnGamesFwApplication::class], webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class TicTacToeTests {
+class BattleshipTests {
 
     @LocalServerPort
     var port: Int = 0
@@ -32,12 +29,12 @@ class TicTacToeTests {
     @Autowired
     private lateinit var gameServices: GameServices
 
-    private val gameName = "TicTacToe"
+    private val gameName = "Battleship"
 
     @BeforeAll
     @Order(1)
     fun `setup gameProvider`() {
-        gameProvider.addGame(gameName, TicTacToeGameLogic())
+        gameProvider.addGame(gameName, BattleshipGameLogic())
         gameServices.checkAndSaveAllGames()
     }
 
@@ -62,27 +59,27 @@ class TicTacToeTests {
             .exchange()
             .returnResult(String::class.java)
             .responseCookies["TGFWCookie"]?.first()?.value ?: run {
-                client.post().uri(Uris.User.REGISTER)
-                    .bodyValue(
-                        mapOf(
-                            "username" to "PlayerTest1",
-                            "password" to "12345"
-                        )
+            client.post().uri(Uris.User.REGISTER)
+                .bodyValue(
+                    mapOf(
+                        "username" to "PlayerTest1",
+                        "password" to "12345"
                     )
-                    .exchange()
-                    .expectStatus().isCreated
+                )
+                .exchange()
+                .expectStatus().isCreated
 
-                return@run client.post().uri(Uris.User.LOGIN)
-                    .bodyValue(
-                        mapOf(
-                            "username" to "PlayerTest1",
-                            "password" to "12345"
-                        )
+            return@run client.post().uri(Uris.User.LOGIN)
+                .bodyValue(
+                    mapOf(
+                        "username" to "PlayerTest1",
+                        "password" to "12345"
                     )
-                    .exchange()
-                    .expectStatus().isOk
-                    .returnResult(String::class.java)
-                    .responseCookies["TGFWCookie"]?.first()?.value ?: fail("Error login! No token set in response.")
+                )
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(String::class.java)
+                .responseCookies["TGFWCookie"]?.first()?.value ?: fail("Error login! No token set in response.")
         }
 
         user2Token = client.post().uri(Uris.User.LOGIN)
@@ -95,33 +92,33 @@ class TicTacToeTests {
             .exchange()
             .returnResult(String::class.java)
             .responseCookies["TGFWCookie"]?.first()?.value ?: run {
-                client.post().uri(Uris.User.REGISTER)
-                    .bodyValue(
-                        mapOf(
-                            "username" to "PlayerTest2",
-                            "password" to "12345"
-                        )
+            client.post().uri(Uris.User.REGISTER)
+                .bodyValue(
+                    mapOf(
+                        "username" to "PlayerTest2",
+                        "password" to "12345"
                     )
-                    .exchange()
-                    .expectStatus().isCreated
+                )
+                .exchange()
+                .expectStatus().isCreated
 
-                return@run client.post().uri(Uris.User.LOGIN)
-                    .bodyValue(
-                        mapOf(
-                            "username" to "PlayerTest2",
-                            "password" to "12345"
-                        )
+            return@run client.post().uri(Uris.User.LOGIN)
+                .bodyValue(
+                    mapOf(
+                        "username" to "PlayerTest2",
+                        "password" to "12345"
                     )
-                    .exchange()
-                    .expectStatus().isOk
-                    .returnResult(String::class.java)
-                    .responseCookies["TGFWCookie"]?.first()?.value ?: fail("Error login! No token set in response.")
+                )
+                .exchange()
+                .expectStatus().isOk
+                .returnResult(String::class.java)
+                .responseCookies["TGFWCookie"]?.first()?.value ?: fail("Error login! No token set in response.")
         }
 
     }
 
-    private fun makeTurn(client: WebTestClient, matchId: String, playerToken: String, position: Position) {
-        val message = client.post().uri(Uris.Game.doTurnByGameName(gameName).toString())
+    private fun makeTurn(client: WebTestClient, matchId: String, playerToken: String, position: Position): String {
+        return client.post().uri(Uris.Game.doTurnByGameName(gameName).toString())
             .cookie("TGFWCookie", playerToken)
             .bodyValue(
                 mapOf(
@@ -134,8 +131,24 @@ class TicTacToeTests {
             .expectBody(String::class.java)
             .returnResult()
             .responseBody ?: fail("No message receive")
+    }
 
-        assertEquals("Next Player.", message)
+    private fun makeSetup(client: WebTestClient, matchId: String, playerToken: String, listShip: List<Ship>) {
+        val message = client.post().uri(Uris.Game.setupByGameName(gameName).toString())
+            .cookie("TGFWCookie", playerToken)
+            .bodyValue(
+                mapOf(
+                    "matchId" to "${UUID.fromString(matchId)}",
+                    "info" to listShip
+                )
+            )
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody ?: fail("No message receive")
+
+        assertEquals("Setup Done.", message)
     }
 
     private val objMapper = ObjectMapper()
@@ -169,7 +182,7 @@ class TicTacToeTests {
         val match = objMapper.convertValue(siren.properties, JsonNode::class.java) ?: fail("Error converting to JsonNode")
 
         // Check if match is correct
-        assertEquals(match["game"]["gameName"].asText(), gameName)
+        Assertions.assertEquals(match["game"]["gameName"].asText(), gameName)
 
         // Check if user 2 can get match
         client.get().uri(Uris.Game.foundByGameName(gameName).toString())
@@ -181,6 +194,44 @@ class TicTacToeTests {
             .responseBody ?: fail("No match found!")
 
         val matchId = match["game"]["id"].asText()
+
+        // Make setup player 1
+        makeSetup(client, matchId, user1Token, listOf(
+            Ship(Ship.Type.CARRIER, Position(0,0), Ship.Orientation.HORIZONTAL),
+            Ship(Ship.Type.BATTLESHIP, Position(0,2), Ship.Orientation.HORIZONTAL),
+            Ship(Ship.Type.CRUISER, Position(0,4), Ship.Orientation.HORIZONTAL),
+            Ship(Ship.Type.SUBMARINE, Position(0,6), Ship.Orientation.HORIZONTAL),
+            Ship(Ship.Type.DESTROYER, Position(0,8), Ship.Orientation.HORIZONTAL)
+        ))
+
+        // Check if is still setup
+        assertEquals(true, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
+            .cookie("TGFWCookie", user1Token)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(MyTurnOutputModel::class.java)
+            .returnResult()
+            .responseBody?.setup ?: fail("No receive response from isMyTurn!")
+        )
+
+        // Make setup player 2
+        makeSetup(client, matchId, user2Token, listOf(
+            Ship(Ship.Type.CARRIER, Position(0,0), Ship.Orientation.VERTICAL),
+            Ship(Ship.Type.BATTLESHIP, Position(2,0), Ship.Orientation.VERTICAL),
+            Ship(Ship.Type.CRUISER, Position(4,0), Ship.Orientation.VERTICAL),
+            Ship(Ship.Type.SUBMARINE, Position(6,0), Ship.Orientation.VERTICAL),
+            Ship(Ship.Type.DESTROYER, Position(8,0), Ship.Orientation.VERTICAL)
+        ))
+
+        // Check if is not setup anymore
+        assertEquals(false, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
+            .cookie("TGFWCookie", user2Token)
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(MyTurnOutputModel::class.java)
+            .returnResult()
+            .responseBody?.setup ?: fail("No receive response from isMyTurn!")
+        )
 
         // Check if is turn of user1
         val myTurn = client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
@@ -195,11 +246,11 @@ class TicTacToeTests {
         val player2Token = if (myTurn.myTurn == true) user2Token else user1Token
 
         // Make a move with player 1
-        makeTurn(client, matchId, player1Token, Position(0,0))
+        makeTurn(client, matchId, player1Token, Position(0, 0))
 
         // Check if is turn of player 2
         assertEquals(true, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
-            .cookie("TGFWCookie", user2Token)
+            .cookie("TGFWCookie", player2Token)
             .exchange()
             .expectStatus().isOk
             .expectBody(MyTurnOutputModel::class.java)
@@ -207,41 +258,16 @@ class TicTacToeTests {
             .responseBody?.myTurn ?: fail("No receive response from isMyTurn!")
         )
 
-        // Make a wrong move to check the error
-        assertEquals("Position not available!", client.post().uri(Uris.Game.doTurnByGameName(gameName).toString())
-            .cookie("TGFWCookie", player2Token)
-            .bodyValue(
-                mapOf(
-                    "matchId" to "${UUID.fromString(matchId)}",
-                    "info" to Position(0,0)
-                )
-            )
-            .exchange()
-            .expectStatus().is4xxClientError
-            .expectBody(String::class.java)
-            .returnResult()
-            .responseBody ?: fail("No message receive")
-        )
+        makeTurn(client, matchId, player2Token, Position(0, 0))
 
-        // Make other moves
-        makeTurn(client, matchId, player2Token, Position(0,1))
-        makeTurn(client, matchId, player1Token, Position(1,1))
-        makeTurn(client, matchId, player2Token, Position(0,2))
-
-        // Make wining move from player 1
-        assertEquals("Player X won! Game Ended.", client.post().uri(Uris.Game.doTurnByGameName(gameName).toString())
+        // Check if is turn of player 1
+        assertEquals(true, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
             .cookie("TGFWCookie", player1Token)
-            .bodyValue(
-                mapOf(
-                    "matchId" to "${UUID.fromString(matchId)}",
-                    "info" to Position(2,2)
-                )
-            )
             .exchange()
             .expectStatus().isOk
-            .expectBody(String::class.java)
+            .expectBody(MyTurnOutputModel::class.java)
             .returnResult()
-            .responseBody ?: fail("No message receive")
+            .responseBody?.myTurn ?: fail("No receive response from isMyTurn!")
         )
 
     }

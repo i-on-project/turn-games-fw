@@ -4,7 +4,26 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="1849df84-e3cf-48b6-9569-27e4f6472c27" name="Changes" comment="" />
+    <list default="true" id="1849df84-e3cf-48b6-9569-27e4f6472c27" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/src/test/kotlin/pt/isel/application/BattleshipTests.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/BattleshipGameLogic.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/Board.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/BoardShips.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/BoardShots.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/LayoutShips.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/Position.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/battleship-module/src/main/kotlin/pt/isel/battleship/Ship.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/js/turngamesfw/tests/login.test.ts" beforeDir="false" afterPath="$PROJECT_DIR$/code/js/turngamesfw/tests/login.test.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/src/main/kotlin/pt/isel/application/Application.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/src/main/kotlin/pt/isel/application/Application.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/src/test/kotlin/pt/isel/application/TicTacToeTests.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/application-module/src/test/kotlin/pt/isel/application/TicTacToeTests.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/http/controller/GameController.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/http/controller/GameController.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/services/GameServices.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/services/GameServices.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/services/results/GameResults.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/fw-module/src/main/kotlin/pt/isel/turngamesfw/services/results/GameResults.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/code/jvm/turngamesfw/tictactoe-module/src/main/kotlin/pt/isel/tictactoe/TicTacToeGameLogic.kt" beforeDir="false" afterPath="$PROJECT_DIR$/code/jvm/turngamesfw/tictactoe-module/src/main/kotlin/pt/isel/tictactoe/TicTacToeGameLogic.kt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -49,13 +68,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Escola/ProjetoSeminario/Projeto/turn-games-fw&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "C:/Users/David/Documents/Projeto/turn-games-fw/code/jvm/turngamesfw"
   }
-}</component>
+}]]></component>
   <component name="RunAnythingCache">
     <option name="myCommands">
       <command value="gradle dbTestsUp" />
@@ -105,7 +125,22 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1690047968622</updated>
+      <workItem from="1692553786670" duration="88000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

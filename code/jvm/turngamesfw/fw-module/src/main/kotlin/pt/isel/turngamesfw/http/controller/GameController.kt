@@ -136,8 +136,21 @@ class GameController(
                 MyTurnError.UserNotInMatch -> problemResponse(Problem.USER_NOT_IN_MATCH)
             }
             is Either.Right -> when (val r = res.value) {
-                MyTurnSuccess.GameOver -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(MyTurnOutputModel(true, null))
-                is MyTurnSuccess.MyTurn -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(MyTurnOutputModel(false, r.myTurn))
+                MyTurnSuccess.GameOver -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(MyTurnOutputModel(
+                    gameOver = true,
+                    setup = false,
+                    myTurn = null
+                ))
+                is MyTurnSuccess.MyTurn -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(MyTurnOutputModel(
+                    gameOver = false,
+                    setup = false,
+                    myTurn = r.myTurn
+                ))
+                MyTurnSuccess.Setup -> ResponseEntity.status(200).contentType(MediaType.APPLICATION_JSON).body(MyTurnOutputModel(
+                    gameOver = false,
+                    setup = true,
+                    myTurn = null
+                ))
             }
         }
     }

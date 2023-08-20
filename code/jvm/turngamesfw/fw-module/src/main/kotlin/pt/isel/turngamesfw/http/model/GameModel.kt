@@ -68,5 +68,6 @@ data class MatchOutputModel(
 
 data class MyTurnOutputModel(
     val gameOver: Boolean,
+    val setup: Boolean,
     val myTurn: Boolean?,
 )

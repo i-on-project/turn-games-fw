@@ -176,7 +176,10 @@ class GameServicesTests {
 
         val match = when( val res = gameServices.foundMatch(chessGame.name, playerId)) {
             is Either.Left -> fail("Should not return error")
-            is Either.Right -> res.value
+            is Either.Right -> when ( val  r = res.value) {
+                is FoundMatchSuccess.FoundMatch -> r.match
+                FoundMatchSuccess.SearchingMatch -> fail("Should not return searching")
+            }
         }
 
         assertNotNull(match)
