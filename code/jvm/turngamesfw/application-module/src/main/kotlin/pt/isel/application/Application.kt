@@ -8,6 +8,6 @@ fun main(args: Array<String>) {
     val fw = Framework()
     fw.setDbUrl("jdbc:postgresql://localhost:5432/dbTurnGamesFW?user=dbuser&password=12345")
     fw.addGameLogic("TicTacToe", TicTacToeGameLogic())
-    fw.addGameLogic("BattleShip", BattleshipGameLogic())
+    fw.addGameLogic("Battleship", BattleshipGameLogic())
     fw.runServer()
 }

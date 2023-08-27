@@ -11,7 +11,6 @@ import { fetchAPI } from '../../utils/fetchApi';
 import { useTimer } from '../../utils/timer';
 import { TurnInputModel } from '../../models/game/OutputModels';
 
-import { TicTacToeBoard } from '../tictactoe/TicTacToeElement';
 import { useComponent } from '../../utils/GamesContext';
 
 async function getPlayerInfo(playersId: number[]): Promise<User[]> {
@@ -44,10 +43,22 @@ export function MatchLayout() {
 	const playerId = players.find(player => player.username == cookies.login.username).id
 
 	const [currentMatch, setCurrentMatch] = useState(match);
-	const [waiting, setWaiting] = useState(match.currPlayer != playerId ? true : false)
+	const [waiting, setWaiting] = useState(match.state == MatchState.ON_GOING && match.currPlayer != playerId ? true : false)
 
 	const handleMatchChange = (updatedMatch: Match) => {
 		setCurrentMatch(updatedMatch)
+	}
+
+	const setupAction = async (action: any) => {
+		const body = new TurnInputModel(matchId, action)
+
+		const resp = await fetchAPI("/api/game/" + gameName + "/setup", "POST", body, false)
+		if (resp.status != 200) {
+			// TODO: Error catching
+			return
+		}
+
+		setWaiting(true)
 	}
 
 	const doAction = async (action: any) => {
@@ -74,6 +85,11 @@ export function MatchLayout() {
 			clearInterval(intervalId)
 			setWaiting(false)
 		}
+
+		if (currentMatch.state == MatchState.SETUP && resp.body.setup == false) {
+			clearInterval(intervalId)
+			setWaiting(false)
+		}
     }
 
 	async function getUpdatedMatch() {
@@ -81,6 +97,7 @@ export function MatchLayout() {
 		const updatedMatch = resp.body["properties"] as Match
 
         setCurrentMatch(updatedMatch)
+		setWaiting(updatedMatch.state == MatchState.ON_GOING && updatedMatch.currPlayer != playerId)
     }
 
 	useEffect(() => {
@@ -101,9 +118,9 @@ export function MatchLayout() {
 				deadlineTurn={currentMatch.deadlineTurn}
 				players={players}
 				currPlayer={currentMatch.currPlayer}
-				gameOver={currentMatch.state == MatchState.FINISHED}
+				matchState={currentMatch.state}
 			/>
-			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doAction={doAction}/>
+			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} setupAction={setupAction} doAction={doAction}/>
 		</Container>
 	);
 }
@@ -114,7 +131,7 @@ function MatchStatus(status: {
 	deadlineTurn: Date;
 	players: User[];
 	currPlayer: number;
-	gameOver: boolean
+	matchState: MatchState
 }) {
 
 	let t = false
@@ -139,14 +156,14 @@ function MatchStatus(status: {
 				<Box sx={{ width: '33%' }}>
 					<StyledPlayer
 						playerName={status.players[0].username}
-						isCurrentPlayer={currPlayer.id === status.players[0].id}
+						isCurrentPlayer={currPlayer.id === status.players[0].id || status.matchState == MatchState.SETUP}
 						position={'left'}
 					/>
 				</Box>
 				
 				<Box sx={{ flexGrow: 1, textAlign: 'center' }}>
 					<Typography variant="h5" style={{ fontWeight: 'bold' }}>
-						Turn: {status.currTurn}
+						{status.matchState == MatchState.SETUP ? "Setup" : "Turn: " + status.currTurn}
 					</Typography>
 					{ t == true &&
 					<Box className={currPlayer.id === 0 ? 'TimerContainer CurrentPlayer' : 'TimerContainer'}>
@@ -160,13 +177,13 @@ function MatchStatus(status: {
 				<Box sx={{ width: '33%' }}>
 					<StyledPlayer
 						playerName={status.players[1].username}
-						isCurrentPlayer={currPlayer.id === status.players[1].id}
+						isCurrentPlayer={currPlayer.id === status.players[1].id || status.matchState == MatchState.SETUP}
 						position={'right'}
 					/>
 				</Box>
 
 			</Box>
-			{status.gameOver && <Box display="flex" mt="15px">
+			{status.matchState == MatchState.FINISHED && <Box display="flex" mt="15px">
 				<Box sx={{ flexGrow: 1, textAlign: 'center' }}>
 					<Typography variant="h5" style={{ fontWeight: 'bold' }}>
 						GAME OVER!

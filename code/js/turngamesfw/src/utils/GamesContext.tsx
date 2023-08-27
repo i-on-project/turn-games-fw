@@ -9,6 +9,7 @@ type GameProps = {
     match: Match;
     playerId: number;
     onMatchUpdate: (match: Match) => void;
+    setupAction: (action: any) => void;
     doAction: (action: any) => void;
 }
 

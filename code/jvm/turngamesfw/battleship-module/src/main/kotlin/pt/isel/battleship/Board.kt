@@ -3,6 +3,11 @@ package pt.isel.battleship
 const val GRID_ROWS = 10
 const val GRID_COLUMNS = 10
 
+data class OutputBoard(
+    val myBoard: BoardPlayer,
+    val myShots: BoardShots
+)
+
 data class Board(
     val board1: BoardPlayer,
     val board2: BoardPlayer

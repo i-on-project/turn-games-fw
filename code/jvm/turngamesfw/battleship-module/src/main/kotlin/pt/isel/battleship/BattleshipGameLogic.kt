@@ -25,7 +25,7 @@ class BattleshipGameLogic: GameLogic {
         class LayoutShipsDeserializer : JsonDeserializer<LayoutShips>() {
             override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): LayoutShips {
                 val node: JsonNode = parser.codec.readTree(parser)
-                val shipsNode: JsonNode = node
+                val shipsNode: JsonNode = node.get("ships")
                 val ships: List<Ship> = shipsNode.map { shipNode ->
                     val ship: Ship = objectMapper.treeToValue(shipNode, Ship::class.java)
                     ship
@@ -222,17 +222,13 @@ class BattleshipGameLogic: GameLogic {
     override fun matchPlayerView(match: Match, playerId: Int): Match {
         val board = objectMapper.treeToValue(match.info, Board::class.java)
 
-        val newBoard = if (playerId == match.players.first())
-            board.copy(
-                board2 = BoardPlayer(BoardShips.create(), board.board2.boardShots)
-            )
+        val outputBoard: OutputBoard = if (playerId == match.players.first())
+            OutputBoard(board.board1, board.board2.boardShots)
         else
-            board.copy(
-                board1 = BoardPlayer(BoardShips.create(), board.board1.boardShots)
-            )
+            OutputBoard(board.board2, board.board1.boardShots)
 
         return match.copy(
-            info = objectMapper.valueToTree(newBoard)
+            info = objectMapper.valueToTree(outputBoard)
         )
     }
 
