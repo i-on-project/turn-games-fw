@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.test.web.reactive.server.WebTestClient
 import pt.isel.battleship.BattleshipGameLogic
+import pt.isel.battleship.LayoutShips
 import pt.isel.battleship.Ship
 import pt.isel.battleship.Position
 import pt.isel.turngamesfw.TurnGamesFwApplication
@@ -133,7 +134,7 @@ class BattleshipTests {
             .responseBody ?: fail("No message receive")
     }
 
-    private fun makeSetup(client: WebTestClient, matchId: String, playerToken: String, listShip: List<Ship>) {
+    private fun makeSetup(client: WebTestClient, matchId: String, playerToken: String, listShip: LayoutShips) {
         val message = client.post().uri(Uris.Game.setupByGameName(gameName).toString())
             .cookie("TGFWCookie", playerToken)
             .bodyValue(
@@ -196,13 +197,14 @@ class BattleshipTests {
         val matchId = match["game"]["id"].asText()
 
         // Make setup player 1
-        makeSetup(client, matchId, user1Token, listOf(
+        makeSetup(client, matchId, user1Token, LayoutShips(listOf(
             Ship(Ship.Type.CARRIER, Position(0,0), Ship.Orientation.HORIZONTAL),
             Ship(Ship.Type.BATTLESHIP, Position(0,2), Ship.Orientation.HORIZONTAL),
             Ship(Ship.Type.CRUISER, Position(0,4), Ship.Orientation.HORIZONTAL),
             Ship(Ship.Type.SUBMARINE, Position(0,6), Ship.Orientation.HORIZONTAL),
             Ship(Ship.Type.DESTROYER, Position(0,8), Ship.Orientation.HORIZONTAL)
         ))
+        )
 
         // Check if is still setup
         assertEquals(true, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())
@@ -215,13 +217,13 @@ class BattleshipTests {
         )
 
         // Make setup player 2
-        makeSetup(client, matchId, user2Token, listOf(
+        makeSetup(client, matchId, user2Token, LayoutShips(listOf(
             Ship(Ship.Type.CARRIER, Position(0,0), Ship.Orientation.VERTICAL),
             Ship(Ship.Type.BATTLESHIP, Position(2,0), Ship.Orientation.VERTICAL),
             Ship(Ship.Type.CRUISER, Position(4,0), Ship.Orientation.VERTICAL),
             Ship(Ship.Type.SUBMARINE, Position(6,0), Ship.Orientation.VERTICAL),
             Ship(Ship.Type.DESTROYER, Position(8,0), Ship.Orientation.VERTICAL)
-        ))
+        )))
 
         // Check if is not setup anymore
         assertEquals(false, client.get().uri(Uris.Game.isMyTurn(gameName, matchId).toString())

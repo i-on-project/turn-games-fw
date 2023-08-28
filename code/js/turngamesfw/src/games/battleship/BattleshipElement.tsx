@@ -198,8 +198,11 @@ export function BattleshipBoard(props: { match: Match, playerId: number, onMatch
 			type: 'update',
 			match: props.match
 		})
-
 	}, [props.match])
+
+    useEffect(() => {
+		props.onMatchUpdate(match)
+	}, [match])
 
     return (
         <div>
