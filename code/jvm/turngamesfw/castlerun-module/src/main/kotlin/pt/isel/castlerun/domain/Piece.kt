@@ -6,13 +6,13 @@ package pt.isel.castlerun.domain
  * @property owner The ID of the player who owns the piece.
  * @property position The position of the piece on the game board.
  * @property frozen The number of turns the piece is frozen for (default is 0).
- * @property isKing Indicates whether the piece is a king (default is false).
+ * @property king Indicates whether the piece is a king (default is false).
  */
 data class Piece(
     val owner: Int,
     val position: Coords,
     val frozen: Int = 0,
-    val isKing: Boolean = false
+    val king: Boolean = false
 )
 
 /**

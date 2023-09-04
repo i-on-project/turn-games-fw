@@ -1,8 +1,7 @@
 import * as React from 'react'
 import { useLoaderData } from "react-router-dom";
-import { GameList, MockGameList } from './GameList';
-
 import { fetchAPI } from '../../utils/fetchApi';
+import { GameList } from './GameList';
 
 export async function loadHome() {
     const resp = await fetchAPI("/api/gameList", "GET")

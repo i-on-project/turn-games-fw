@@ -1,5 +1,4 @@
 import * as React from 'react'
-import { useState, useEffect, } from 'react'
 import { useNavigate } from "react-router-dom";
 
 import { styled } from '@mui/material/styles';
@@ -12,7 +11,6 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import Container from '@mui/material/Container';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import EmojiEventsIcon from '@mui/icons-material/EmojiEvents';
 
 export function GameList(games: {gameList: string[]}) {
     return (
@@ -21,8 +19,7 @@ export function GameList(games: {gameList: string[]}) {
           <Table aria-label="customized table">
             <TableHead>
               <TableRow>
-                <StyledTableCell sx={{width: 0.8, textAlign: 'left'}}>Games</StyledTableCell>
-                <StyledTableCell sx={{width: 0.1}}></StyledTableCell>
+                <StyledTableCell sx={{width: 0.9, textAlign: 'left'}}>Games</StyledTableCell>
                 <StyledTableCell sx={{width: 0.1}}></StyledTableCell>
               </TableRow>
             </TableHead>
@@ -41,15 +38,11 @@ function GameListElement(name: string) {
     const navigate = useNavigate()
 
     const goToGameInfo = () => navigate("/game/" + name)
-    const goToLeaderboard = () => navigate("/game/" + name + "/leaderboard")
     const findMatch = () => navigate("/game/" + name + "/findMatch")
     
     return (
         <StyledTableRow key={name}>
             <StyledTableCell sx={{textAlign: 'left'}} onClick={goToGameInfo}>{name}</StyledTableCell>
-            <StyledTableCell onClick={goToLeaderboard}>
-                <EmojiEventsIcon sx={{ fontSize: 18 }}/>
-            </StyledTableCell>
             <StyledTableCell onClick={findMatch}>
                 <PlayArrowIcon sx={{ fontSize: 18 }}/>
             </StyledTableCell>
@@ -87,15 +80,3 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     // hide last border
     '&:last-child td, &:last-child th': { border: 0, },
 }));
-
-
-export function MockGameList() { return GameList(exampleGameList) }
-
-const exampleGameList: {gameList: string[]} = {gameList: [
-    'TicTacToe',
-    'ConnectFour',
-    'Chess',
-    'Checkers',
-    'Go',
-    'CastleRun',
-]}

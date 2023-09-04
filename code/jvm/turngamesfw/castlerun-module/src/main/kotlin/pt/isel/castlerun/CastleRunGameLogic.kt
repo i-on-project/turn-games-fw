@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.module.SimpleModule
 import pt.isel.castlerun.domain.*
+import pt.isel.castlerun.logic.applyDeploy
 import pt.isel.fwinterfaces.*
 import pt.isel.castlerun.logic.applyDuel
 import pt.isel.castlerun.logic.applyMove
@@ -46,7 +47,7 @@ class CastleRunGameLogic: GameLogic {
                 val owner: Int = node.get("owner").asInt()
                 val position: Coords = objectMapper.treeToValue(node.get("position"), Coords::class.java)
                 val frozen: Int = node.get("frozen").asInt()
-                val isKing: Boolean = node.get("isKing").asBoolean()
+                val isKing: Boolean = node.get("king").asBoolean()
 
                 return Piece(owner, position, frozen, isKing)
             }
@@ -78,8 +79,8 @@ class CastleRunGameLogic: GameLogic {
             override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Board {
                 val node: JsonNode = parser.codec.readTree(parser)
 
-                val playerA: Int = node.get("playerA").asInt()
-                val playerB: Int = node.get("playerB").asInt()
+                val playerA: Int = node.get("alpha").asInt()
+                val playerB: Int = node.get("beta").asInt()
                 val numRows: Int = node.get("numRows").asInt()
                 val numCols: Int = node.get("numCols").asInt()
                 val numPieces: Int = node.get("numPieces").asInt()
@@ -93,6 +94,8 @@ class CastleRunGameLogic: GameLogic {
         class TurnDeserializer : JsonDeserializer<Turn>() {
             override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Turn {
                 val node: JsonNode = parser.codec.readTree(parser)
+
+                println(node)
 
                 val type: String = node.get("type").asText()
 
@@ -112,7 +115,7 @@ class CastleRunGameLogic: GameLogic {
             override fun deserialize(parser: JsonParser, ctxt: DeserializationContext): Move {
                 val node: JsonNode = parser.codec.readTree(parser)
 
-                val piece: Piece = objectMapper.treeToValue(node.get("piece"), Piece::class.java)
+                val piece: Piece? = objectMapper.treeToValue(node.get("piece"), Piece::class.java)
                 val to: Coords = objectMapper.treeToValue(node.get("to"), Coords::class.java)
 
                 return Move(piece, to)
@@ -172,8 +175,11 @@ class CastleRunGameLogic: GameLogic {
         val turn: Turn = objectMapper.treeToValue(infoTurn.info, Turn::class.java)
 
         val newBoard = try {
-            if (turn.type === "move")
-                applyMove(board, turn.move!!)
+            if (turn.type == "move")
+                if (turn.move!!.piece != null)
+                    applyMove(board, turn.move)
+                else
+                    applyDeploy(board, infoTurn.playerId, turn.move.to)
             else
                 applyDuel(board, turn.duel!!)
         } catch (e: Error) {

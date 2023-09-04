@@ -14,7 +14,7 @@ fun applyDeploy(board: Board, player: Int, to: Coords): Board {
 
     val newPiecesLeft = b.piecesLeft.dec(player)
 
-    return board.copy(piecesLeft = newPiecesLeft)
+    return b.copy(piecesLeft = newPiecesLeft)
 }
 
 fun applyMove(board: Board, move: Move): Board {
