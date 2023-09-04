@@ -17,12 +17,6 @@ data class TurnInputModel(
     val info: JsonNode,
 )
 
-data class LeaderBoardInputModel(
-    val gameName: String,
-    val limit: Int,
-    val page: Int,
-)
-
 data class GameListOutputModel(
     val gameList: List<String>
 )

@@ -1,7 +1,6 @@
 package pt.isel.turngamesfw.repository
 
 import pt.isel.fwinterfaces.Game
-import pt.isel.turngamesfw.domain.LeaderboardUser
 import pt.isel.fwinterfaces.Match
 import pt.isel.turngamesfw.domain.User
 import java.util.UUID
@@ -12,8 +11,6 @@ interface GameRepository {
     fun createGame(game: Game)
 
     fun getGame(name: String): Game?
-
-    fun getGameLeaderBoard(gameName: String, page: Int, limit: Int): List<LeaderboardUser>
 
     fun createUserStats(userId: Int, gameName: String, initialRating: Int, state: User.Stats.State)
 

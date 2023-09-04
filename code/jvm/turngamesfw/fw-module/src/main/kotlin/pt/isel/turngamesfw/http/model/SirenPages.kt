@@ -1,8 +1,6 @@
 package pt.isel.turngamesfw.http.model
 
 import org.springframework.http.HttpMethod
-import pt.isel.turngamesfw.domain.LeaderboardPageAndLimit
-import pt.isel.turngamesfw.domain.LeaderboardUser
 import pt.isel.fwinterfaces.Match
 import pt.isel.turngamesfw.http.Rels
 import pt.isel.turngamesfw.http.Uris
@@ -20,7 +18,6 @@ class SirenPages {
                     linkSelf(Uris.Game.infoByGameName(gameName))
 
                     action("start-game",  Uris.Game.findByGameName(gameName), HttpMethod.POST) {}
-                    action("get-leaderboard", Uris.Game.leaderboardByGameName(gameName), HttpMethod.GET) {}
                     action("get-info", Uris.Game.infoByGameName(gameName), HttpMethod.GET) {}
                 }
             }
@@ -95,21 +92,6 @@ class SirenPages {
             linkSelf(Uris.Game.infoByGameName(game.name))
 
             link(Uris.HOME, Rels.HOME)
-        }
-
-        fun leaderboard(leaderboard: LeaderboardPageAndLimit, list: List<LeaderboardUser>) = siren(leaderboard) {
-            clazz("leaderboard")
-
-            list.forEach { user ->
-                entity(user, Rels.ITEM) {
-                    linkSelf(Uris.User.byId(user.id.toString()))
-                }
-            }
-
-            linkSelf(Uris.Game.LEADERBOARD)
-
-            link(Uris.Game.LEADERBOARD, Rels.NEXT)
-            link(Uris.Game.LEADERBOARD, Rels.PREVIOUS)
         }
 
         fun myState(myState: MyStateOutputModel) = siren(myState) {

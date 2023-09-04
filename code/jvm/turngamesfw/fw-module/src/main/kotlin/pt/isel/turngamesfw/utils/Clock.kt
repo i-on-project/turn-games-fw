@@ -1,6 +1,5 @@
 package pt.isel.turngamesfw.utils
 
-import org.springframework.stereotype.Component
 import java.time.Instant
 
 interface Clock {

@@ -16,12 +16,10 @@ object Uris {
         const val SETUP = "$INFO/setup"
         const val DO_TURN = "$INFO/turn"
         const val MY_TURN = "$INFO/{id}/myturn"
-        const val LEADERBOARD = "$INFO/leaderboard"
 
         fun infoByGameName(gameName: String) = UriTemplate(INFO).expand(gameName)
         fun findByGameName(gameName: String) = UriTemplate(FIND).expand(gameName)
         fun foundByGameName(gameName: String) = UriTemplate(FOUND).expand(gameName)
-        fun leaderboardByGameName(gameName: String) = UriTemplate(LEADERBOARD).expand(gameName)
         fun matchById(gameName: String, matchId: String) = UriTemplate(MATCH).expand(gameName, matchId)
         fun doTurnByGameName(gameName: String) = UriTemplate(DO_TURN).expand(gameName)
         fun isMyTurn(gameName: String, matchId: String) = UriTemplate(MY_TURN).expand(gameName, matchId)

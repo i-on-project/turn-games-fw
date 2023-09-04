@@ -80,23 +80,6 @@ class GameRepositoryTests {
     }
 
     @Test
-    fun `get game leaderboard page 0 to 3 with limit 5`() {
-        testWithHandleAndRollback { handle ->
-            val i = Init(handle)
-
-            //getGameLeaderBoard
-            (0..3).forEach { page ->
-                i.gameRepo.getGameLeaderBoard(i.game.name, page, 5).let { leaderboard ->
-                    assertEquals(5, leaderboard.size)
-                    (0..4).forEach { i -> 
-                        assertEquals(page * 5 + i, leaderboard[i].position)
-                    }
-                }
-            }
-        }
-    }
-
-    @Test
     fun `get players searching`() {
         testWithHandleAndRollback { handle ->
             val i = Init(handle)

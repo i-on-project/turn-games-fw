@@ -39,11 +39,6 @@ class GameController(
         return SirenPages.gameInfo(GameOutputModel.fromGame(game)).toResponseEntity {  }
     }
 
-    @GetMapping(Uris.Game.LEADERBOARD)
-    fun getLeaderboard(user: User, @PathVariable nameGame: String, @RequestParam page: Int, @RequestParam limit: Int){
-        TODO()
-    }
-
     @GetMapping(Uris.Game.MY_STATE)
     fun myState(user: User, @PathVariable nameGame: String): ResponseEntity<*> {
         val state = gameServices.getState(nameGame, user.id)
