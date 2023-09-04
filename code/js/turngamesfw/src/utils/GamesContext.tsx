@@ -1,6 +1,5 @@
 import * as React from 'react'
 import {
-    useState,
     createContext,
     useContext,
 } from 'react'
@@ -22,7 +21,6 @@ const GamesContext = createContext<ContextType>({
 })
 
 export function GamesProvider({ children, gamesComponents }: { children: React.ReactNode, gamesComponents: Map<string, React.FC<GameProps>> }) {
-
     return (
         <GamesContext.Provider value={{components: gamesComponents}}>
             {children}

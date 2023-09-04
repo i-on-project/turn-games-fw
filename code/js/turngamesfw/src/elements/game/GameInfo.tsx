@@ -66,7 +66,3 @@ const StyledButton = styled(Button)(({ theme }) => ({
     height: 0.5,
     padding: '1.2rem',
 }));
-
-export function MockGameInfo() { return GameInfo() }
-
-const exampleGame: Game = {name: 'TicTacToe', numPlayers: 2, description: 'A classic game of TicTacToe', rules: 'Get 3 in a row to win'}

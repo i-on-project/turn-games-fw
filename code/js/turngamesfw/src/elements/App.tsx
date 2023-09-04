@@ -7,7 +7,6 @@ import {
 
 import { Home, loadHome} from './home/Home';
 import { GameInfo, loadGameInfo} from './game/GameInfo'
-import { Leaderboard, MockLeaderboard } from './game/Leaderboard'
 import { loadMatchLayout, MatchLayout} from './game/MatchLayout'
 import { Me, UserInfo, loadMe, loadUserInfo } from './user/UserInfo'
 import { Logout } from './user/Logout';
@@ -15,7 +14,7 @@ import { NavBar } from './NavBar';
 import { Login } from './user/Login';
 import { Register } from './user/Register';
 import { FindMatch} from './game/FindMatch';
-import { RequireAuthn } from '../utils/RequireAuthn';
+import { RequireAuth } from '../utils/RequireAuth';
 import { GamesProvider } from '../utils/GamesContext';
 
 import { TicTacToeBoard } from '../games/tictactoe/TicTacToeElement';
@@ -37,20 +36,15 @@ const router = createBrowserRouter([
                 element:<GameInfo/>,
                 loader: loadGameInfo
             },
-        
-            {
-                path: "/game/:gameName/leaderboard",
-                element:<MockLeaderboard/>
-            },
 
             {
                 path: "/game/:gameName/findMatch",
-                element:<RequireAuthn><FindMatch/></RequireAuthn>
+                element:<RequireAuth><FindMatch/></RequireAuth>
             },
         
             {
                 path: "/game/:gameName/match/:matchId",
-                element:<RequireAuthn><MatchLayout/></RequireAuthn>,
+                element:<RequireAuth><MatchLayout/></RequireAuth>,
                 loader: loadMatchLayout
             },
         

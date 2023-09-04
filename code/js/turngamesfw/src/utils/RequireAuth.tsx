@@ -2,11 +2,12 @@ import * as React from 'react'
 import { Navigate, useLocation } from 'react-router-dom'
 import { useCookies } from "react-cookie";
 
-export function RequireAuthn({ children }: { children: React.ReactNode }): React.ReactElement {
-    const [cookies, setCookie, removeCookie] = useCookies(["login"])
+export function RequireAuth({ children }: { children: React.ReactNode }): React.ReactElement {
+    const [cookies] = useCookies(["login"])
 
-    const isLogged = cookies.login
     const location = useLocation()
+
+    console.log(cookies)
 
     if (cookies.login != undefined && cookies.login.loggedin == true) {
         return <>{children}</>

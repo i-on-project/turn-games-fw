@@ -17,7 +17,3 @@ export function Home() {
         <GameList {...gameNames}/>
     )
 };
-
-export function MockHome() { 
-    return MockGameList()
-}
