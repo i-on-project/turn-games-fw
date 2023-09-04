@@ -19,6 +19,7 @@ import { GamesProvider } from '../utils/GamesContext';
 
 import { TicTacToeBoard } from '../games/tictactoe/TicTacToeElement';
 import { BattleshipBoard } from '../games/battleship/BattleshipElement';
+import { CastleRunElement } from '../games/castlerun/CastleRunElement';
 
 const router = createBrowserRouter([
     {
@@ -82,7 +83,8 @@ export function App() {
     return (
         <GamesProvider gamesComponents={new Map([
             ['TicTacToe', TicTacToeBoard],
-            ['Battleship', BattleshipBoard]
+            ['Battleship', BattleshipBoard],
+            ['CastleRun', CastleRunElement]
         ])}>
             <RouterProvider router={router}/>
         </GamesProvider>

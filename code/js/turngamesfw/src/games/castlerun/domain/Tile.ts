@@ -12,19 +12,14 @@ export class Tile {
         this.type = type;
         this.piece = piece;
     }
-
-    toString(): string {
-        return `${this.coords} ${this.piece === null ? "with no piece" : `${this.piece}`}`;
-    }
 }
 
 export namespace Tile {
     export enum Type {
-        Floor,
-        Wall,
-        Equipment,
-        Exit,
-        EntranceA,
-        EntranceB,
+        Floor = "floor",
+        Wall = "Wall",
+        Exit = "exit",
+        EntranceA = "EntranceA",
+        EntranceB = "EntranceB",
     }
 }

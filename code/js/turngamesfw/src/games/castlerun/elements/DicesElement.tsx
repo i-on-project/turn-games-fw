@@ -1,7 +1,6 @@
 import * as React from 'react';
-import { Grid } from '@mui/material';
 import { Paper } from '@mui/material';
-import { Dices, DicePair } from '../domain/Dices';
+import { DicePair, Dices } from '../domain/Dices';
 import { Box } from '@mui/material';
 
 interface DicesElementProps {
@@ -11,7 +10,7 @@ interface DicesElementProps {
 }
 
 export function DicesElement(props: DicesElementProps) {
-    const { dices, onPlayRoll, onDuelRoll } = props;
+	const { dices, onPlayRoll, onDuelRoll } = props;
 
     return (
         <Box sx={{ margin: '20px', marginLeft: '200px' }}>
@@ -29,7 +28,7 @@ interface DicePairElementProps {
     onRoll: () => void;
 }
 
-function DicePairElement(props: DicePairElementProps) {
+export function DicePairElement(props: DicePairElementProps) {
     const { pair, type, onRoll } = props;
 
     return (

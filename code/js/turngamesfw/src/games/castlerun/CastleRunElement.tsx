@@ -4,10 +4,13 @@ import { Box, Grid, Divider, Typography } from '@mui/material';
 import { PiecesLeftElement } from './elements/PiecesLeftElement';
 import { BoardElement } from './elements/BoardElement';
 import { DicesElement } from './elements/DicesElement';
-import { CastleRunMatch, Move, Duel } from './domain/CastleRunMatch';
+import { CastleRunMatch, Move, Duel, Turn } from './CastleRunMatch';
 import { Dices } from './domain/Dices';
 import { Tile } from './domain/Tile';
 import { Piece } from './domain/Piece';
+import { Coords, equals } from './domain/Coords';
+import { Board } from './domain/Board';
+import { BoardLogic } from './logic/boardLogic';
 import { findPossibleMoves } from './logic/boardNavegation';
 
 enum State {
@@ -20,6 +23,8 @@ enum State {
     SELECT_ALLY_TO_DUEL,
     SELECT_ENEMY_TO_DUEL,
     ROLL_DUEL_DICES,
+    //SEND INFO TO SERVER
+    SEND_INFO_TO_SERVER,
 }
 
 export function CastleRunElement(props: { match: CastleRunMatch, playerId: number, onMatchUpdate: (match: Match) => void, doAction: (action: any) => void }) {
@@ -30,10 +35,21 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
 	const [message, setMessage] = useState(state === State.ROLL_PLAY_DICES? "Roll the dices!" : "Wait for your turn!");
 
 	const [dices, setDices] = useState(new Dices());
-    const [board, setBoard] = useState(match.info);
+    const [board, setBoard] = useState<Board>(
+        new Board(
+            match.info.alpha,
+            match.info.beta,
+            match.info.numRows,
+            match.info.numCols,
+            match.info.numPieces,
+            match.info.piecesLeft,
+            match.info.tiles,
+    ));
 
     const [possibleMoves, setPossibleMoves] = useState<Move[]>([]);
     const [lastClickedTile, setLastClickedTile] = useState<Tile | null>(null);
+    const [deploy, setDeploy] = useState<Move | null>(null);
+    const [move, setMove] = useState<Move | null>(null);
     const [allyToDuel, setAllyToDuel] = useState<Piece | null>(null);
     const [enemyToDuel, setEnemyToDuel] = useState<Piece | null>(null);
     
@@ -43,10 +59,11 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
     useEffect(() => {
         switch (state) {
             case State.SELECT_TILE_TO_DEPLOY_TO_OR_PIECE_TO_MOVE:
-                highlightPossibleDeploys();
                 highlightAllies();
+                highlightPossibleDeploys();
                 break;
             case State.SELECT_TILE_TO_MOVE_THE_PIECE_TO:
+                setBoard(BoardLogic.clearHighlights(board))
                 highlightTilesPieceCanMoveTo();
                 break;
             case State.SELECT_ALLY_TO_DUEL:
@@ -60,7 +77,33 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
                 setPossibleMoves([]);
                 setLastClickedTile(null);
                 setAllyToDuel(null);
-                setBoard(board.clearHighlights());
+                break;
+            case State.SEND_INFO_TO_SERVER:
+                if (allyToDuel != null && enemyToDuel != null) {
+                    let duel = { 
+                        ally: allyToDuel!, 
+                        enemy: enemyToDuel!, 
+                        duelDices: {
+                            dice1: dices.duel.dice1,
+                            dice2: dices.duel.dice2,
+                        },
+                        duelNumber: dices.duel.dice1,
+                    };
+                    
+                    props.doAction({type: "duel", move: null, duel: duel});
+                    return;
+                }
+
+                if(deploy != null) {
+                    props.doAction({type: "move", move: deploy, duel: null});
+                    return;
+                }
+
+                if(move != null) {
+                    props.doAction({type: "move", move: move, duel: null});
+                    return;
+                }
+                break;
             default:
                 break;
         }
@@ -74,7 +117,7 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
         dices.play.roll();
         setDices(dices);
     
-        if (dices.play.areEqual() && board.hasPiecesToDuel()) {
+        if (dices.play.areEqual() && BoardLogic.hasPiecesToDuel(board)) {
             dices.duel.canRoll = true;
             setState(State.SELECT_ALLY_TO_DUEL);
             setMessage("Select an ally to duel!");
@@ -91,21 +134,7 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
         dices.duel.roll();
         setDices(dices);
 
-        //TODO: Fix so the winner is not based on the player id
-        if (dices.duel.winner() === playerId) {
-            setMessage("You won the duel!");
-        } else {   
-            setMessage("You lost the duel!");
-        }
-
-        setState(State.OPPONENTS_TURN);
-        
-        sendTurnInfo({
-            ally: allyToDuel!,
-            enemy: enemyToDuel!,
-            duelDices: [dices.duel[0], dices.duel[1]],
-            duelNumber: dices.play[0],
-        });
+        setState(State.SEND_INFO_TO_SERVER);
     }
 
     ///////////////////////////////////////// HIGHLIGHTS /////////////////////////////////////////
@@ -116,7 +145,7 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
         let deploys = possibleMoves.filter(move => move.piece === null);
         let coords = deploys.map(move => move.to);
 
-        setBoard(board.highlightTiles(coords, 'yellow'));
+        setBoard(BoardLogic.highlightTiles(board, coords, 'yellow'));
     }
 
     function highlightTilesPieceCanMoveTo() {
@@ -125,19 +154,19 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
         let piece = lastClickedTile!.piece!;        
         let coords = possibleMoves.filter(move => move.piece === piece).map(move => move.to);
 
-        setBoard(board.highlightTiles(coords, 'yellow'));
+        setBoard(BoardLogic.highlightTiles(board, coords, 'yellow'));
     }
 
     function highlightAllies() {
         if (state !== State.SELECT_TILE_TO_DEPLOY_TO_OR_PIECE_TO_MOVE && state !== State.SELECT_ALLY_TO_DUEL) return;
         
-        setBoard(board.highlightAllies(playerId, 'green'));
+        setBoard(BoardLogic.highlightAllies(board, playerId, 'green'));
     }
 
     function highlightEnemies() {
         if (state !== State.SELECT_ENEMY_TO_DUEL) return;
         
-        setBoard(board.highlightEnemies(playerId, 'red'));
+        setBoard(BoardLogic.highlightEnemies(board, playerId, 'red'));
     }
 
     ///////////////////////////////////////// SELECT TILE /////////////////////////////////////////
@@ -150,53 +179,59 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
             || state === State.ROLL_DUEL_DICES
         ) return;
 
-        //In case it is a duel
         if (state === State.SELECT_ALLY_TO_DUEL) {
             if (tile.piece === null || tile.piece.owner !== playerId) return;
-            setAllyToDuel(tile.piece!);
+            setAllyToDuel(tile.piece);
             setState(State.SELECT_ENEMY_TO_DUEL);
             setMessage("Select an enemy to duel!");
             return;
-        } else if (state === State.SELECT_ENEMY_TO_DUEL) {
+        }
+
+        if (state === State.SELECT_ENEMY_TO_DUEL) {
             if (tile.piece === null || tile.piece.owner === playerId) return;
-            setEnemyToDuel(tile.piece!);
+            setEnemyToDuel(tile.piece);
             setState(State.ROLL_DUEL_DICES);
-            setMessage("Roll the duel dices!");
+            setMessage("Roll the dices!");
             return;
         }
 
-        //In case it is a deploy or a move
-        else {
-            // Check if the tile is a possible deploy
-            let deploy = possibleMoves.find(move => move.piece === null && move.to.equals(tile.coords));
-            if (deploy) {
-                sendTurnInfo(deploy);
+        if (state === State.SELECT_TILE_TO_DEPLOY_TO_OR_PIECE_TO_MOVE) {
+            if (tile.piece !== null && tile.piece.owner === playerId) {
+                setLastClickedTile(tile);
+                setState(State.SELECT_TILE_TO_MOVE_THE_PIECE_TO);
+                setMessage("Select a tile to move the piece to!");
                 return;
             }
 
-            // Check if the tile is a possible move
-            let move = possibleMoves.find(move => move.piece === lastClickedTile!.piece && move.to.equals(tile.coords));
-            if (move) {
-                sendTurnInfo(move);
+            if (tile.piece === null) {
+                let deploy = possibleMoves.find(move => equals(move.to, tile.coords));
+                if (deploy === undefined) return;
+                setDeploy(deploy);
+                setState(State.SEND_INFO_TO_SERVER);
+                setMessage("Sending info to server!");
                 return;
             }
         }
-    }
 
-    ///////////////////////////////////////// SEND TURN INFO /////////////////////////////////////////
+        if (state === State.SELECT_TILE_TO_MOVE_THE_PIECE_TO) {
+            if (tile.piece !== null && tile.piece.owner === playerId) {
+                setLastClickedTile(null);
+                setState(State.SELECT_TILE_TO_DEPLOY_TO_OR_PIECE_TO_MOVE);
+                setMessage("Select a piece to move or a deploy tile!");
+                return;
+            }
 
-    function sendTurnInfo(turn: Move | Duel) {
-        let action = {
-            type: 'sendTurnInfo',
-            matchId: match.id,
-            playerId: playerId,
-            turn: turn,
-        };
+            let move = possibleMoves.find(move => equals(move.to, tile.coords) && move.piece === lastClickedTile!.piece);
+            if (move === undefined) return;
+            setMove(move);
+            setState(State.SEND_INFO_TO_SERVER);
+            setMessage("Sending info to server!");
+            return;
+        }
 
-        setState(State.OPPONENTS_TURN);
-        setMessage("Wait for your turn!");
-
-        props.doAction(action);
+        if (lastClickedTile === null) {
+            setLastClickedTile(tile);
+        }
     }
 
     return (
@@ -207,9 +242,9 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
                 </Typography>
             </Box>
             <Grid container spacing={3}>
-                <PiecesLeftElement player={match.info.playerA} piecesLeft={match.info.piecesLeft.forA} color={'red'} />
+                <PiecesLeftElement player={match.info.alpha} piecesLeft={match.info.piecesLeft.forAlpha} color={'red'} />
                 <BoardElement board={match.info} onSelectTile={selectTile}/>
-                <PiecesLeftElement player={match.info.playerA} piecesLeft={match.info.piecesLeft.forA} color={'blue'} />
+                <PiecesLeftElement player={match.info.alpha} piecesLeft={match.info.piecesLeft.forAlpha} color={'blue'} />
             </Grid>
             <Grid container spacing={2}>
                 <DicesElement dices={dices} onPlayRoll={rollPlayDices} onDuelRoll={rollDuelDices}/>

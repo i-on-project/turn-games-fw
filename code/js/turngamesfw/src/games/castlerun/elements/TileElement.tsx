@@ -3,9 +3,10 @@ import { useEffect, useState } from 'react';
 import { Paper, Box } from '@mui/material';
 import { ArrowForward, ArrowDownward } from '@mui/icons-material';
 import { Tile } from '../domain/Tile';
+import { PieceElement } from './PieceElement';
 
-export function TileElement(props: { tile: Tile; onClick?: () => void }) {
-    const { tile, onClick } = props;
+export function TileElement(props: { tile: Tile; onClick?: () => void; pieceColor: null | 'red' | 'blue' }) {
+    const { tile, onClick, pieceColor } = props;
 
     const [highlightStyle, setHighlightStyle] = useState<React.CSSProperties>({
         position: 'absolute',
@@ -23,8 +24,8 @@ export function TileElement(props: { tile: Tile; onClick?: () => void }) {
     }, [tile.highlight, tile.type]);
 
     const tileStyle: React.CSSProperties = {
-        width: 35,
-        height: 35,
+        width: 30,
+        height: 30,
         border: tile.highlight === null ? '1px solid black' : '1px solid ' + tile.highlight,
         display: 'flex',
         justifyContent: 'center',
@@ -38,6 +39,7 @@ export function TileElement(props: { tile: Tile; onClick?: () => void }) {
         <Paper style={tileStyle} onClick={tile.highlight ? onClick : null}>
             <Box style={highlightStyle} />
             {renderArrow(tile)}
+            {tile.piece !== null && <PieceElement piece={tile.piece} color={pieceColor}/>}
         </Paper>
     );
 }
@@ -55,7 +57,7 @@ const renderArrow = (tile: Tile) => {
         transform: tile.type === Tile.Type.EntranceB ? 'rotate(180deg)' : 'none',
     };
 
-    if (tile.type === Tile.Type.Exit && tile.piece === null) {
+    if (tile.type === Tile.Type.Exit && tile.piece == null) {
         return (
             <Box style={arrowContainerStyle}>
                 <ArrowForward style={arrowStyle} />

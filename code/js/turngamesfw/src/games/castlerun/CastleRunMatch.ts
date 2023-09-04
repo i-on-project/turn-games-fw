@@ -1,6 +1,6 @@
-import { Coords } from "./Coords";
-import { Board } from "./Board";
-import { Piece } from "./Piece";
+import { Board } from "./domain/Board";
+import { Coords } from "./domain/Coords";
+import { Piece } from "./domain/Piece";
 
 export type CastleRunMatch = {
     id: string;
@@ -25,6 +25,12 @@ export type Duel = {
     enemy: Piece;
     duelDices: number[];
     duelNumber: number;
+}
+
+export type Turn = {
+    type: "move" | "duel";
+    move: Move | null;
+    duel: Duel | null;
 }
 
 export const CastleRunLogic = {

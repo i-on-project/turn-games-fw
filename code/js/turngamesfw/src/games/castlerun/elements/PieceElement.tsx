@@ -30,7 +30,7 @@ export function PieceElement(props: PieceElementProps) {
 
     return (
         <Paper elevation={0} style={pieceStyle}>
-            {piece.isKing ? (
+            {piece.king ? (
                 <SvgIcon style={crownStyle}>
                     <path
                         d="M2.5 12.5L5 6H2L4 3H9L11 6H8L10 12.5H9.5L8.5 10H5.5L4.5 12.5H4Z"

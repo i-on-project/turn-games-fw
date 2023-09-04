@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Grid, Container } from '@mui/material';
 import { TileElement } from './TileElement';
-import { PieceElement } from './PieceElement';
 import { Board } from '../domain/Board';
 import { Tile } from '../domain/Tile';
 
@@ -22,13 +21,11 @@ export function BoardElement(props: { board: Board, onSelectTile: (tile: Tile) =
 
             colTiles.push(
                 <Grid key={index}>
-                    <TileElement tile={tile} onClick={() => onSelectTile(tile)}/>
-                    {tile.piece && (
-                        <PieceElement
-                            piece={tile.piece}
-                            color={tile.piece.owner === board.playerA ? 'red' : 'blue'}
-                        />
-                    )}
+                    <TileElement 
+                        tile={tile} 
+                        onClick={() => onSelectTile(tile)} 
+                        pieceColor={tile.piece ? tile.piece.owner === board.alpha ? 'red' : 'blue' : null}
+                    />
                 </Grid>
             );
         }
