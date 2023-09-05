@@ -102,7 +102,7 @@ function reduceMatch(state: BattleshipMatch, action: ActionMatch): Match {
 	}
 }
 
-export function BattleshipBoard(props: { match: Match, playerId: number, onMatchUpdate: (match: Match) => void, setupAction: (action: any) => void, doAction: (action: any) => void }) {
+export function BattleshipBoard(props: { match: Match, playerId: number, onMatchUpdate: (match: Match) => void, doSetup: (action: any) => void, doTurn: (action: any) => void }) {
     const [match, dispatchMatch] = useReducer(reduceMatch, props.match as BattleshipMatch)
     const [fleet, dispatchFleet] = useReducer(reduceFleet, match.info.myBoard.boardShips.ships.length == 0 ? initialStateFleet : updateFleet(match.info.myBoard.boardShips.ships))
 
@@ -157,7 +157,7 @@ export function BattleshipBoard(props: { match: Match, playerId: number, onMatch
             row: row
         })
 
-        props.doAction({
+        props.doTurn({
             col: col, 
 			row: row
         })
@@ -168,7 +168,7 @@ export function BattleshipBoard(props: { match: Match, playerId: number, onMatch
             type: 'setup',
             fleet: setupFleetModel(fleet).ships
         })
-        props.setupAction(
+        props.doSetup(
             setupFleetModel(fleet)
         )
     }

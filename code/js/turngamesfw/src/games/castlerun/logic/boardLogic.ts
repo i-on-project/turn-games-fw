@@ -1,5 +1,7 @@
+import { Duel } from "../CastleRunMatch";
 import { Board } from "../domain/Board";
 import { Coords } from "../domain/Coords";
+import { Piece } from "../domain/Piece";
 import { Tile } from "../domain/Tile";
 
 export class BoardLogic {
@@ -85,4 +87,43 @@ export class BoardLogic {
 
         return playerAPieces.length > 0 && playerBPieces.length > 0;
     }
+
+    static deployPiece(board: Board, playerId: number, to: Coords): Board {
+        const newPiece = new Piece(playerId, to);
+        const tile = this.getTile(board, to);
+        const newTile = new Tile(to, tile.type, newPiece);
+
+        return this.updateTile(board, newTile);
+    }
+
+    static movePiece(board: Board, piece: Piece, to: Coords): Board {
+        let fromTile = this.getTile(board, piece.position);
+        let toTile = this.getTile(board, to);
+
+        let newBoard = this.updateTile(board, new Tile(fromTile.coords, fromTile.type, null));
+        return this.updateTile(newBoard, new Tile(to, toTile.type, piece));
+    }
+
+    static duelPiece(board: Board, duel: Duel): Board {
+        const ally = duel.ally;
+        const enemy = duel.enemy;
+        const allyTile = this.getTile(board, ally.position);
+        const enemyTile = this.getTile(board, enemy.position);
+
+        const allyRoll = duel.duelDices[0];
+        const enemyRoll = duel.duelDices[1];
+
+        const allyWins = allyRoll > enemyRoll;
+
+        let newBoard = this.updateTile(board, new Tile(allyTile.coords, allyTile.type, null));
+        newBoard = this.updateTile(newBoard, new Tile(enemyTile.coords, enemyTile.type, null));
+
+        if (allyWins) {
+            newBoard = this.updateTile(newBoard, new Tile(allyTile.coords, allyTile.type, ally));
+        } else {
+            newBoard = this.updateTile(newBoard, new Tile(enemyTile.coords, enemyTile.type, enemy));
+        }
+
+        return newBoard;
+    }    
 }

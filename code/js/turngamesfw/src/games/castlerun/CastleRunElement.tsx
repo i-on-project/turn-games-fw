@@ -27,7 +27,7 @@ enum State {
     SEND_INFO_TO_SERVER,
 }
 
-export function CastleRunElement(props: { match: CastleRunMatch, playerId: number, onMatchUpdate: (match: Match) => void, doAction: (action: any) => void }) {
+export function CastleRunElement(props: { match: CastleRunMatch, playerId: number, onMatchUpdate: (match: Match) => void, doTurn: (action: any) => void }) {
     const [match, dispatchMatch] = useState(props.match);
     const playerId = props.playerId;
     
@@ -90,17 +90,17 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
                         duelNumber: dices.duel.dice1,
                     };
                     
-                    props.doAction({type: "duel", move: null, duel: duel});
+                    props.doTurn({type: "duel", move: null, duel: duel});
                     return;
                 }
 
                 if(deploy != null) {
-                    props.doAction({type: "move", move: deploy, duel: null});
+                    props.doTurn({type: "move", move: deploy, duel: null});
                     return;
                 }
 
                 if(move != null) {
-                    props.doAction({type: "move", move: move, duel: null});
+                    props.doTurn({type: "move", move: move, duel: null});
                     return;
                 }
                 break;

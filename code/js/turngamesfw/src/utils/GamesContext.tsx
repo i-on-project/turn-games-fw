@@ -8,8 +8,8 @@ type GameProps = {
     match: Match;
     playerId: number;
     onMatchUpdate: (match: Match) => void;
-    setupAction: (action: any) => void;
-    doAction: (action: any) => void;
+    doSetup: (action: any) => void;
+    doTurn: (action: any) => void;
 }
 
 type ContextType = {

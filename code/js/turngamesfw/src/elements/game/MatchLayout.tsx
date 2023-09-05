@@ -49,7 +49,7 @@ export function MatchLayout() {
 		setCurrentMatch(updatedMatch)
 	}
 
-	const setupAction = async (action: any) => {
+	const doSetup = async (action: any) => {
 		const body = new TurnInputModel(matchId, action)
 
 		const resp = await fetchAPI("/api/game/" + gameName + "/setup", "POST", body, false)
@@ -61,7 +61,7 @@ export function MatchLayout() {
 		setWaiting(true)
 	}
 
-	const doAction = async (action: any) => {
+	const doTurn = async (action: any) => {
 		const body = new TurnInputModel(matchId, action)
 
 		const resp = await fetchAPI("/api/game/" + gameName + "/turn", "POST", body, false)
@@ -120,7 +120,7 @@ export function MatchLayout() {
 				currPlayer={currentMatch.currPlayer}
 				matchState={currentMatch.state}
 			/>
-			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} setupAction={setupAction} doAction={doAction}/>
+			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doSetup={doSetup} doTurn={doTurn}/>
 		</Container>
 	);
 }
