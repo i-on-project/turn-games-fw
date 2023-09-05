@@ -21,7 +21,7 @@ function reduceMatch(state: TicTacToeMatch, action: ActionMatch): Match {
 	}
 }
 
-export function TicTacToeBoard(props: { match: Match, playerId: number, onMatchUpdate: (match: Match) => void, doTurn: (action: any) => void }) {
+export function TicTacToeBoard(props: { match: Match, playerId: number, doTurn: (action: any) => void }) {
 	const [match, dispatchMatch] = useReducer(reduceMatch, props.match as TicTacToeMatch)
 
 	const handleClick = (row: number, col: number) => {
@@ -43,10 +43,6 @@ export function TicTacToeBoard(props: { match: Match, playerId: number, onMatchU
 			match: props.match
 		})
 	}, [props.match])
-
-	useEffect(() => {
-		props.onMatchUpdate(match)
-	}, [match]);
 
 	return (
 		<Box sx={{ display: 'flex', flexWrap: 'wrap', width: '310px', margin: '0 auto', marginTop: '40px', border: '5px solid black'}}>

@@ -58,6 +58,8 @@ export function MatchLayout() {
 			return
 		}
 
+		await getUpdatedMatch()
+
 		setWaiting(true)
 	}
 
@@ -69,6 +71,8 @@ export function MatchLayout() {
 			// TODO: Error catching
 			return
 		}
+
+		await getUpdatedMatch()
 
 		setWaiting(true)
 	}
@@ -120,7 +124,7 @@ export function MatchLayout() {
 				currPlayer={currentMatch.currPlayer}
 				matchState={currentMatch.state}
 			/>
-			<GameComponent match={currentMatch} playerId={playerId} onMatchUpdate={handleMatchChange} doSetup={doSetup} doTurn={doTurn}/>
+			<GameComponent match={currentMatch} playerId={playerId} doSetup={doSetup} doTurn={doTurn}/>
 		</Container>
 	);
 }

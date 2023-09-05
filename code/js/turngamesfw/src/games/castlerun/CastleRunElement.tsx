@@ -27,8 +27,8 @@ enum State {
     SEND_INFO_TO_SERVER,
 }
 
-export function CastleRunElement(props: { match: CastleRunMatch, playerId: number, onMatchUpdate: (match: Match) => void, doTurn: (action: any) => void }) {
-    const [match, dispatchMatch] = useState(props.match);
+export function CastleRunElement(props: { match: CastleRunMatch, playerId: number, doTurn: (action: any) => void }) {
+    const [match, setMatch] = useState(props.match);
     const playerId = props.playerId;
     
     const [state, setState] = useState(match.currPlayer == props.playerId? State.ROLL_PLAY_DICES : State.OPPONENTS_TURN);
@@ -53,7 +53,10 @@ export function CastleRunElement(props: { match: CastleRunMatch, playerId: numbe
     const [allyToDuel, setAllyToDuel] = useState<Piece | null>(null);
     const [enemyToDuel, setEnemyToDuel] = useState<Piece | null>(null);
     
-    useEffect(() => { props.onMatchUpdate(match);}, [match]);
+    useEffect(() => {
+		setMatch(props.match)
+	}, [props.match])
+
     useEffect(() => { setBoard(match.info); }, [match.info]);
 
     useEffect(() => {

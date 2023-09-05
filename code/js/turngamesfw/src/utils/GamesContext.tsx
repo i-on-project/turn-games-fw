@@ -5,11 +5,10 @@ import {
 } from 'react'
 
 type GameProps = {
-    match: Match;
-    playerId: number;
-    onMatchUpdate: (match: Match) => void;
-    doSetup: (action: any) => void;
-    doTurn: (action: any) => void;
+    match: Match
+    playerId: number
+    doSetup: (action: any) => void
+    doTurn: (action: any) => void
 }
 
 type ContextType = {
