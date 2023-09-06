@@ -29,7 +29,6 @@ function reduceFleet(state: GameType.Fleet, action: GameType.ActionFleet): GameT
                 (action.ship.orientation == "HORIZONTAL" && action.col + action.ship.size > BOARD_SIZE) || 
                 (action.ship.orientation == "VERTICAL" && action.row + action.ship.size > BOARD_SIZE)) {
                 // TODO: Improve message out of bounds
-                console.log("Out of bounds!")
                 return state
             }
 
@@ -105,8 +104,6 @@ function reduceMatch(state: BattleshipMatch, action: ActionMatch): Match {
 export function BattleshipBoard(props: { match: Match, playerId: number, doSetup: (action: any) => void, doTurn: (action: any) => void }) {
     const [match, dispatchMatch] = useReducer(reduceMatch, props.match as BattleshipMatch)
     const [fleet, dispatchFleet] = useReducer(reduceFleet, match.info.myBoard.boardShips.ships.length == 0 ? initialStateFleet : updateFleet(match.info.myBoard.boardShips.ships))
-
-    console.log(match)
 
     const status = match.state
     const waiting = (match.state == MatchState.SETUP && match.info.myBoard.boardShips.ships.length != 0) || (match.state != MatchState.SETUP && match.currPlayer != props.playerId)

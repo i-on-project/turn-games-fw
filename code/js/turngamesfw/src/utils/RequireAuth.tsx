@@ -7,8 +7,6 @@ export function RequireAuth({ children }: { children: React.ReactNode }): React.
 
     const location = useLocation()
 
-    console.log(cookies)
-
     if (cookies.login != undefined && cookies.login.loggedin == true) {
         return <>{children}</>
     } else {

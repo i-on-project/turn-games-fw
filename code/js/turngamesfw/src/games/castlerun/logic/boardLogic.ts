@@ -1,4 +1,4 @@
-import { Duel } from "../CastleRunMatch";
+import { Duel, Move } from "../CastleRunMatch";
 import { Board } from "../domain/Board";
 import { Coords } from "../domain/Coords";
 import { Piece } from "../domain/Piece";
@@ -64,13 +64,44 @@ export class BoardLogic {
 
         const updatedTiles = b.tiles.map(tile => {
             if (tile.piece != null && tile.piece.owner !== player && tile.type !== Tile.Type.Exit) {
-                console.log(tile.piece);
                 tile.highlight = color;
             }
             return tile;
         });
 
         return new Board(b.alpha, b.beta, b.numRows, b.numCols, b.numPieces, b.piecesLeft, updatedTiles);
+    }
+
+    static highlightPossibleMoves(board: Board, player: number, possibleMoves: Move[]): Board {
+        let b = this.clearHighlights(board);
+
+        possibleMoves.forEach(move => {
+            if (move.piece === null) {
+                b.highlightTile(move.to, "yellow");
+            }
+        });
+
+        b.tiles.forEach(tile => {
+            if (tile.piece?.owner === player && tile.type !== Tile.Type.Exit) {
+                tile.highlight = "green";
+            }
+        });
+
+        return b;
+    }
+
+    static highlightPossibleMovesForPiece(board: Board, player: number, piece: Piece, possibleMoves: Move[]): Board {
+        let b = this.clearHighlights(board);
+
+        possibleMoves.forEach(move => {
+            if (move.piece === piece) {
+                b.highlightTile(move.to, "yellow");
+            }
+        });
+
+        b.highlightTile(piece.position, "green");
+
+        return b;
     }
 
     static clearHighlights(board: Board): Board {

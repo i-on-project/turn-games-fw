@@ -21,8 +21,7 @@ export function GameInfo() {
 
     const navigate = useNavigate()
 
-    const goToLeaderboard = () => navigate("/game/" + game.name + "/leaderboard")
-    const findMatch = () => { console.log("find match requested for game " + game.name) }
+    const findMatch = () => navigate("/game/" + game.name + "/findMatch")
     
     return ( 
         <Container>
@@ -32,7 +31,6 @@ export function GameInfo() {
                     <Typography variant="subtitle2" color="textSecondary">Number of players: {game.numPlayers}</Typography>
                 </Box>        
                 <Box>
-                    <StyledButton variant="contained" color="primary" onClick={goToLeaderboard}>Go to Leaderboard</StyledButton>
                     <StyledButton variant="contained" color="primary" onClick={findMatch}>Start a Match</StyledButton>
                 </Box>
             </Box>

@@ -1,8 +1,8 @@
 export class Dices {
-    play: DicePair = new DicePair();
-    duel: DicePair = new DicePair();
+    play: DicePair = new DicePair(null, null, true);
+    duel: DicePair = new DicePair(null, null, false);
 
-    constructor(play: DicePair = new DicePair(), duel: DicePair = new DicePair()) {
+    constructor(play: DicePair = new DicePair(null, null, true), duel: DicePair = new DicePair(null, null, false)) {
         this.play = play;
         this.duel = duel;
     }
@@ -13,7 +13,7 @@ export class DicePair {
     dice2: number;
     canRoll: boolean;
 
-    constructor(dice1: number = null, dice2: number = null, canRoll: boolean = true) {
+    constructor(dice1: number, dice2: number, canRoll: boolean) {
         this.dice1 = dice1;
         this.dice2 = dice2;
         this.canRoll = canRoll;

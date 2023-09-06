@@ -1,5 +1,6 @@
 import { PiecesLeft } from "./PiecesLeft";
 import { Tile } from "./Tile";
+import { Coords, equals } from "./Coords";
 
 export class Board {
     alpha: number;
@@ -18,5 +19,10 @@ export class Board {
         this.numPieces = numPieces;
         this.piecesLeft = piecesLeft;
         this.tiles = tiles;
+    }
+
+    highlightTile(tileCoords: Coords, color: string): void {
+        const tile = this.tiles.find(tile => equals(tile.coords, tileCoords));
+        if (tile) { tile.highlight = color; }
     }
 }
