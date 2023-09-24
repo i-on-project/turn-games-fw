@@ -30,6 +30,15 @@ export function Login() {
 		const username = data.get('username').toString()
 		const password = data.get('password').toString()
 
+		if (username == "") {
+            setError("Username missing")
+            return
+        }
+        if (password == "") {
+            setError("Password missing")
+            return
+        }
+
 		const resp = await fetchAPI("/api/user/login", "POST", new LoginInputModel(username, password), false)
 		switch (resp.status) {
             case 200: {
