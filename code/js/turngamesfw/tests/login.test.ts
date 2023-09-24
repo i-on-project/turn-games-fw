@@ -1,32 +1,56 @@
 import { test, expect } from '@playwright/test';
+import { testURL, fillForm, sleep } from './utils';
 
-test('testLogin', async ({ page }) => {
-  await page.goto('http://localhost:8000/');
-  await page.getByRole('button', { name: 'Login' }).click();
-  await page.getByLabel('Username *').click();
-  await page.getByLabel('Username *').fill('User1');
-  await page.getByLabel('Password *').click();
-  await page.getByLabel('Password *').fill('password');
-  await page.getByLabel('Password *').press('Enter');
-  await page.getByText('Invalid username or password').click();
-  await expect(page.getByText('Invalid username or password')).toBeVisible();
+test('Valid Login', async ({ page }) => {
+	await page.goto(testURL + '/login');
+
+	let testUser = "TestUser";
+	let testPassword = "password";
+
+	await fillForm(page, testUser, testPassword);
+
+	if(await page.isVisible('text=Username taken')) {
+		await page.goto(testURL + '/register');
+		await fillForm(page, testUser, testPassword);
+	}
+
+	await sleep(1000);
+	await expect(page.url()).toBe(testURL + '/');
 });
 
-test('testRegisterThenLogin', async ({ page }) => {
-    await page.goto('http://localhost:8000/');
+test('Invalid Credentials', async ({ page }) => {
+	await page.goto(testURL + '/login');
+
+    let testUser = "TestUser";
+    let testPassword = "wrong password";
+
+    await fillForm(page, testUser, testPassword);
+
+	await sleep(1000);
+
+    await expect(await page.getByText('Invalid username or password').isVisible()).toBe(true);
+});
     
-    await page.getByRole('button', { name: 'Register' }).click();
-    await page.getByLabel('Username *').click();
-    await page.getByLabel('Username *').fill('User1');
-    await page.getByLabel('Password *').click();
-    await page.getByLabel('Password *').fill('password');
-    await page.getByRole('button', { name: 'Submit' }).click();
-    await expect(page.getByRole('heading', { name: 'Registered with success' })).toBeVisible();
-    
-    await page.getByText('Login here').click();
-    await page.getByLabel('Username *').fill('User1');
-    await page.getByLabel('Password *').click();
-    await page.getByLabel('Password *').fill('password');
-    await page.getByLabel('Password *').press('Enter');
-    await expect(page.getByRole('button', { name: 'User1' })).toBeVisible();
-  });
+test('Empty Username', async ({ page }) => {
+	await page.goto(testURL + '/login');
+
+    await fillForm(page, "", "password");
+
+    await expect(await page.getByText('Username missing').isVisible()).toBe(true);
+});
+
+test('Empty Password', async ({ page }) => {
+	await page.goto(testURL + '/login');
+
+	await fillForm(page, "TestUser", "");
+	
+	await expect(await page.getByText('Password missing').isVisible()).toBe(true);
+});
+
+test('Go to Register', async ({ page }) => {
+	await page.goto(testURL + '/login');
+
+	await page.getByText('Don\'t have an account? Sign Up').click();
+
+	await expect(page.url()).toBe(testURL + '/register');
+});

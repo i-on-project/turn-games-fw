@@ -1,9 +1,8 @@
 import { test, expect } from '@playwright/test';
-import { fillForm, sleep } from './utils';
+import { testURL, fillForm, sleep } from './utils';
 
 test('Valid Register', async ({ page }) => {
-    await page.goto('http://localhost:8000/');
-    await page.getByRole('button', { name: 'Register' }).click();
+    await page.goto(testURL + '/register');
   
     let testUser = "TestUser" + Math.floor(Math.random() * 1000000);
     let testPassword = "password";
@@ -14,8 +13,7 @@ test('Valid Register', async ({ page }) => {
 });
 
 test('Username Already Taken', async ({ page }) => {
-    await page.goto('http://localhost:8000/');
-    await page.getByRole('button', { name: 'Register' }).click();
+    await page.goto(testURL + '/register');
 
     let testUser = "TestUser";
     let testPassword = "password";
@@ -25,7 +23,8 @@ test('Username Already Taken', async ({ page }) => {
     // If the testUser was not registered, try to register it again
     if (await page.isVisible('text=Registered with success')) {
         await fillForm(page, testUser, testPassword);
-        await page.getByRole('button', { name: 'Register' }).click();
+        await page.goto(testURL);
+        await page.goto(testURL + '/register');
     }
     
     await sleep(1000);
@@ -33,8 +32,7 @@ test('Username Already Taken', async ({ page }) => {
 });
     
 test('Empty Username', async ({ page }) => {
-    await page.goto('http://localhost:8000/');
-    await page.getByRole('button', { name: 'Register' }).click();
+    await page.goto(testURL + '/register');
 
     await fillForm(page, "", "password");
 
@@ -42,10 +40,18 @@ test('Empty Username', async ({ page }) => {
 });
 
 test('Empty Password', async ({ page }) => {
-    await page.goto('http://localhost:8000/');
+    await page.goto(testURL + '/register');
     await page.getByRole('button', { name: 'Register' }).click();
 
     await fillForm(page, "TestUser", "");
     
     await expect(await page.getByText('Password missing').isVisible()).toBe(true);
+});
+
+test('Go to Login', async ({ page }) => {
+    await page.goto(testURL + '/register');
+    
+    await page.getByText('Already have an account? Sign In').click();
+	
+    await expect(page.url()).toBe(testURL + '/login');
 });

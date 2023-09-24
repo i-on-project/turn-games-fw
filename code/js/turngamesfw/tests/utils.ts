@@ -1,3 +1,5 @@
+export const testURL = 'http://localhost:8000';
+
 export async function fillForm(page, username, password) {
     await page.getByLabel('Username *').click();
     await page.getByLabel('Username *').fill(username);
