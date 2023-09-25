@@ -1,5 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { testURL, fillForm, sleep } from './utils';
+import { testURL, testUser, fillForm, sleep } from './utils';
+
+
 
 test('Valid Register', async ({ page }) => {
     await page.goto(testURL + '/register');
@@ -15,26 +17,23 @@ test('Valid Register', async ({ page }) => {
 test('Username Already Taken', async ({ page }) => {
     await page.goto(testURL + '/register');
 
-    let testUser = "TestUser";
-    let testPassword = "password";
-
-    await fillForm(page, testUser, testPassword);
+    await fillForm(page, testUser.username, testUser.password);
 
     // If the testUser was not registered, try to register it again
     if (await page.isVisible('text=Registered with success')) {
-        await fillForm(page, testUser, testPassword);
+        await fillForm(page, testUser.username, testUser.password);
         await page.goto(testURL);
         await page.goto(testURL + '/register');
     }
     
-    await sleep(1000);
+    await sleep(500);
     await expect(await page.getByText('Username taken').isVisible()).toBe(true);
 });
     
 test('Empty Username', async ({ page }) => {
     await page.goto(testURL + '/register');
 
-    await fillForm(page, "", "password");
+    await fillForm(page, "", testUser.password);
 
     await expect(await page.getByText('Username missing').isVisible()).toBe(true);
 });
@@ -43,7 +42,7 @@ test('Empty Password', async ({ page }) => {
     await page.goto(testURL + '/register');
     await page.getByRole('button', { name: 'Register' }).click();
 
-    await fillForm(page, "TestUser", "");
+    await fillForm(page, testUser.username, "");
     
     await expect(await page.getByText('Password missing').isVisible()).toBe(true);
 });
